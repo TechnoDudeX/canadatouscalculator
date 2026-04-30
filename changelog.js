@@ -9,6 +9,15 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.4',
+    date: '2026-04-30',
+    title: 'Fix hl-cobalt highlight making "questions" text invisible on light background',
+    items: [
+      'hl-cobalt was forcing color: #FFF6E5 (cream) — on the cream/light wizard section background, text in the transparent 60% of the gradient was invisible',
+      'Changed hl-cobalt to color: inherit so it picks up the parent text-night color, readable on both the transparent and cobalt-blue areas'
+    ]
+  },
+  {
     version: '4.1.3',
     date: '2026-04-30',
     title: 'Move full disclaimer (estimates, FX rate, AI privacy note) from verdict to footer',
