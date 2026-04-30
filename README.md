@@ -30,7 +30,7 @@ A single-page calculator that compares a current Canadian compensation package a
 
 ## AI explanation feature (optional)
 
-The "Generate explanation" button in the verdict section calls a Netlify Function that wraps the Anthropic API to produce a 3-4 paragraph plain-English narrative of the user's specific scenario. The numerical calculator is unaffected — it still runs entirely in the browser. The AI feature is opt-in per click.
+The "Generate explanation" button in the verdict section calls a Netlify Function that wraps the Anthropic API to produce a tight 3-5 sentence plain-English read on the user's specific scenario. The numerical calculator is unaffected — it still runs entirely in the browser. The AI feature is opt-in per click.
 
 **To enable on your Netlify deployment**, set the env var:
 
@@ -61,7 +61,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.1.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.2.
 
 ## Tests
 

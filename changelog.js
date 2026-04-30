@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.2',
+    date: '2026-04-30',
+    title: 'AI explanation tightened — 3-5 sentences, not 3-4 paragraphs',
+    items: [
+      'System prompt rewritten to enforce a hard 5-sentence cap (3-4 typical). Each sentence has a job: verdict + magnitude / biggest line item / sanity-check / optional negotiation lever',
+      'max_tokens dropped 800 → 300 to match — narrative responses now run ~2-4 seconds and use ~1/3 the output tokens',
+      'ExplainPanel description updated to match the new shape ("3-5 sentence read" instead of "3-4 paragraph narrative")'
+    ]
+  },
+  {
     version: '4.1.1',
     date: '2026-04-30',
     title: 'Switch AI default to Sonnet 4.6',
