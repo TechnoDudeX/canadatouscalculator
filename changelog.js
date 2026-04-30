@@ -9,6 +9,18 @@
 
 const CHANGELOG = [
   {
+    version: '4.2.0',
+    date: '2026-04-30',
+    title: 'AI auto-fires on wizard completion + chart annotation + UI cleanup',
+    items: [
+      'AI explanation auto-triggers when user clicks "See the verdict →" on step 5 — no manual button click needed',
+      'Netlify function now returns a chartLine field — a single Claude-generated sentence about the chart trajectory, shown below the breakeven chart',
+      'Chart legend updated with 🇨🇦 and 🇺🇸 flag emojis on the Stay in Canada / Move to US lines',
+      'Removed "Section 01/02/03" sticker labels and descriptive subtext paragraphs from all three sections — headings carry the context',
+      'Marquee banner items updated with flag emojis and sharper copy'
+    ]
+  },
+  {
     version: '4.1.5',
     date: '2026-04-30',
     title: 'Replace partial-gradient highlights with solid full-word highlights',

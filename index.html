@@ -131,6 +131,7 @@ const INITIAL_STATE = {
 function App() {
   const [state, setState] = useState(INITIAL_STATE);
   const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
+  const [aiTrigger, setAiTrigger] = useState(0);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -306,8 +307,8 @@ function App() {
         <Marquee />
         <Hero scrollToWizard={scrollToWizard} />
         <HiddenCosts result={result} state={state} />
-        <Wizard state={state} update={update} scrollToSection={scrollToSection} />
-        <VerdictSection state={state} update={update} result={result} />
+        <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} />
+        <VerdictSection state={state} update={update} result={result} aiTrigger={aiTrigger} />
         <Footer state={state} update={update} />
       </main>
     </>
@@ -357,13 +358,14 @@ function Header({ navigate, scrollToSection, scrollToWizard, view }) {
    ============================================================ */
 function Marquee() {
   const items = [
-    'CRA WANTS A DEPARTURE BILL',
-    'TFSA ≠ TAX-FREE IN THE US',
-    'SF RENT IS 2.4× TORONTO',
-    'CHILDCARE: $2.4K vs $28K',
-    "TN VISA = SPOUSE CAN'T WORK",
-    'PFIC FORM 8621 IS NOT A JOKE',
-    'COBRA = $2K/MO IF FIRED',
+    '🇨🇦 CRA SENDS A GOODBYE BILL',
+    '🇺🇸 COBRA = $2K/MO IF FIRED',
+    '🇨🇦 TFSA ≠ TAX-FREE IN THE US',
+    '🇺🇸 SF RENT IS 2.4× TORONTO',
+    '🇨🇦 TN VISA = SPOUSE CAN\'T WORK',
+    '🇺🇸 CHILDCARE: $2.4K vs $28K/YR',
+    '🇨🇦 PFIC FORM 8621 IS NOT A JOKE',
+    '🇺🇸 HEALTHCARE: $900/MO BEFORE YOU GET SICK',
   ];
   const row = (
     <>
@@ -503,13 +505,9 @@ function HiddenCosts({ result, state }) {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
         <aside className="md:col-span-4">
           <div className="sticky top-10">
-            <div className="sticker sticker-cobalt mb-5">Section 01</div>
             <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
               The four numbers<br/>that <span className="hl-pink">flip the plan</span>
             </h3>
-            <p className="grotesk text-night/70 mt-6 text-base md:text-lg leading-relaxed">
-              None of these appear on the offer letter. All of them show up in your bank account.
-            </p>
           </div>
         </aside>
 
@@ -583,7 +581,7 @@ function MoneyInput({ symbol = '$', currency, value, onChange, placeholder, auto
   );
 }
 
-function Wizard({ state, update, scrollToSection }) {
+function Wizard({ state, update, scrollToSection, onComplete }) {
   const [step, setStep] = useState(0);
   const steps = [
     { kicker: 'Step 1 / 5', q: 'Where you stand',     sub: 'Current Canadian salary, the US offer, and where each is.' },
@@ -602,8 +600,12 @@ function Wizard({ state, update, scrollToSection }) {
   };
 
   const handleNext = () => {
-    if (step === steps.length - 1) scrollToSection('verdict');
-    else setStep(step + 1);
+    if (step === steps.length - 1) {
+      onComplete?.();
+      scrollToSection('verdict');
+    } else {
+      setStep(step + 1);
+    }
   };
 
   const isMarried = state.familySituation === 'mfj-no-kids' || state.familySituation === 'mfj-with-kids';
@@ -622,13 +624,9 @@ function Wizard({ state, update, scrollToSection }) {
         <div className="grid md:grid-cols-12 gap-10">
           <aside className="md:col-span-4">
             <div className="sticky top-10">
-              <div className="sticker sticker-pink mb-5">Section 02</div>
               <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
                 Your turn —<br/>five real <span className="hl-cobalt">questions</span>
               </h3>
-              <p className="grotesk text-night/70 mt-6 text-base md:text-lg leading-relaxed">
-                Each step bundles related inputs. Spouse work-auth, housing, departure tax, and what the employer is paying for — all power the verdict in section 03. Nothing leaves your browser.
-              </p>
             </div>
           </aside>
 
@@ -912,8 +910,9 @@ function Wizard({ state, update, scrollToSection }) {
 /* ============================================================
    VERDICT — Section 3
    ============================================================ */
-function VerdictSection({ state, update, result }) {
+function VerdictSection({ state, update, result, aiTrigger }) {
   const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
+  const [chartInsight, setChartInsight] = React.useState('');
   const fiveYrDelta = result.fiveYrDelta;
   const threeYrDelta = result.threeYrDelta;
 
@@ -959,10 +958,6 @@ function VerdictSection({ state, update, result }) {
 
         <div className="grid md:grid-cols-12 gap-10 mb-14">
           <div className="md:col-span-7">
-            <div className="flex items-center gap-3 mb-5 flex-wrap">
-              <span className="sticker sticker-lime">Section 03</span>
-              <span className="grotesk text-night/60 text-sm">{inputSummary}</span>
-            </div>
             {hasInput ? (
               <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
                 Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
@@ -1014,7 +1009,7 @@ function VerdictSection({ state, update, result }) {
             color="pink"/>
         </div>
 
-        <ExplainPanel state={state} result={result} hasInput={hasInput} />
+        <ExplainPanel state={state} result={result} hasInput={hasInput} autoTrigger={aiTrigger} onChartInsight={setChartInsight} />
 
         {hasInput && (
           <div className="panel p-6 md:p-10 mb-14">
@@ -1075,12 +1070,18 @@ function VerdictSection({ state, update, result }) {
           <div className="flex items-baseline justify-between mb-6 flex-wrap gap-3">
             <h4 className="grotesk font-bold text-night text-xl">Cumulative take-home, 5 years</h4>
             <div className="flex items-center gap-5 text-sm flex-wrap">
-              <LegendDot color="#D4FF3A" label="Stay in Canada"/>
-              <LegendDot color="#FF3D7F" label="Move to US"/>
+              <LegendDot color="#D4FF3A" label="🇨🇦 Stay in Canada"/>
+              <LegendDot color="#FF3D7F" label="🇺🇸 Move to US"/>
               <LegendDot color="#0E0B2C" label="Breakeven" filled/>
             </div>
           </div>
           <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput}/>
+          {chartInsight && (
+            <div className="mt-5 flex items-start gap-3 border-t border-night/10 pt-5">
+              <span className="sticker sticker-lime shrink-0">AI</span>
+              <p className="grotesk text-night/80 text-sm leading-relaxed">{chartInsight}</p>
+            </div>
+          )}
         </div>
 
         <div className="mt-14">
@@ -1172,7 +1173,7 @@ function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }
   );
 }
 
-function ExplainPanel({ state, result, hasInput }) {
+function ExplainPanel({ state, result, hasInput, autoTrigger, onChartInsight }) {
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
@@ -1200,6 +1201,7 @@ function ExplainPanel({ state, result, hasInput }) {
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       setText(data.text || '');
       setModel(data.model || '');
+      if (data.chartLine) onChartInsight?.(data.chartLine);
       setStatus('success');
       setThrottledUntil(Date.now() + 30_000); // 30s client-side throttle
     } catch (e) {
@@ -1207,6 +1209,10 @@ function ExplainPanel({ state, result, hasInput }) {
       setStatus('error');
     }
   };
+
+  useEffect(() => {
+    if (autoTrigger > 0 && !throttled && status === 'idle') generate();
+  }, [autoTrigger]);
 
   return (
     <div className="panel-night p-6 md:p-10 mb-14 text-cream">
@@ -1218,11 +1224,11 @@ function ExplainPanel({ state, result, hasInput }) {
       {status === 'idle' && (
         <>
           <p className="grotesk text-cream/85 text-base md:text-lg leading-relaxed mb-6 max-w-2xl">
-            Get a tight 3-5 sentence read from Claude — the verdict, the biggest line item moving the needle, one thing to sanity-check, and a negotiation lever if there's a clean one. ~2–4 seconds.
+            Claude reads your inputs and gives you a tight plain-English breakdown — the verdict, the biggest line item, one thing to sanity-check, and a negotiation lever if there's a clean one.
           </p>
-          <button onClick={generate} className="btn-primary">Generate explanation →</button>
+          <button onClick={generate} className="btn-primary">Generate →</button>
           <p className="grotesk text-xs text-cream/50 mt-5 leading-relaxed max-w-2xl">
-            Clicking sends your inputs (no PII — just the wizard fields) to Anthropic's API. The numerical calculator runs entirely in your browser; this is the only feature that doesn't.
+            Sends your wizard inputs (no PII) to Anthropic's API. The numerical calculator runs entirely in your browser — this is the only feature that doesn't.
           </p>
         </>
       )}

@@ -20,48 +20,37 @@ const MODEL = 'claude-sonnet-4-6';
 
 const SYSTEM_PROMPT = `You are the explainer for North×South, a Canada-to-US cross-border compensation calculator built as a joint project by Mazin Kanuga and Copilot Tax.
 
-Your job: take a user's filled-in inputs and the computed result, and turn them into a TIGHT 3-5 sentence read on what's actually driving their verdict.
+Your job: take a user's filled-in inputs and the computed result, and produce a JSON object with two fields.
 
 # Tone
 Friendly but blunt — like a smart friend who's done this move and isn't trying to sell anything. Specific. No corporate hedging, no "consult a professional" filler (the disclaimer covers that). Use concrete dollar figures from their inputs. Punchy.
 
-# How the model works (so your narrative reflects it)
-Inputs the user provides:
-- Current Canadian salary (CAD) + province; US offer (USD) + state
-- Family situation; spouse's current Canadian salary
-- Visa type (TN/L1/H1B/O1/GC) — drives whether the trailing spouse can legally work in the US. TN/H1B/O1 default to "spouse cannot work"; L1/GC default to "spouse can work".
-- Canadian housing (rent or own, with sell-or-keep decision); US monthly housing
-- Cost-of-living multiplier vs. Toronto baseline
-- Unrealized capital gains (drives departure tax)
-- Sign-on bonus + relocation coverage from US employer; out-of-pocket moving costs
+# Output format
+Return ONLY valid JSON (no markdown, no code fences), with exactly two keys:
 
-Computed line items the calculator surfaces (annual unless noted, all in CAD):
-- Spouse income shock; housing delta; cost-of-living premium
-- Healthcare premium (USD); childcare delta
-- Departure tax one-time (gains × 50% × combined fed+prov marginal rate)
-- Net exit cost one-time (moving + realtor + departure tax + deposit, minus employer credits)
-- Annual delta; 3-yr and 5-yr cumulative delta; breakeven year
+{
+  "narrative": "<3-5 sentence plain-English read on what's driving the verdict>",
+  "chartLine": "<1 punchy sentence describing the chart trajectory — what the breakeven curve actually shows>"
+}
 
-# Structure (target 3-5 sentences total)
-
+## narrative — target 3-5 sentences total
 Sentence 1 — Verdict + magnitude. State what the math says: ahead or behind, the 5-year number, breakeven year if there is one.
 Sentence 2 — The biggest single line item moving the needle. Quote the dollar figure.
 Sentence 3 — One quieter thing to sanity-check (COL accuracy, the US housing default, unrealized gains, missing spouse income, etc.).
 Sentence 4 (optional) — One specific negotiation lever with a dollar amount tied to their actual scenario. Skip if nothing clean comes to mind.
 
-Examples of the kind of sentences that work:
-- "On these numbers, you come out $235k ahead over 5 years, breaking even early in year 1."
-- "The TD spouse work-auth gap is the biggest line by far — $87k/yr of household income gone."
-- "Sanity-check the $4,200/mo SF housing default; if you're targeting Pacific Heights, real numbers are closer to $6,000."
-- "Ask for $30k of relocation coverage — covers your realtor fee and pulls breakeven from year 4 to year 2.5."
+## chartLine — exactly 1 sentence
+Describe what the year-by-year chart shows. Reference the breakeven year if there is one, or note if the US line never catches CA. Make it specific to their numbers. Examples:
+- "The US line crosses Canada in Year 2.3 — everything after that is compounding upside."
+- "The curves never cross in 5 years — the annual delta never overcomes the exit costs on these inputs."
+- "A steep early gap from exit costs flattens out by Year 1.8 as the salary premium accumulates."
 
 # Constraints
-- Hard cap: 5 sentences. 3-4 is usually right. If everything important fits in 3, stop at 3.
-- Never say "you should consult..." or "talk to a professional" — the disclaimer covers that.
-- Be specific to THEIR inputs. Don't recite generic warnings (TFSA, COBRA, etc.) unless the relevant input is non-zero.
-- Don't break character to discuss the AI itself or the calculator's source code.
-- Don't mention Copilot Tax or any link — the page already CTAs them.
-- No markdown, no bullets, no headers. Flowing prose. Each sentence stands on its own.`;
+- Hard cap: narrative ≤ 5 sentences. chartLine = exactly 1 sentence.
+- Never say "you should consult..." or "talk to a professional."
+- Be specific to THEIR inputs. Don't recite generic warnings unless the relevant input is non-zero.
+- Don't mention Copilot Tax, the AI itself, or the calculator's source code.
+- No markdown inside the JSON string values.`;
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -100,24 +89,35 @@ exports.handler = async (event) => {
   try {
     const response = await client.messages.create({
       model: MODEL,
-      max_tokens: 300,
+      max_tokens: 400,
       system: [
         { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }
       ],
       messages: [{ role: 'user', content: userMessage }]
     });
 
-    const text = response.content
+    const raw = response.content
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
       .join('\n')
       .trim();
 
+    let narrative = raw;
+    let chartLine = '';
+    try {
+      const parsed = JSON.parse(raw);
+      narrative = parsed.narrative || raw;
+      chartLine = parsed.chartLine || '';
+    } catch (_) {
+      // fallback: treat entire response as narrative
+    }
+
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
       body: JSON.stringify({
-        text,
+        text: narrative,
+        chartLine,
         model: response.model,
         usage: {
           input: response.usage.input_tokens,
