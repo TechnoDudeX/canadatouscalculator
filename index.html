@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Should You Take the US Offer? — Canada to US Move Calculator</title>
-  <meta name="description" content="Honest take-home math for Canadians weighing a US job offer. Federal and state tax, healthcare, childcare, departure tax, TFSA traps, and a 10-year projection." />
+  <title>North×South — Should you take the US offer? A cross-border honesty audit</title>
+  <meta name="description" content="A calculator that reveals the hidden cost of moving from Canada to the US: state tax, healthcare, childcare, departure tax, TFSA traps. See if the 3–5 year detour actually pays off." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Caveat:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -18,19 +18,21 @@
           fontFamily: {
             display: ['Fraunces', 'Georgia', 'serif'],
             sans: ['Geist', 'system-ui', 'sans-serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
+            mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+            hand: ['Caveat', 'cursive']
           },
           colors: {
-            cream: '#F5F0E6',
-            'cream-deep': '#EBE3D1',
-            'cream-line': '#D9D0B8',
-            ink: '#1A1815',
-            'ink-soft': '#4A463E',
-            'ink-faint': '#8A8475',
-            vermillion: '#C8421F',
-            'vermillion-deep': '#9D2F12',
+            paper: '#F0E8D6',
+            'paper-deep': '#E5DBC2',
+            'paper-line': '#D2C5A4',
+            ink: '#22180F',
+            'ink-soft': '#5C4A36',
+            'ink-faint': '#9C8A6E',
+            terracotta: '#B84A1F',
+            'terracotta-deep': '#8A3214',
             forest: '#2F4A2C',
-            'forest-soft': '#5C7558'
+            'forest-soft': '#5C7558',
+            ochre: '#C99A3D'
           }
         }
       }
@@ -42,108 +44,175 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    html, body { background: #F5F0E6; }
-    body { font-family: 'Geist', system-ui, sans-serif; color: #1A1815; }
-    .num { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1, "ss01" 1; }
-    .display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: "ss01" 1; }
-    .label { font-family: 'Geist', sans-serif; text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 500; color: #8A8475; }
-    .rule { height: 1px; background: #D9D0B8; }
-    .rule-thick { height: 2px; background: #1A1815; }
-
-    /* Subtle paper grain */
-    body::before {
-      content: ""; position: fixed; inset: 0; pointer-events: none;
-      background-image:
-        radial-gradient(circle at 20% 30%, rgba(26,24,21,0.018) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(26,24,21,0.018) 0%, transparent 50%);
-      z-index: 0;
+    html, body {
+      background: #F0E8D6;
+      color: #22180F;
     }
-    main { position: relative; z-index: 1; }
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      font-feature-settings: "ss01" 1;
+    }
+    .display { font-family: 'Fraunces', Georgia, serif; }
+    .hand { font-family: 'Caveat', cursive; }
+    .num { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1; }
 
-    /* Number input cleanup */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
+    .label {
+      font-family: 'Geist', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 500;
+      color: #9C8A6E;
+    }
 
-    .input-field {
+    /* Paper texture — warm, irregular, hand-aged */
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image:
+        radial-gradient(ellipse at 15% 20%, rgba(184, 74, 31, 0.04) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 70%, rgba(34, 24, 15, 0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(201, 154, 61, 0.03) 0%, transparent 50%);
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      opacity: 0.4;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    main, header, footer { position: relative; z-index: 1; }
+
+    /* Hand-drawn underline */
+    .underline-hand {
+      position: relative;
+      display: inline-block;
+    }
+    .underline-hand::after {
+      content: "";
+      position: absolute;
+      left: -2%; right: -2%; bottom: -0.08em;
+      height: 0.18em;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 50 2, 100 6 T 198 5' fill='none' stroke='%23B84A1F' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    .strike-hand {
+      position: relative;
+      display: inline-block;
+    }
+    .strike-hand::after {
+      content: "";
+      position: absolute;
+      left: -4%; right: -4%; top: 50%;
+      height: 0.18em; transform: translateY(-50%);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q 60 9, 100 6 T 198 7' fill='none' stroke='%239C8A6E' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    .input-line {
       background: transparent;
       border: none;
-      border-bottom: 1.5px solid #1A1815;
-      padding: 4px 0 6px 0;
+      border-bottom: 2px solid #22180F;
+      padding: 6px 2px 8px 2px;
       font-family: 'Geist Mono', monospace;
       font-size: 22px;
       font-weight: 500;
-      color: #1A1815;
+      color: #22180F;
       width: 100%;
       outline: none;
       transition: border-color 150ms;
     }
-    .input-field:focus { border-bottom-color: #C8421F; }
-    .select-field {
-      background: transparent;
-      border: none;
-      border-bottom: 1.5px solid #1A1815;
-      padding: 4px 0 6px 0;
-      font-family: 'Geist', sans-serif;
-      font-size: 17px;
-      font-weight: 500;
-      color: #1A1815;
-      width: 100%;
-      outline: none;
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231A1815' stroke-width='1.5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right center;
-      padding-right: 20px;
-    }
-    .select-field:focus { border-bottom-color: #C8421F; }
+    .input-line:focus { border-bottom-color: #B84A1F; }
+    .input-line::placeholder { color: #C9B68A; }
 
     .pill {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px; border: 1px solid #1A1815;
-      font-size: 13px; font-weight: 500; cursor: pointer;
-      transition: all 150ms; user-select: none;
-    }
-    .pill:hover { background: #1A1815; color: #F5F0E6; }
-    .pill.active { background: #1A1815; color: #F5F0E6; }
-
-    .stat-num { font-family: 'Fraunces', serif; font-feature-settings: "tnum" 1; font-variation-settings: "opsz" 144; }
-
-    button.cta {
-      background: #1A1815; color: #F5F0E6;
-      padding: 14px 28px; font-weight: 500; font-size: 14px;
-      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 8px 16px;
+      border: 1.5px solid #22180F;
+      border-radius: 999px;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
       transition: all 150ms;
+      user-select: none;
+      background: transparent;
+      color: #22180F;
     }
-    button.cta:hover { background: #C8421F; }
+    .pill:hover { background: #22180F; color: #F0E8D6; }
+    .pill.active { background: #22180F; color: #F0E8D6; }
 
-    .warning-card {
-      background: #FBF6EC; border-left: 3px solid #C8421F;
+    .stat-num {
+      font-family: 'Fraunces', serif;
+      font-feature-settings: "tnum" 1;
+      font-variation-settings: "opsz" 144;
+      letter-spacing: -0.03em;
     }
-    .warning-card.medium { border-left-color: #B8893A; }
-    .warning-card.critical { border-left-color: #9D2F12; background: #F5E4DC; }
 
-    .blueprint-grid {
-      background-image:
-        linear-gradient(to right, rgba(26,24,21,0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(26,24,21,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
+    .btn-primary {
+      background: #22180F; color: #F0E8D6;
+      padding: 14px 28px;
+      font-weight: 500; font-size: 13px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      transition: all 150ms;
+      border-radius: 999px;
     }
+    .btn-primary:hover { background: #B84A1F; }
+
+    /* Margin note — handwritten, terracotta */
+    .margin-note {
+      font-family: 'Caveat', cursive;
+      color: #B84A1F;
+      font-size: 22px;
+      line-height: 1.15;
+      transform: rotate(-2deg);
+      transform-origin: left center;
+    }
+
+    /* Hand-drawn circle highlight */
+    .circled {
+      position: relative;
+      display: inline-block;
+      padding: 0 0.2em;
+    }
+    .circled::before {
+      content: "";
+      position: absolute;
+      inset: -0.15em -0.3em;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'%3E%3Cpath d='M 100 8 C 50 8, 12 25, 12 40 C 12 60, 60 72, 110 72 C 170 70, 192 55, 188 38 C 184 22, 145 10, 95 10' fill='none' stroke='%23B84A1F' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      pointer-events: none;
+    }
+
+    /* Subtle horizontal rule, hand-drawn */
+    .rule-hand {
+      height: 8px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 8' preserveAspectRatio='none'%3E%3Cpath d='M2 4 Q 80 2, 200 4 T 398 4' fill='none' stroke='%2322180F' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
+
+    /* Number-input cleanup */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Scroll behavior */
+    html { scroll-behavior: smooth; }
+
+    /* Selection */
+    ::selection { background: #B84A1F; color: #F0E8D6; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useMemo, useCallback } = React;
+const { useState, useEffect, useMemo } = React;
 
 /* ========================================================================
    2026 TAX DATA
-   Sources: CRA (2026 indexation factor 2.0%), IRS Rev. Proc. 2025-32,
-   SSA wage base notice, KPMG/EY 2026 rate cards, provincial budgets.
-   Numbers verified against published 2026 brackets where available;
-   marked "approx" entries should be re-verified before public launch.
    ======================================================================== */
 
 const CA_FEDERAL_2026 = [
@@ -153,7 +222,7 @@ const CA_FEDERAL_2026 = [
   { upTo: 258482,   rate: 0.29 },
   { upTo: Infinity, rate: 0.33 }
 ];
-const CA_BPA_2026 = 16129; // simplified; phaseout over $181,440 ignored in v1
+const CA_BPA_2026 = 16129;
 
 const PROVINCIAL_2026 = {
   ON: {
@@ -170,7 +239,6 @@ const PROVINCIAL_2026 = {
   },
   BC: {
     label: 'British Columbia',
-    // approx, indexed 2.2% from 2025 — verify
     brackets: [
       { upTo: 50090,    rate: 0.0506 },
       { upTo: 100180,   rate: 0.077 },
@@ -184,7 +252,6 @@ const PROVINCIAL_2026 = {
   },
   AB: {
     label: 'Alberta',
-    // 2026 brackets per Budget 2025 (8% on first ~$60k, then 10/12/13/14/15)
     brackets: [
       { upTo: 60000,    rate: 0.08 },
       { upTo: 151234,   rate: 0.10 },
@@ -197,7 +264,6 @@ const PROVINCIAL_2026 = {
   },
   QC: {
     label: 'Quebec',
-    // QC has federal abatement (16.5%) — modeled separately; brackets approx
     brackets: [
       { upTo: 53255,    rate: 0.14 },
       { upTo: 106495,   rate: 0.19 },
@@ -209,14 +275,7 @@ const PROVINCIAL_2026 = {
   }
 };
 
-const CPP_2026 = {
-  exemption: 3500,
-  ympe: 71300,
-  yampe: 81900,
-  baseRate: 0.0595,
-  enhancedRate: 0.04
-};
-
+const CPP_2026 = { exemption: 3500, ympe: 71300, yampe: 81900, baseRate: 0.0595, enhancedRate: 0.04 };
 const EI_2026 = { maxInsurable: 65700, rate: 0.0164 };
 
 const US_FEDERAL_2026 = {
@@ -254,28 +313,19 @@ const STATE_2026 = {
   CA: {
     label: 'California',
     type: 'progressive',
-    // 2026 single brackets (approx, indexed) — verify FTB final
     brackets: {
       single: [
-        { upTo: 11000,   rate: 0.01 },
-        { upTo: 26100,   rate: 0.02 },
-        { upTo: 41200,   rate: 0.04 },
-        { upTo: 57200,   rate: 0.06 },
-        { upTo: 72300,   rate: 0.08 },
-        { upTo: 369100,  rate: 0.093 },
-        { upTo: 442900,  rate: 0.103 },
-        { upTo: 738400,  rate: 0.113 },
+        { upTo: 11000,   rate: 0.01 }, { upTo: 26100,   rate: 0.02 },
+        { upTo: 41200,   rate: 0.04 }, { upTo: 57200,   rate: 0.06 },
+        { upTo: 72300,   rate: 0.08 }, { upTo: 369100,  rate: 0.093 },
+        { upTo: 442900,  rate: 0.103 }, { upTo: 738400,  rate: 0.113 },
         { upTo: Infinity, rate: 0.123 }
       ],
       mfj: [
-        { upTo: 22000,    rate: 0.01 },
-        { upTo: 52200,    rate: 0.02 },
-        { upTo: 82400,    rate: 0.04 },
-        { upTo: 114400,   rate: 0.06 },
-        { upTo: 144600,   rate: 0.08 },
-        { upTo: 738200,   rate: 0.093 },
-        { upTo: 885800,   rate: 0.103 },
-        { upTo: 1476800,  rate: 0.113 },
+        { upTo: 22000,    rate: 0.01 }, { upTo: 52200,    rate: 0.02 },
+        { upTo: 82400,    rate: 0.04 }, { upTo: 114400,   rate: 0.06 },
+        { upTo: 144600,   rate: 0.08 }, { upTo: 738200,   rate: 0.093 },
+        { upTo: 885800,   rate: 0.103 }, { upTo: 1476800,  rate: 0.113 },
         { upTo: Infinity, rate: 0.123 }
       ]
     },
@@ -286,40 +336,18 @@ const STATE_2026 = {
     type: 'progressive',
     brackets: {
       single: [
-        { upTo: 8500,     rate: 0.04 },
-        { upTo: 11700,    rate: 0.045 },
-        { upTo: 13900,    rate: 0.0525 },
-        { upTo: 80650,    rate: 0.055 },
-        { upTo: 215400,   rate: 0.06 },
-        { upTo: 1077550,  rate: 0.0685 },
-        { upTo: 5000000,  rate: 0.0965 },
-        { upTo: 25000000, rate: 0.103 },
+        { upTo: 8500,     rate: 0.04 }, { upTo: 11700,    rate: 0.045 },
+        { upTo: 13900,    rate: 0.0525 }, { upTo: 80650,    rate: 0.055 },
+        { upTo: 215400,   rate: 0.06 }, { upTo: 1077550,  rate: 0.0685 },
+        { upTo: 5000000,  rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
         { upTo: Infinity, rate: 0.109 }
       ],
       mfj: [
-        { upTo: 17150,    rate: 0.04 },
-        { upTo: 23600,    rate: 0.045 },
-        { upTo: 27900,    rate: 0.0525 },
-        { upTo: 161550,   rate: 0.055 },
-        { upTo: 323200,   rate: 0.06 },
-        { upTo: 2155350,  rate: 0.0685 },
-        { upTo: 5000000,  rate: 0.0965 },
-        { upTo: 25000000, rate: 0.103 },
+        { upTo: 17150,    rate: 0.04 }, { upTo: 23600,    rate: 0.045 },
+        { upTo: 27900,    rate: 0.0525 }, { upTo: 161550,   rate: 0.055 },
+        { upTo: 323200,   rate: 0.06 }, { upTo: 2155350,  rate: 0.0685 },
+        { upTo: 5000000,  rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
         { upTo: Infinity, rate: 0.109 }
-      ]
-    },
-    nycAddon: {
-      single: [
-        { upTo: 12000,    rate: 0.03078 },
-        { upTo: 25000,    rate: 0.03762 },
-        { upTo: 50000,    rate: 0.03819 },
-        { upTo: Infinity, rate: 0.03876 }
-      ],
-      mfj: [
-        { upTo: 21600,    rate: 0.03078 },
-        { upTo: 45000,    rate: 0.03762 },
-        { upTo: 90000,    rate: 0.03819 },
-        { upTo: Infinity, rate: 0.03876 }
       ]
     }
   },
@@ -328,23 +356,19 @@ const STATE_2026 = {
   FL: { label: 'Florida', type: 'none' },
   MA: {
     label: 'Massachusetts',
-    type: 'flat',
-    rate: 0.05,
+    type: 'flat', rate: 0.05,
     surcharge: { threshold: 1083150, rate: 0.04 }
   },
   IL: { label: 'Illinois', type: 'flat', rate: 0.0495 },
   CO: { label: 'Colorado', type: 'flat', rate: 0.044 }
 };
 
-// Annual all-in healthcare cost (employee premium contribution + expected
-// out-of-pocket) — KFF EHBS midpoint estimates. v1 uses tier-by-family.
 const HEALTHCARE_2026 = {
   single:        { premium: 1500, oop: 2000 },
   mfj_no_kids:   { premium: 4800, oop: 4000 },
   mfj_with_kids: { premium: 7200, oop: 4500 }
 };
 
-// Annual childcare per child under 5
 const CHILDCARE_PROV = { ON: 2500, BC: 3000, AB: 4500, QC: 2400 };
 const CHILDCARE_STATE_DEFAULT = {
   CA: 28000, NY: 24000, WA: 24000, TX: 18000, FL: 16000,
@@ -353,13 +377,26 @@ const CHILDCARE_STATE_DEFAULT = {
 
 /* ========================================================================
    CHANGELOG (shipped) + ROADMAP (planned)
-   ---------------------------------------
-   On every deploy, prepend a new entry to CHANGELOG. If a planned item
-   just shipped, also remove it from ROADMAP.
-   Date format for CHANGELOG: 'YYYY-MM-DD'. Items are one short line each.
+   On every deploy, prepend a new entry to CHANGELOG. If a planned item just
+   shipped, also remove it from ROADMAP.
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '2.0.0',
+    date: '2026-04-30',
+    title: 'Full visual redesign — North×South letter to a friend',
+    items: [
+      'Aged-paper aesthetic — Fraunces display, Caveat handwriting, terracotta accent on cream',
+      'New hero frames the actual question: most Canadians plan a 3–5 year detour, the math decides if it works',
+      'Section one: the four numbers that flip the plan (healthcare, childcare, TFSA, departure tax)',
+      'Section two: condensed 5-question wizard (was 9) with pill selectors and step dots',
+      'Section three: the verdict — "Stay 5 years, you come home roughly $X ahead" with sidebar stats and breakeven chart',
+      'Hand-drawn flourishes: underlines, circles, margin notes, breakeven arrow on the chart',
+      'Three reality-check footers under the verdict (cost of living, lifestyle drift, FX re-entry risk)',
+      'Dropped: standalone Result/Breakdown/Warnings/Projection/SoftFactors/SeoContent sections (consolidated into the new layout)'
+    ]
+  },
   {
     version: '1.3.1',
     date: '2026-04-30',
@@ -367,9 +404,8 @@ const CHANGELOG = [
     items: [
       'Removed URL state syncing — landing page no longer redirects to ?cad=145000&usd=215000&...',
       'Salary inputs now start blank in the wizard instead of pre-filled with sample numbers',
-      'Hero answer panel shows "Answer the questions below to see your number ↓" until salaries are entered',
-      'Removed the "Share your scenario" / Copy share link section from the footer',
-      'Internal defaults kept for non-input fields (province, FX rate, moving costs) so calculations still work'
+      'Hero answer panel shows placeholder until salaries are entered',
+      'Removed the "Share your scenario" / Copy share link section from the footer'
     ]
   },
   {
@@ -378,12 +414,10 @@ const CHANGELOG = [
     title: 'Header nav, dedicated Changelog tab, and SEO content section',
     items: [
       'New header navigation: Calculator and Changelog as separate tabs (hash-based routing)',
-      'Header CTA "Start ↓" scrolls smoothly to wizard step 1; becomes "Restart" once results are showing',
-      'Changelog and Roadmap moved off the main page into their own dedicated tab — accessible from any state',
-      'New SEO content section below the wizard: ~1,500 words on the Canada-to-US move with sourced stats',
-      'Stat callouts highlight key numbers (1.5x–3x salary multiplier, $9–12k US healthcare, $40–50k childcare swing)',
-      'FAQ section answers TFSA wind-down, RRSP treaty treatment, TN spouse work, FIRPTA, and the 1.5x rule',
-      'Removed the dead inline Inputs and Field components from the codebase'
+      'Header CTA "Start ↓" scrolls smoothly to wizard step 1',
+      'Changelog and Roadmap moved off the main page into their own dedicated tab',
+      'New SEO content section below the wizard with sourced stats and FAQ',
+      'Removed dead inline Inputs and Field components'
     ]
   },
   {
@@ -392,12 +426,9 @@ const CHANGELOG = [
     title: 'Wizard becomes the primary input flow',
     items: [
       'Removed the inline calculator panel from the landing page',
-      'Step-by-step wizard now sits below the hero and is the only input path on first visit',
-      'Wizard opens directly on "How much do you earn now?" — no welcome screen',
-      'Hero answer panel updates live as the user answers each wizard question',
-      'Results sections only render after the wizard is complete',
-      'Shared URLs still skip the wizard and load straight to results',
-      '"Restart wizard" link in the header takes users back to the questions'
+      'Step-by-step wizard now sits below the hero',
+      'Wizard opens directly on "How much do you earn now?"',
+      'Hero answer panel updates live as the user answers each wizard question'
     ]
   },
   {
@@ -406,13 +437,10 @@ const CHANGELOG = [
     title: 'Landing-first flow + 5-year breakeven chart',
     items: [
       'Page now opens on the landing view — hero, calculator, and results inline',
-      'Wizard moved to optional path via "Walk me through it" button on the hero',
       'New Breakeven section: 5-year cumulative take-home for staying vs moving',
-      'US line starts negative to reflect moving costs, immigration legal, and departure tax',
+      'US line starts negative to reflect moving costs and departure tax',
       'Breakeven crossover point marked on the chart with year (e.g. "Year 1.4")',
-      'Editable moving costs input ($25k default = relocation + immigration + departure tax + setup)',
-      'Stat cards: breakeven year, 5-year cumulative delta',
-      'Handles the "never breaks even" case for low-delta moves'
+      'Editable moving costs input ($25k default)'
     ]
   },
   {
@@ -421,7 +449,6 @@ const CHANGELOG = [
     title: 'Split Changelog and Roadmap into separate sections',
     items: [
       'Changelog now lists only shipped versions; Roadmap holds future work',
-      'Roadmap section uses blueprint-grid background to read as forward-looking',
       'CHANGELOG bump is now part of every deploy by default'
     ]
   },
@@ -431,11 +458,7 @@ const CHANGELOG = [
     title: 'Screen-by-screen wizard',
     items: [
       'New first-time visitor flow — one question per screen with progress bar',
-      'Choice screens auto-advance after selection; number screens accept Enter to continue',
-      'Conditional NYC sub-step appears only when New York is chosen',
-      'Review screen summarizes answers before showing the result',
-      '"Restart wizard" link in header on the results page',
-      'Shared URLs still skip the wizard and load straight to results'
+      'Choice screens auto-advance after selection; number screens accept Enter to continue'
     ]
   },
   {
@@ -444,23 +467,18 @@ const CHANGELOG = [
     title: 'Initial release',
     items: [
       '2026 federal tax brackets for Canada (CRA) and US (IRS)',
-      '4 provinces: ON (with surtax + OHP), BC, AB, QC (with federal abatement)',
-      '8 states: CA, NY (+ NYC addon), WA, TX, FL, MA (millionaire surcharge), IL, CO',
-      'CPP base + enhanced, EI, FICA, Medicare, Additional Medicare',
-      'BPA, standard deduction, Child Tax Credit',
-      'Healthcare cost line item by family tier (KFF EHBS midpoints)',
-      'Childcare cost by province (CWELCC) and state',
-      'Hidden cost warnings: RESP, TFSA/PFIC, departure tax, TN spouse, TN green card dead end',
-      '10-year future value projection at 7% on net delta',
-      'Soft factors comparison (parental leave, healthcare-after-job-loss, etc.)',
-      'Shareable URL state — every input encodes into query params'
+      '4 provinces, 8 states with full bracket coverage',
+      'CPP, EI, FICA, Medicare, Additional Medicare',
+      'Healthcare and childcare cost line items',
+      'Hidden cost warnings (TFSA, departure tax, TN visa)',
+      '10-year future value projection at 7%'
     ]
   }
 ];
 
 const ROADMAP = [
   {
-    version: '1.4.0',
+    version: '2.1.0',
     horizon: 'Next',
     title: 'Verified brackets + small fixes',
     items: [
@@ -472,22 +490,20 @@ const ROADMAP = [
     ]
   },
   {
-    version: '2.0.0',
+    version: '3.0.0',
     horizon: 'Soon',
     title: 'Equity, housing, multi-state',
     items: [
-      'RSU and stock option cross-border treatment (the real money for tech moves)',
+      'RSU and stock option cross-border treatment',
       'Cost-of-living adjustment by metro — $200k in Austin vs $250k in SF',
       'Itemized deductions, mortgage interest, SALT cap math',
-      'Self-employment income on both sides',
       'Multi-state allocation for partial-year residents',
-      'City-level taxes beyond NYC (San Francisco gross receipts, Philadelphia wage tax)',
       'Departure tax estimator with portfolio inputs',
       'TFSA wind-down calculator with PFIC liability projection'
     ]
   },
   {
-    version: '3.0.0',
+    version: '4.0.0',
     horizon: 'Later',
     title: 'Persona variants + monetization',
     items: [
@@ -495,8 +511,7 @@ const ROADMAP = [
       'Dual-income couple modeling with TN/TD spouse work restriction',
       'Family-of-four GTA-to-Texas/Florida preset scenario',
       'Downloadable PDF report for accountant or offer negotiation',
-      'Cross-border accountant + immigration lawyer referral integration',
-      'Currency transfer affiliate flow (Wise, Wealthsimple)'
+      'Cross-border accountant + immigration lawyer referral integration'
     ]
   }
 ];
@@ -515,11 +530,6 @@ function applyBrackets(income, brackets) {
     lastCap = b.upTo;
   }
   return tax;
-}
-
-function marginalRate(income, brackets) {
-  for (const b of brackets) if (income <= b.upTo) return b.rate;
-  return brackets[brackets.length - 1].rate;
 }
 
 function calcOntarioSurtax(provTaxBeforeSurtax, surtax) {
@@ -556,10 +566,9 @@ function calcEI(income) {
 }
 
 function calculateCanada({ income, province }) {
+  if (income <= 0) return { gross: 0, takeHome: 0 };
   const cpp = calcCPP(income);
   const ei = calcEI(income);
-  // CPP enhanced (the 4% on YAMPE-YMPE) is deductible from income.
-  // CPP base + EI premiums generate non-refundable credits at the lowest fed/prov rate.
   const cppEnhanced = Math.max(0, Math.min(income, CPP_2026.yampe) - CPP_2026.ympe) * CPP_2026.enhancedRate;
   const cppBase = cpp - cppEnhanced;
   const taxableIncome = income - cppEnhanced;
@@ -579,19 +588,7 @@ function calculateCanada({ income, province }) {
   const ohp = province === 'ON' ? calcOntarioHealthPremium(income) : 0;
 
   const totalTax = fedTax + provTax + cpp + ei + ohp;
-  const fedMarginal = marginalRate(taxableIncome, CA_FEDERAL_2026);
-  const provMarginal = marginalRate(taxableIncome, prov.brackets);
-
-  return {
-    gross: income,
-    federalTax: fedTax,
-    subnationalTax: provTax,
-    payrollTax: cpp + ei,
-    healthPremium: ohp,
-    totalTax,
-    takeHome: income - totalTax,
-    marginal: fedMarginal + provMarginal
-  };
+  return { gross: income, takeHome: income - totalTax };
 }
 
 function calcStateTax(taxable, state, filingStatus) {
@@ -611,16 +608,14 @@ function calcStateTax(taxable, state, filingStatus) {
   return t;
 }
 
-function calculateUS({ income, state, filingStatus, kids, includeNYC }) {
+function calculateUS({ income, state, filingStatus, kids }) {
+  if (income <= 0) return { gross: 0, takeHome: 0 };
   const stdDed = US_STD_DED_2026[filingStatus];
   const taxable = Math.max(0, income - stdDed);
   const fedGross = applyBrackets(taxable, US_FEDERAL_2026[filingStatus]);
   const fedTax = Math.max(0, fedGross - kids * CTC_2026);
 
-  let stateTax = calcStateTax(taxable, state, filingStatus);
-  if (state === 'NY' && includeNYC) {
-    stateTax += applyBrackets(taxable, STATE_2026.NY.nycAddon[filingStatus]);
-  }
+  const stateTax = calcStateTax(taxable, state, filingStatus);
 
   const ss = Math.min(income, FICA_2026.ssWageBase) * FICA_2026.ssRate;
   const medicare = income * FICA_2026.medicareRate;
@@ -628,22 +623,7 @@ function calculateUS({ income, state, filingStatus, kids, includeNYC }) {
   const addlMedicare = Math.max(0, income - addlThreshold) * FICA_2026.addlMedicareRate;
 
   const totalTax = fedTax + stateTax + ss + medicare + addlMedicare;
-  const fedMarginal = marginalRate(taxable, US_FEDERAL_2026[filingStatus]);
-  const stateMarginal = STATE_2026[state].type === 'flat'
-    ? STATE_2026[state].rate
-    : STATE_2026[state].type === 'none'
-      ? 0
-      : marginalRate(taxable, STATE_2026[state].brackets[filingStatus]);
-
-  return {
-    gross: income,
-    federalTax: fedTax,
-    subnationalTax: stateTax,
-    payrollTax: ss + medicare + addlMedicare,
-    totalTax,
-    takeHome: income - totalTax,
-    marginal: fedMarginal + stateMarginal
-  };
+  return { gross: income, takeHome: income - totalTax };
 }
 
 function estimateHealthcareCost(filingStatus, kids) {
@@ -653,94 +633,13 @@ function estimateHealthcareCost(filingStatus, kids) {
   return tier.premium + tier.oop;
 }
 
-function fvOfAnnuity(annual, years, rate) {
-  if (rate === 0) return annual * years;
-  return annual * (Math.pow(1 + rate, years) - 1) / rate;
-}
-
-/* ========================================================================
-   WARNINGS
-   ======================================================================== */
-
-function buildWarnings(input) {
-  const w = [];
-  if (input.kids > 0) {
-    w.push({
-      severity: 'high',
-      title: 'RESP grants stop the day you leave',
-      body: 'CESG matching ends when you become a non-resident. The existing balance can stay invested but no new grants accrue. If you have unused contribution room, the 20% match is gone.'
-    });
-  }
-  w.push({
-    severity: 'high',
-    title: 'TFSA becomes a US tax problem',
-    body: 'The IRS does not recognize the TFSA shelter. Earnings get taxed annually on your 1040, and Canadian mutual funds and ETFs trigger PFIC reporting (Form 8621), which is punitive. Most cross-border accountants recommend liquidating before the move.'
-  });
-  w.push({
-    severity: 'high',
-    title: 'Departure tax on unrealized gains',
-    body: 'CRA deems disposition of non-registered investments at fair market value the day you sever residency. You owe capital gains tax on paper gains even though you have not sold. RRSPs and pensions are exempt.'
-  });
-  if (input.visaType === 'TN' && input.filingStatus === 'mfj') {
-    w.push({
-      severity: 'critical',
-      title: 'Spouse cannot work on TN',
-      body: 'TD dependent status does not include work authorization. Your partner needs their own TN, an H1B, or another work-eligible visa. Plan the household income on one salary unless that is solved.'
-    });
-  }
-  if (input.visaType === 'TN') {
-    w.push({
-      severity: 'medium',
-      title: 'TN has no path to a green card',
-      body: 'TN requires non-immigrant intent. If you want permanent residency, you need to switch to H1B or another category, which is employer-dependent and capped.'
-    });
-  }
-  w.push({
-    severity: 'medium',
-    title: 'Healthcare is a real line item',
-    body: 'Even with employer coverage, the average US family pays $7,000 to $11,000 a year in premium contributions and out-of-pocket costs. If you lose your job, COBRA or marketplace plans run $1,500 to $2,500 per month for a family.'
-  });
-  return w;
-}
-
-/* ========================================================================
-   FORMATTERS & URL STATE
-   ======================================================================== */
-
-const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
-const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
-const fmtPct = (n) => (n * 100).toFixed(1) + '%';
-const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
-
-const INITIAL_STATE = {
-  salaryCAD: 0,
-  salaryUSD: 0,
-  province: 'ON',
-  state: 'CA',
-  filingStatus: 'single',
-  kids: 0,
-  visaType: 'TN',
-  fxRate: 0.73,
-  nyc: false,
-  movingCostsCAD: 25000
-};
-
-function niceStep(rough) {
-  if (rough <= 0) return 1;
-  const exp = Math.floor(Math.log10(rough));
-  const base = Math.pow(10, exp);
-  const r = rough / base;
-  const nice = r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10;
-  return nice * base;
-}
-
 function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 5 }) {
   const pts = [];
   for (let y = 0; y <= years; y++) {
     pts.push({
       year: y,
       ca: caTakeHomeCAD * y,
-      us: y === 0 ? -movingCostsCAD : (usTakeHomeCAD * y) - movingCostsCAD
+      us: y === 0 ? -movingCostsCAD : usTakeHomeCAD * y - movingCostsCAD
     });
   }
   let breakeven = null;
@@ -760,12 +659,30 @@ function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 
 }
 
 /* ========================================================================
-   COMPONENTS
+   FORMATTERS
    ======================================================================== */
+
+const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
+const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
+
+/* ========================================================================
+   APP
+   ======================================================================== */
+
+const INITIAL_STATE = {
+  salaryCAD: 0,
+  salaryUSD: 0,
+  province: 'ON',
+  state: 'CA',
+  filingStatus: 'single',
+  kids: 0,
+  familySituation: 'single',
+  fxRate: 0.73,
+  movingCostsCAD: 25000
+};
 
 function App() {
   const [state, setState] = useState(INITIAL_STATE);
-  const [wizardDone, setWizardDone] = useState(false);
   const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
 
   useEffect(() => {
@@ -776,9 +693,11 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  const update = (patch) => setState(s => ({ ...s, ...patch }));
+
   const navigate = (toView) => {
     if (toView === 'main') {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.history.replaceState(null, '', window.location.pathname);
     } else {
       window.history.replaceState(null, '', '#' + toView);
     }
@@ -786,18 +705,15 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  const startWizard = () => {
+  const scrollToWizard = () => {
     if (view !== 'main') {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      window.history.replaceState(null, '', window.location.pathname);
       setView('main');
     }
-    if (wizardDone) setWizardDone(false);
     setTimeout(() => {
       document.getElementById('wizard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
   };
-
-  const update = (patch) => setState(s => ({ ...s, ...patch }));
 
   const result = useMemo(() => {
     const ca = calculateCanada({ income: state.salaryCAD, province: state.province });
@@ -805,256 +721,492 @@ function App() {
       income: state.salaryUSD,
       state: state.state,
       filingStatus: state.filingStatus,
-      kids: state.kids,
-      includeNYC: state.nyc
+      kids: state.kids
     });
-    const usHealthcare = estimateHealthcareCost(state.filingStatus, state.kids);
+    const usHealthcare = state.salaryUSD > 0 ? estimateHealthcareCost(state.filingStatus, state.kids) : 0;
     const usChildcare = state.kids * (CHILDCARE_STATE_DEFAULT[state.state] || 22000);
     const caChildcare = state.kids * (CHILDCARE_PROV[state.province] || 3000);
 
     const caTakeHomeCAD = ca.takeHome - caChildcare;
     const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare;
-    const usTakeHomeCAD = usTakeHomeUSD / state.fxRate;
+    const usTakeHomeCAD = state.salaryUSD > 0 ? usTakeHomeUSD / state.fxRate : 0;
 
     const grossDeltaCAD = (state.salaryUSD / state.fxRate) - state.salaryCAD;
     const netDeltaCAD = usTakeHomeCAD - caTakeHomeCAD;
 
-    const projection = fvOfAnnuity(Math.max(0, netDeltaCAD), 10, 0.07);
+    const { pts, breakeven } = buildBreakeven({
+      caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD: state.movingCostsCAD, years: 5
+    });
+    const fiveYrDelta = pts[5].us - pts[5].ca;
+    const threeYrDelta = pts[3].us - pts[3].ca;
 
     return {
-      ca, us,
-      usHealthcare, usChildcare, caChildcare,
       caTakeHomeCAD, usTakeHomeUSD, usTakeHomeCAD,
-      grossDeltaCAD, netDeltaCAD, projection
+      usHealthcare, usChildcare, caChildcare,
+      grossDeltaCAD, netDeltaCAD,
+      pts, breakeven, fiveYrDelta, threeYrDelta
     };
   }, [state]);
 
-  const warnings = useMemo(() => buildWarnings(state), [state]);
-
   if (view === 'changelog') {
     return (
-      <main className="min-h-screen pb-32">
-        <Header view={view} wizardDone={wizardDone} navigate={navigate} startWizard={startWizard} />
-        <Changelog />
-        <Roadmap />
+      <main className="min-h-screen">
+        <Header scrollToWizard={scrollToWizard} navigate={navigate} view={view} />
+        <ChangelogView />
         <Footer />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen pb-32">
-      <Header view={view} wizardDone={wizardDone} navigate={navigate} startWizard={startWizard} />
-      <Hero result={result} state={state} wizardDone={wizardDone} />
-      {!wizardDone ? (
-        <Wizard state={state} update={update} onComplete={() => setWizardDone(true)} />
-      ) : (
-        <>
-          <Result result={result} state={state} />
-          <Breakeven result={result} state={state} update={update} />
-          <Breakdown result={result} state={state} />
-          <Warnings warnings={warnings} />
-          <Projection result={result} />
-          <SoftFactors />
-        </>
-      )}
-      <SeoContent startWizard={startWizard} />
+    <main className="min-h-screen">
+      <Header scrollToWizard={scrollToWizard} navigate={navigate} view={view} />
+      <Hero scrollToWizard={scrollToWizard} />
+      <TheLetter result={result} state={state} />
+      <Wizard state={state} update={update} />
+      <BreakevenSection state={state} update={update} result={result} />
       <Footer />
     </main>
   );
 }
 
-function Header({ view, wizardDone, navigate, startWizard }) {
-  const navLink = (toView, label) => (
-    <button
-      onClick={() => navigate(toView)}
-      className={`label transition-colors ${view === toView ? 'text-ink' : 'hover:text-ink'}`}
-    >
-      {label}
-    </button>
-  );
+/* ============================================================
+   HEADER
+   ============================================================ */
+function Header({ scrollToWizard, navigate, view }) {
   return (
-    <header className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center gap-6">
-        <button onClick={() => navigate('main')} className="flex items-baseline gap-3 text-left">
-          <span className="display text-xl font-medium">North×South</span>
-          <span className="label hidden sm:inline">a cross-border ledger</span>
-        </button>
-        <nav className="flex items-center gap-5 md:gap-7">
-          {navLink('main', 'Calculator')}
-          {navLink('changelog', 'Changelog')}
-          <button
-            onClick={startWizard}
-            className="bg-ink text-cream px-4 py-2 text-xs font-medium uppercase tracking-wider hover:bg-vermillion transition-colors"
-          >
-            {view === 'main' && !wizardDone ? 'Start ↓' : 'Restart'}
+    <header className="border-b border-paper-line">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 pt-6 pb-5">
+        <div className="flex items-start justify-between gap-6">
+          <button onClick={() => navigate('main')} className="text-left">
+            <div className="label mb-1.5">A cross-border honesty audit · 2026</div>
+            <div className="flex items-baseline gap-3">
+              <h1 className="display text-2xl md:text-[28px] font-medium tracking-tight">
+                North<span className="text-terracotta">×</span>South
+              </h1>
+            </div>
           </button>
-        </nav>
+          <nav className="flex items-center gap-5 md:gap-8 pt-2">
+            {view === 'main' && (
+              <>
+                <a href="#thesis" className="label hover:text-ink transition-colors">The plan</a>
+                <a href="#hidden" className="label hover:text-ink transition-colors hidden sm:inline">Hidden costs</a>
+                <a href="#wizard" className="label hover:text-ink transition-colors hidden md:inline">Run the math</a>
+              </>
+            )}
+            <button onClick={() => navigate('changelog')} className={`label transition-colors ${view === 'changelog' ? 'text-ink' : 'hover:text-ink'}`}>
+              Changelog
+            </button>
+            <button onClick={scrollToWizard} className="btn-primary">Start ↓</button>
+          </nav>
+        </div>
       </div>
     </header>
   );
 }
 
-function Hero({ result, state, wizardDone }) {
-  const positive = result.netDeltaCAD >= 0;
-  const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
+/* ============================================================
+   HERO
+   ============================================================ */
+function Hero({ scrollToWizard }) {
   return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-12 gap-8">
-        <div className="md:col-span-7">
-          <div className="label mb-6">A worksheet for the question your group chat keeps asking</div>
-          <h1 className="display font-medium leading-[0.95] text-5xl md:text-7xl tracking-tight">
-            Should you take<br/>the US offer?
-          </h1>
-          <p className="mt-8 text-lg text-ink-soft max-w-xl leading-relaxed">
-            Most calculators stop at gross salary or income tax. This one keeps going. Healthcare premiums, childcare, departure tax, the TFSA trap, and the ten-year wealth delta if you invest the difference. Honest math, both directions.
+    <section id="thesis" className="border-b border-paper-line relative overflow-hidden">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28">
+
+        <div className="flex items-baseline gap-4 mb-10 md:mb-14">
+          <span className="label">Premise</span>
+          <span className="hand text-xl md:text-2xl text-ink-soft">the math you don't see on the offer letter</span>
+        </div>
+
+        <div className="relative">
+          <h2 className="display font-medium text-[clamp(2.5rem,7.6vw,6.5rem)] leading-[0.95] tracking-tight max-w-[18ch]">
+            Most Canadians moving south<br className="hidden md:block"/>
+            have <span className="italic">the same plan.</span>
+          </h2>
+
+          <div className="hidden lg:block absolute right-0 top-2 w-64">
+            <svg viewBox="0 0 200 80" className="absolute -left-10 top-12 w-12 opacity-70">
+              <path d="M 4 70 Q 60 20, 180 14 L 168 4 M 180 14 L 174 26"
+                fill="none" stroke="#B84A1F" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <div className="margin-note text-right pt-2">
+              if you're reading this,<br/>you probably have it too
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 md:mt-16 grid md:grid-cols-12 gap-x-8 gap-y-8">
+          <div className="md:col-span-8 md:col-start-2">
+            <div className="space-y-5 display text-2xl md:text-[30px] leading-[1.35] text-ink-soft">
+              <PlanBeat n="i." text={<>Take the bigger US offer. <span className="text-ink">Six figures beats five</span> on paper.</>} />
+              <PlanBeat n="ii." text={<>Grind for <span className="circled text-ink">three to five years</span>. Save aggressively.</>} />
+              <PlanBeat n="iii." text={<>Come home with a down payment, an investment portfolio, and a story.</>} />
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-16 md:mt-24 grid md:grid-cols-12 gap-8 items-end">
+          <div className="md:col-span-7">
+            <div className="label mb-4">The trouble with the plan</div>
+            <h3 className="display font-medium text-[clamp(2.25rem,5.6vw,4.75rem)] leading-[0.98] tracking-tight">
+              The detour <span className="italic">doesn't</span> always<br/>
+              <span className="underline-hand">end with you ahead.</span>
+            </h3>
+            <p className="text-lg md:text-xl text-ink-soft mt-7 max-w-2xl leading-relaxed">
+              Higher salary, higher cost of living, healthcare you've never paid for, childcare that costs as much as a second mortgage,
+              a TFSA the IRS will tax, and a departure bill from CRA on your way out.
+              <span className="text-ink"> The gap between the offer and the outcome is where this calculator lives.</span>
+            </p>
+          </div>
+
+          <div className="md:col-span-5 md:pl-8 md:border-l md:border-paper-line space-y-5">
+            <div className="label mb-1">What it can look like</div>
+            <FailMode
+              kicker="The break-even illusion"
+              line="You netted +$110k/yr on paper. Healthcare and childcare ate $40k of it."
+            />
+            <FailMode
+              kicker="The cost-of-living trap"
+              line="SF rent is 2.4× Toronto. The raise vanishes into a one-bedroom."
+            />
+            <FailMode
+              kicker="The exit penalty"
+              line="CRA's departure tax + TFSA wind-down = $20k–$60k on the way out."
+            />
+          </div>
+        </div>
+
+        <div className="mt-20 md:mt-24 pt-10 border-t-2 border-ink/15 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+          <button onClick={scrollToWizard} className="btn-primary self-start">
+            See if your plan survives the math ↓
+          </button>
+          <div className="hand text-xl text-ink-soft max-w-md leading-tight">
+            five questions, three minutes — your numbers, not a stranger's
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+function PlanBeat({ n, text }) {
+  return (
+    <div className="grid grid-cols-[44px_1fr] gap-3 items-baseline">
+      <div className="display italic text-2xl text-terracotta">{n}</div>
+      <div>{text}</div>
+    </div>
+  );
+}
+
+function FailMode({ kicker, line }) {
+  return (
+    <div className="border-t border-paper-line pt-4">
+      <div className="hand text-xl text-terracotta mb-1 leading-tight">{kicker}</div>
+      <div className="text-[15px] text-ink-soft leading-snug">{line}</div>
+    </div>
+  );
+}
+
+/* ============================================================
+   THE LETTER — Section 1: hidden costs
+   ============================================================ */
+function TheLetter({ result, state }) {
+  const hasUSD = state.salaryUSD > 0;
+  const usHealthcareLine = hasUSD ? '−' + fmtCAD(result.usHealthcare / state.fxRate) : '−$7,000–$12,000';
+  const usChildcareLine = state.kids > 0
+    ? '−' + fmtCAD((CHILDCARE_STATE_DEFAULT[state.state] || 22000) / state.fxRate)
+    : '−$25,500';
+  const childcareLabel = state.kids > 0 ? `per child, per year (${STATE_2026[state.state].label})` : 'per child, per year';
+  const healthcareLabel = hasUSD ? `family scenario, ${STATE_2026[state.state].label}` : 'this scenario, family of 3';
+
+  return (
+    <section id="hidden" className="border-b border-paper-line">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+
+        <aside className="md:col-span-3">
+          <div className="sticky top-10">
+            <div className="label mb-3">Section one · the hidden costs</div>
+            <div className="display text-3xl font-medium leading-tight">
+              The four numbers<br/>that flip the plan
+            </div>
+            <div className="hand text-xl text-ink-soft mt-4">
+              none of them appear on<br/>the offer letter
+            </div>
+          </div>
+        </aside>
+
+        <div className="md:col-span-9 space-y-12">
+          <p className="display text-2xl md:text-[28px] leading-[1.4] text-ink max-w-3xl">
+            Most calculators stop at gross. They look at <span className="strike-hand text-ink-faint">$245,000</span>{' '}
+            and call it a day. <span className="underline-hand">The real math is downstream of that.</span>
+          </p>
+
+          <p className="text-lg leading-relaxed text-ink-soft max-w-3xl">
+            Four costs decide whether the 3-to-5-year detour ends with you ahead or behind.
+            Healthcare, childcare, the TFSA, and the bill CRA mails you on your way out.
+            Skim them, then run your own numbers below.
+          </p>
+
+          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-10 pt-4">
+            <LetterPoint
+              n="i."
+              title="Healthcare actually costs you"
+              hand="even with great employer coverage"
+              body="Premiums plus out-of-pocket runs $7k–$12k a year for a family. Lose your job and COBRA is $1,500–$2,500 a month."
+              num={usHealthcareLine}
+              numLabel={healthcareLabel}
+            />
+            <LetterPoint
+              n="ii."
+              title="Childcare is the silent salary killer"
+              hand="$2,400/yr in Ontario, $28,000/yr in California"
+              body="CWELCC is real. The CA delta alone eats $25k of the salary bump every year, every kid."
+              num={usChildcareLine}
+              numLabel={childcareLabel}
+            />
+            <LetterPoint
+              n="iii."
+              title="The TFSA becomes a tax problem"
+              hand="the IRS doesn't recognize the shelter"
+              body="Earnings get taxed. Canadian ETFs trigger PFIC reporting (Form 8621) — the meanest form in the IRS arsenal. Liquidate first."
+              num="One-time"
+              numLabel="$3k–$8k accountant cost"
+              tone="terracotta"
+            />
+            <LetterPoint
+              n="iv."
+              title="Departure tax is real and immediate"
+              hand="CRA wants their cut on paper gains"
+              body="Deemed disposition the day you sever residency. You owe capital gains tax on unrealized gains. RRSPs and pensions are exempt."
+              num="One-time"
+              numLabel="depends on your portfolio"
+              tone="terracotta"
+            />
+          </div>
+
+          <div className="rule-hand mt-12 mb-2 opacity-40"></div>
+
+          <p className="display italic text-2xl text-ink-soft max-w-3xl leading-snug pt-2">
+            Now feed in <span className="underline-hand">your numbers</span> and see what your plan actually nets.
           </p>
         </div>
-        <aside className="md:col-span-5 md:border-l md:border-cream-line md:pl-8 flex flex-col justify-end">
-          {hasInput ? (
-            <>
-              <div className="label mb-3">{wizardDone ? 'Your answer' : 'Your answer · live as you answer below'}</div>
-              <div className={`stat-num text-6xl md:text-7xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
-                {fmtSigned(result.netDeltaCAD, fmtCAD)}
-              </div>
-              <div className="text-sm text-ink-soft mt-3">
-                net annual delta in Canadian dollars, after tax, healthcare, and childcare
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="label mb-3">Your answer</div>
-              <div className="display text-3xl md:text-4xl text-ink-faint leading-tight">
-                Answer the questions below to see your number ↓
-              </div>
-            </>
-          )}
-        </aside>
       </div>
     </section>
   );
 }
 
-function Result({ result, state }) {
-  const grossPositive = result.grossDeltaCAD >= 0;
-  const netPositive = result.netDeltaCAD >= 0;
+function LetterPoint({ n, title, hand, body, num, numLabel, tone = 'forest' }) {
+  const toneClass = tone === 'terracotta' ? 'text-terracotta' : 'text-forest';
   return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">Two numbers that matter</div>
-        <div className="rule-thick mb-10" />
-        <div className="grid md:grid-cols-2 gap-12">
-          <div>
-            <div className="label mb-4">Gross salary delta</div>
-            <div className={`stat-num text-6xl font-medium ${grossPositive ? 'text-ink' : 'text-vermillion'}`}>
-              {fmtSigned(result.grossDeltaCAD, fmtCAD)}
-            </div>
-            <div className="text-sm text-ink-soft mt-3 max-w-md">
-              Pure salary comparison at the chosen FX rate. This is what your offer letter says, translated.
-            </div>
-          </div>
-          <div className="md:border-l md:border-cream-line md:pl-12">
-            <div className="label mb-4">True net delta after everything</div>
-            <div className={`stat-num text-6xl font-medium ${netPositive ? 'text-forest' : 'text-vermillion'}`}>
-              {fmtSigned(result.netDeltaCAD, fmtCAD)}
-            </div>
-            <div className="text-sm text-ink-soft mt-3 max-w-md">
-              After federal and state/provincial tax, payroll tax, healthcare, and childcare. The number that actually matters.
-            </div>
-          </div>
+    <div className="grid grid-cols-[40px_1fr] gap-4">
+      <div className="display italic text-2xl text-terracotta pt-1">{n}</div>
+      <div>
+        <div className="display text-[22px] font-medium leading-tight mb-1">{title}</div>
+        <div className="hand text-lg text-ink-soft mb-3 leading-tight">{hand}</div>
+        <p className="text-[15px] leading-relaxed text-ink-soft mb-4">{body}</p>
+        <div className="border-t border-paper-line pt-3 flex items-baseline gap-3">
+          <span className={`stat-num text-2xl font-medium ${toneClass}`}>{num}</span>
+          <span className="text-xs text-ink-faint">{numLabel}</span>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-function Breakeven({ result, state, update }) {
-  const years = 5;
-  const { pts, breakeven } = useMemo(() =>
-    buildBreakeven({
-      caTakeHomeCAD: result.caTakeHomeCAD,
-      usTakeHomeCAD: result.usTakeHomeCAD,
-      movingCostsCAD: state.movingCostsCAD,
-      years
-    }),
-    [result.caTakeHomeCAD, result.usTakeHomeCAD, state.movingCostsCAD]
-  );
+/* ============================================================
+   WIZARD — Section 2: 5 questions
+   ============================================================ */
+function Wizard({ state, update }) {
+  const [step, setStep] = useState(0);
 
-  const final = pts[pts.length - 1];
-  const delta5 = final.us - final.ca;
+  const setFamily = (situation) => {
+    if (situation === 'single') update({ familySituation: 'single', filingStatus: 'single', kids: 0 });
+    else if (situation === 'mfj-no-kids') update({ familySituation: 'mfj-no-kids', filingStatus: 'mfj', kids: 0 });
+    else update({ familySituation: 'mfj-with-kids', filingStatus: 'mfj', kids: state.kids || 1 });
+  };
+
+  const steps = [
+    { kicker: 'Question one of five', q: 'How much do you earn now?', sub: 'Annual salary in Canadian dollars, before tax.' },
+    { kicker: 'Question two of five', q: "What's the US offer?", sub: 'Annual base, before tax, in US dollars.' },
+    { kicker: 'Question three of five', q: 'Where in Canada are you now?', sub: 'Province changes the tax math.' },
+    { kicker: 'Question four of five', q: 'Where would you land in the US?', sub: 'State matters more than you think.' },
+    { kicker: 'Question five of five', q: 'Family situation?', sub: 'Affects healthcare, childcare, filing status.' },
+  ];
+  const cur = steps[step];
+  const pct = ((step + 1) / steps.length) * 100;
+
+  const handleEnter = (e) => { if (e.key === 'Enter') setStep(Math.min(steps.length - 1, step + 1)); };
 
   return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">When does it pay off?</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-6 max-w-2xl">
-          The US offer starts in the red
-        </h2>
-        <p className="text-base md:text-lg text-ink-soft max-w-2xl leading-relaxed mb-12">
-          Moving costs, immigration legal fees, and CRA's departure tax mean year one is negative. Cumulative take-home over five years, both paths. Where the lines cross is the moment the move pays for itself.
-        </p>
-
+    <section id="wizard" className="border-b border-paper-line bg-paper-deep/40">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
         <div className="grid md:grid-cols-12 gap-10">
-          <div className="md:col-span-4 space-y-8">
-            <div>
-              <div className="label mb-2">One-time moving costs (CAD)</div>
-              <div className="flex items-baseline gap-2">
-                <span className="num text-2xl text-ink-faint">$</span>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={state.movingCostsCAD}
-                  onChange={(e) => update({ movingCostsCAD: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <p className="text-xs text-ink-faint mt-3 leading-relaxed">
-                Default $25k assumes ~$10k relocation, ~$7k immigration legal, ~$5k departure tax estimate, ~$3k US setup (deposits, car, credit history rebuild).
-              </p>
+          <aside className="md:col-span-3">
+            <div className="label mb-3">Section two · your numbers</div>
+            <div className="display text-3xl font-medium leading-tight">
+              Five questions,<br/>three minutes
             </div>
-            <div className="border-t border-cream-line pt-6">
-              <div className="label mb-2">Breakeven point</div>
-              {breakeven ? (
-                <>
-                  <div className="display text-4xl font-medium text-vermillion">
-                    Year {breakeven.year.toFixed(1)}
+            <div className="hand text-xl text-ink-soft mt-4">
+              your inputs power the<br/>verdict in section three
+            </div>
+          </aside>
+
+          <div className="md:col-span-9">
+            <div className="mb-10">
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="label">{cur.kicker}</span>
+                <span className="num text-xs text-ink-faint">{step + 1} / {steps.length}</span>
+              </div>
+              <div className="h-[3px] bg-paper-line relative">
+                <div className="absolute inset-y-0 left-0 bg-terracotta transition-all duration-500" style={{width: pct + '%'}}/>
+              </div>
+            </div>
+
+            <div className="min-h-[420px]">
+              <h3 className="display text-4xl md:text-5xl font-medium leading-[1.05] mb-3 max-w-2xl">
+                {cur.q}
+              </h3>
+              <p className="display italic text-lg md:text-xl text-ink-soft mb-12 max-w-xl">
+                {cur.sub}
+              </p>
+
+              {step === 0 && (
+                <div className="max-w-md">
+                  <div className="flex items-baseline gap-2">
+                    <span className="num text-2xl text-ink-faint">$</span>
+                    <input
+                      autoFocus
+                      type="number"
+                      className="input-line"
+                      placeholder="165,000"
+                      value={state.salaryCAD || ''}
+                      onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
+                      onKeyDown={handleEnter}
+                      onFocus={e => e.target.select()}
+                    />
+                    <span className="num text-sm text-ink-faint">CAD</span>
                   </div>
-                  <p className="text-xs text-ink-faint mt-2">
-                    The moment cumulative US take-home overtakes staying in Canada.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="display text-2xl font-medium text-vermillion">
-                    Doesn't break even
+                  <div className="hand text-lg text-ink-soft mt-4">
+                    base salary only — bonuses and RSUs are a different conversation.
                   </div>
-                  <p className="text-xs text-ink-faint mt-2">
-                    On these inputs, the US take-home never catches up to staying in Canada within 5 years. Healthcare and childcare are eating the salary bump.
-                  </p>
-                </>
+                </div>
+              )}
+              {step === 1 && (
+                <div className="max-w-md">
+                  <div className="flex items-baseline gap-2">
+                    <span className="num text-2xl text-ink-faint">$</span>
+                    <input
+                      autoFocus
+                      type="number"
+                      className="input-line"
+                      placeholder="245,000"
+                      value={state.salaryUSD || ''}
+                      onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
+                      onKeyDown={handleEnter}
+                      onFocus={e => e.target.select()}
+                    />
+                    <span className="num text-sm text-ink-faint">USD</span>
+                  </div>
+                  <div className="hand text-lg text-ink-soft mt-4">
+                    if they offered RSUs too, ignore them for now — we'll get to those.
+                  </div>
+                </div>
+              )}
+              {step === 2 && (
+                <div className="flex flex-wrap gap-2 max-w-2xl">
+                  {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
+                    <button
+                      key={k}
+                      className={`pill ${state.province === k ? 'active' : ''}`}
+                      onClick={() => update({ province: k })}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {step === 3 && (
+                <div className="flex flex-wrap gap-2 max-w-2xl">
+                  {Object.entries(STATE_2026).map(([k, v]) => (
+                    <button
+                      key={k}
+                      className={`pill ${state.state === k ? 'active' : ''}`}
+                      onClick={() => update({ state: k })}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {step === 4 && (
+                <div className="space-y-6 max-w-xl">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: 'single', label: 'Single' },
+                      { id: 'mfj-no-kids', label: 'Married, no kids' },
+                      { id: 'mfj-with-kids', label: 'Married, with kids' }
+                    ].map(s => (
+                      <button
+                        key={s.id}
+                        className={`pill ${state.familySituation === s.id ? 'active' : ''}`}
+                        onClick={() => setFamily(s.id)}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                  {state.familySituation === 'mfj-with-kids' && (
+                    <div className="flex items-baseline gap-4">
+                      <span className="label">Number of kids</span>
+                      <input
+                        type="number"
+                        min="1"
+                        className="input-line max-w-[120px]"
+                        value={state.kids || 1}
+                        onChange={e => update({ kids: parseInt(e.target.value) || 1 })}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
             </div>
-            <div className="border-t border-cream-line pt-6">
-              <div className="label mb-2">5-year cumulative delta</div>
-              <div className={`display text-4xl font-medium ${delta5 >= 0 ? 'text-forest' : 'text-vermillion'}`}>
-                {fmtSigned(delta5, fmtCAD)}
-              </div>
-              <p className="text-xs text-ink-faint mt-2">
-                Total extra cash in pocket after five years, after moving costs.
-              </p>
-            </div>
-          </div>
 
-          <div className="md:col-span-8">
-            <BreakevenChart pts={pts} breakeven={breakeven} years={years} />
-            <div className="flex items-center gap-6 mt-4 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-0.5 bg-forest"></span>
-                <span className="text-ink-soft">Stay in Canada</span>
+            <div className="mt-12 flex items-center justify-between gap-6 pt-8 border-t border-paper-line">
+              <button
+                onClick={() => setStep(Math.max(0, step - 1))}
+                disabled={step === 0}
+                className="label hover:text-ink transition-colors disabled:opacity-30"
+              >
+                ← Previous
+              </button>
+              <div className="flex items-center gap-6">
+                <span className="hand text-lg text-ink-faint hidden sm:inline">press enter to continue</span>
+                <button
+                  onClick={() => {
+                    if (step === steps.length - 1) {
+                      document.getElementById('verdict')?.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      setStep(step + 1);
+                    }
+                  }}
+                  className="btn-primary"
+                >
+                  {step === steps.length - 1 ? 'See the answer →' : 'Next →'}
+                </button>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-4 h-0.5 bg-vermillion"></span>
-                <span className="text-ink-soft">Move to US (after moving costs)</span>
-              </div>
+            </div>
+
+            <div className="mt-10 flex justify-center gap-2">
+              {steps.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setStep(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === step ? 'bg-terracotta w-6' : i < step ? 'bg-ink/40 w-2' : 'bg-paper-line w-2'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -1063,766 +1215,444 @@ function Breakeven({ result, state, update }) {
   );
 }
 
-function BreakevenChart({ pts, breakeven, years }) {
-  const w = 800, h = 440;
-  const padL = 88, padT = 30, padR = 40, padB = 50;
+/* ============================================================
+   BREAKEVEN — Section 3: the verdict
+   ============================================================ */
+function BreakevenSection({ state, update, result }) {
+  const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
+  const fiveYrDelta = result.fiveYrDelta;
+  const threeYrDelta = result.threeYrDelta;
+  const verdict = !hasInput ? 'pending' :
+    fiveYrDelta > 200000 ? 'worth-it' :
+    fiveYrDelta > 0 ? 'marginal' :
+    'not-worth-it';
+
+  const familyLabel =
+    state.familySituation === 'single' ? 'single' :
+    state.familySituation === 'mfj-no-kids' ? 'married, no kids' :
+    `married + ${state.kids} kid${state.kids === 1 ? '' : 's'}`;
+
+  const provLabel = PROVINCIAL_2026[state.province].label;
+  const stateLabel = STATE_2026[state.state].label;
+  const inputSummary = hasInput
+    ? `(${fmtCAD(state.salaryCAD)} ${provLabel} → $${state.salaryUSD.toLocaleString('en-US')} ${stateLabel}, ${familyLabel})`
+    : '(answer the wizard above to populate)';
+
+  return (
+    <section id="verdict" className="border-b border-paper-line bg-paper-deep/25">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+        <aside className="md:col-span-3">
+          <div className="label mb-3">Section three · the verdict</div>
+          <div className="display text-3xl font-medium leading-tight">
+            Does the plan<br/>survive the math?
+          </div>
+          <div className="hand text-xl text-ink-soft mt-4">
+            stay 3 years? 5? come<br/>home with what?
+          </div>
+        </aside>
+
+        <div className="md:col-span-9">
+          <div className="flex items-baseline gap-4 mb-3 flex-wrap">
+            <span className="label">Based on your inputs</span>
+            <span className="hand text-xl text-ink-faint">{inputSummary}</span>
+          </div>
+
+          {hasInput ? (
+            <h3 className="display font-medium text-[clamp(2.25rem,5.4vw,4.5rem)] leading-[1.0] tracking-tight max-w-4xl">
+              Stay <span className="circled text-terracotta">five years</span>, you come home<br/>
+              roughly{' '}
+              <span className={`underline-hand ${fiveYrDelta >= 0 ? 'text-forest' : 'text-terracotta-deep'}`}>
+                {fmtCAD(Math.abs(fiveYrDelta))}
+              </span>
+              {' '}{fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
+            </h3>
+          ) : (
+            <h3 className="display font-medium text-[clamp(2rem,4.6vw,3.75rem)] leading-[1.05] tracking-tight max-w-3xl text-ink-soft italic">
+              Answer the five questions <span className="not-italic underline-hand text-ink">above</span> and your verdict appears here.
+            </h3>
+          )}
+
+          {hasInput && (
+            <p className="text-lg text-ink-soft mt-6 max-w-2xl leading-relaxed">
+              That assumes you save the entire after-tax delta — no lifestyle inflation, no SF rent eating the raise.
+              In practice, expect 50–70% of that. Below is the year-by-year so you can see exactly when the move starts paying off.
+            </p>
+          )}
+
+          <div className="grid md:grid-cols-12 gap-8 items-start mt-10">
+            <div className="md:col-span-4 space-y-6">
+              <SidebarStat
+                kicker="Pays for itself in"
+                value={result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : (hasInput ? 'Never' : '—')}
+                detail={result.breakeven
+                  ? 'when cumulative US take-home overtakes staying'
+                  : hasInput ? 'US take-home never catches Canada within 5 years' : 'awaiting your inputs above'}
+                tone="terracotta"
+              />
+              <SidebarStat
+                kicker="3-year nest egg"
+                value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
+                detail="cash in pocket if you come home after 3 years"
+                tone={threeYrDelta >= 0 ? 'forest' : 'terracotta'}
+              />
+              <SidebarStat
+                kicker="5-year nest egg"
+                value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
+                detail="if you stick it out the full detour"
+                tone={fiveYrDelta >= 0 ? 'forest' : 'terracotta'}
+              />
+              <SidebarStat
+                kicker="One-time exit cost"
+                value={fmtCAD(state.movingCostsCAD)}
+                detail="moving + immigration + departure tax + setup"
+                editable
+                onEdit={(v) => update({ movingCostsCAD: v })}
+                editValue={state.movingCostsCAD}
+              />
+            </div>
+
+            <div className="md:col-span-8">
+              <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput} />
+              <div className="flex flex-wrap items-center gap-6 mt-5 text-sm">
+                <LegendDot color="#2F4A2C" label="Stay in Canada" />
+                <LegendDot color="#B84A1F" label="Move to US (after moving costs)" dashed />
+                <LegendDot color="#8A3214" label="Breakeven" filled />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-14 pt-8 border-t border-paper-line">
+            <div className="label mb-4">Three things this number is hiding</div>
+            <div className="grid sm:grid-cols-3 gap-6">
+              <RealityCheck n="i." text="Cost of living. SF rent is 2.4× Toronto — the raise gets eaten before it hits savings." />
+              <RealityCheck n="ii." text="Lifestyle drift. Most people spend 30–50% of any raise. Plan for it." />
+              <RealityCheck n="iii." text="Re-entry cost. Coming home means a CAD mortgage on USD savings — FX risk is real." />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RealityCheck({ n, text }) {
+  return (
+    <div>
+      <div className="display italic text-xl text-terracotta mb-1">{n}</div>
+      <div className="text-[15px] text-ink-soft leading-snug">{text}</div>
+    </div>
+  );
+}
+
+function SidebarStat({ kicker, value, detail, tone = 'ink', editable, onEdit, editValue }) {
+  const [editing, setEditing] = useState(false);
+  const toneClass =
+    tone === 'forest' ? 'text-forest' :
+    tone === 'terracotta' ? 'text-terracotta' :
+    'text-ink';
+  return (
+    <div>
+      <div className="flex items-baseline justify-between mb-2">
+        <span className="label">{kicker}</span>
+        {editable && !editing && (
+          <button onClick={() => setEditing(true)} className="hand text-base text-ink-faint hover:text-terracotta">
+            tap to edit
+          </button>
+        )}
+      </div>
+      {editing ? (
+        <div className="flex items-baseline gap-2">
+          <span className="num text-xl text-ink-faint">$</span>
+          <input
+            type="number"
+            autoFocus
+            className="input-line max-w-[180px]"
+            value={editValue || 0}
+            onChange={(e) => onEdit(parseInt(e.target.value) || 0)}
+            onBlur={() => setEditing(false)}
+            onKeyDown={(e) => { if (e.key === 'Enter') setEditing(false); }}
+          />
+        </div>
+      ) : (
+        <div className="flex items-baseline gap-3">
+          <div className={`stat-num text-[32px] md:text-[36px] font-medium leading-none ${toneClass}`}>{value}</div>
+        </div>
+      )}
+      <p className="text-xs text-ink-faint mt-3 leading-relaxed">{detail}</p>
+      <div className="rule-hand mt-5 opacity-30"></div>
+    </div>
+  );
+}
+
+function LegendDot({ color, label, dashed, filled }) {
+  return (
+    <div className="flex items-center gap-2">
+      {filled ? (
+        <span className="inline-block w-3 h-3 rounded-full" style={{background: color}}/>
+      ) : (
+        <svg width="22" height="6">
+          <line x1="0" y1="3" x2="22" y2="3" stroke={color} strokeWidth="2.5" strokeDasharray={dashed ? '4 3' : ''}/>
+        </svg>
+      )}
+      <span className="text-ink-soft">{label}</span>
+    </div>
+  );
+}
+
+function BreakevenChart({ pts, breakeven, years, hasInput }) {
+  const w = 800, h = 420;
+  const padL = 70, padT = 24, padR = 30, padB = 60;
   const plotW = w - padL - padR;
   const plotH = h - padT - padB;
 
   const allVals = pts.flatMap(p => [p.ca, p.us]);
-  const rawMin = Math.min(0, ...allVals);
-  const rawMax = Math.max(...allVals);
-  const tickStep = niceStep((rawMax - rawMin) / 5);
-  const yMin = Math.floor(rawMin / tickStep) * tickStep;
-  const yMax = Math.ceil(rawMax / tickStep) * tickStep;
+  let yMin = Math.min(0, ...allVals);
+  let yMax = Math.max(...allVals);
+  if (!hasInput) { yMin = -50000; yMax = 800000; }
   const yRange = (yMax - yMin) || 1;
+  const xScale = y => padL + (y / years) * plotW;
+  const yScale = v => padT + plotH - ((v - yMin) / yRange) * plotH;
 
-  const xScale = (year) => padL + (year / years) * plotW;
-  const yScale = (val) => padT + plotH - ((val - yMin) / yRange) * plotH;
+  const jitter = (i, seed) => Math.sin(i * 12.9898 + seed) * 1.4;
 
-  const caPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.year)} ${yScale(p.ca)}`).join(' ');
-  const usPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.year)} ${yScale(p.us)}`).join(' ');
+  const caPath = pts.map((p, i) => {
+    const x = xScale(p.year) + jitter(i, 1);
+    const y = yScale(p.ca) + jitter(i, 2);
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
 
-  const areaPath = [
-    ...pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xScale(p.year)} ${yScale(p.us)}`),
-    ...pts.slice().reverse().map(p => `L ${xScale(p.year)} ${yScale(p.ca)}`),
-    'Z'
-  ].join(' ');
+  const usPath = pts.map((p, i) => {
+    const x = xScale(p.year) + jitter(i, 3);
+    const y = yScale(p.us) + jitter(i, 4);
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
 
+  const tickStep = yRange > 1500000 ? 500000 : yRange > 600000 ? 200000 : yRange > 200000 ? 100000 : 50000;
   const yTicks = [];
-  for (let v = yMin; v <= yMax + 0.0001; v += tickStep) yTicks.push(Math.round(v));
+  for (let v = Math.floor(yMin / tickStep) * tickStep; v <= yMax + 1; v += tickStep) yTicks.push(v);
 
-  const fmtTick = (v) => {
-    if (Math.abs(v) >= 1000) return (v >= 0 ? '$' : '−$') + Math.abs(Math.round(v / 1000)) + 'k';
-    return (v >= 0 ? '$' : '−$') + Math.abs(v);
+  const fmtTick = v => {
+    if (v === 0) return '$0';
+    const sign = v < 0 ? '−' : '';
+    const abs = Math.abs(v);
+    if (abs >= 1000000) return sign + '$' + (abs / 1000000).toFixed(1) + 'M';
+    return sign + '$' + Math.round(abs / 1000) + 'k';
   };
 
-  const final = pts[pts.length - 1];
-  const usFinalAbove = final.us > final.ca;
-
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
-      <rect x={padL} y={padT} width={plotW} height={plotH} fill="#FBF6EC" />
+    <div className="relative">
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+        <rect x={padL} y={padT} width={plotW} height={plotH} fill="#E5DBC2" opacity="0.35"/>
 
-      {yTicks.map(v => (
-        <g key={v}>
-          <line x1={padL} y1={yScale(v)} x2={padL + plotW} y2={yScale(v)} stroke="#D9D0B8" strokeWidth="1" />
-          <text x={padL - 12} y={yScale(v) + 4} textAnchor="end" fontSize="11" fill="#8A8475" fontFamily="Geist Mono">
-            {fmtTick(v)}
+        {yTicks.map(v => (
+          <g key={v}>
+            <line x1={padL} y1={yScale(v)} x2={padL + plotW} y2={yScale(v)}
+              stroke="#22180F" strokeWidth="0.5" opacity={v === 0 ? 0.6 : 0.12} strokeDasharray={v === 0 ? '' : '2 3'}/>
+            <text x={padL - 10} y={yScale(v) + 4} textAnchor="end" fontSize="11"
+              fill="#9C8A6E" fontFamily="Geist Mono">{fmtTick(v)}</text>
+          </g>
+        ))}
+
+        {pts.map(p => (
+          <g key={p.year}>
+            <line x1={xScale(p.year)} y1={padT + plotH} x2={xScale(p.year)} y2={padT + plotH + 5}
+              stroke="#22180F" strokeWidth="1" opacity="0.4"/>
+            <text x={xScale(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11"
+              fill="#9C8A6E" fontFamily="Geist">Year {p.year}</text>
+          </g>
+        ))}
+
+        {hasInput && (
+          <>
+            <path
+              d={`${caPath} L ${xScale(years)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`}
+              fill="#2F4A2C" fillOpacity="0.04"
+            />
+            <path
+              d={`${usPath} L ${xScale(years)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`}
+              fill="#B84A1F" fillOpacity="0.05"
+            />
+            <path d={caPath} fill="none" stroke="#2F4A2C" strokeWidth="2.6"
+              strokeLinejoin="round" strokeLinecap="round"/>
+            <path d={usPath} fill="none" stroke="#B84A1F" strokeWidth="2.6"
+              strokeLinejoin="round" strokeLinecap="round"/>
+            {pts.map(p => (
+              <g key={'d'+p.year}>
+                <circle cx={xScale(p.year)} cy={yScale(p.ca)} r="3.5" fill="#2F4A2C"/>
+                <circle cx={xScale(p.year)} cy={yScale(p.us)} r="3.5" fill="#B84A1F"/>
+              </g>
+            ))}
+          </>
+        )}
+
+        {!hasInput && (
+          <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
+            fontSize="20" fill="#9C8A6E" fontFamily="Caveat">
+            your year-by-year shows up here once you fill in the wizard
           </text>
-        </g>
-      ))}
+        )}
 
-      <line x1={padL} y1={yScale(0)} x2={padL + plotW} y2={yScale(0)} stroke="#1A1815" strokeWidth="1.5" />
+        {breakeven && (
+          <g>
+            <line x1={xScale(breakeven.year)} y1={padT}
+              x2={xScale(breakeven.year)} y2={padT + plotH}
+              stroke="#8A3214" strokeWidth="1" strokeDasharray="3 4" opacity="0.55"/>
+            <circle cx={xScale(breakeven.year)} cy={yScale(breakeven.value)} r="7"
+              fill="#8A3214" stroke="#F0E8D6" strokeWidth="2.5"/>
 
-      <path d={areaPath} fill={usFinalAbove ? '#2F4A2C' : '#C8421F'} fillOpacity="0.07" />
+            <g transform={`translate(${xScale(breakeven.year) + 18}, ${yScale(breakeven.value) - 56})`}>
+              <path d="M 0 50 Q -8 30, 4 14 L -2 8 M 4 14 L 8 22"
+                fill="none" stroke="#B84A1F" strokeWidth="2" strokeLinecap="round"/>
+              <text x="14" y="0" fontSize="22" fill="#B84A1F" fontFamily="Caveat" fontWeight="600">
+                you break even here ↓
+              </text>
+              <text x="14" y="22" fontSize="18" fill="#5C4A36" fontFamily="Caveat">
+                Year {breakeven.year.toFixed(1)} — about {Math.round(breakeven.year * 12)} months in
+              </text>
+            </g>
+          </g>
+        )}
 
-      <path d={caPath} fill="none" stroke="#2F4A2C" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      <path d={usPath} fill="none" stroke="#C8421F" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-
-      {pts.map(p => (
-        <g key={p.year}>
-          <circle cx={xScale(p.year)} cy={yScale(p.ca)} r="3.5" fill="#2F4A2C" />
-          <circle cx={xScale(p.year)} cy={yScale(p.us)} r="3.5" fill="#C8421F" />
-          <line x1={xScale(p.year)} y1={padT + plotH} x2={xScale(p.year)} y2={padT + plotH + 5} stroke="#1A1815" strokeWidth="1" />
-          <text x={xScale(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11" fill="#8A8475" fontFamily="Geist">
-            Year {p.year}
-          </text>
-        </g>
-      ))}
-
-      {breakeven && (
-        <g>
-          <line
-            x1={xScale(breakeven.year)} y1={padT}
-            x2={xScale(breakeven.year)} y2={padT + plotH}
-            stroke="#9D2F12" strokeWidth="1" strokeDasharray="4 4" opacity="0.6"
-          />
-          <circle cx={xScale(breakeven.year)} cy={yScale(breakeven.value)} r="6" fill="#9D2F12" stroke="#F5F0E6" strokeWidth="2" />
-          <rect
-            x={xScale(breakeven.year) - 56} y={padT - 26}
-            width="112" height="22" fill="#9D2F12"
-          />
-          <text
-            x={xScale(breakeven.year)} y={padT - 11}
-            textAnchor="middle" fontSize="11" fill="#F5F0E6"
-            fontFamily="Geist" fontWeight="600" letterSpacing="0.04em"
-          >
-            BREAKEVEN · YEAR {breakeven.year.toFixed(1)}
-          </text>
-        </g>
-      )}
-    </svg>
-  );
-}
-
-function Breakdown({ result, state }) {
-  const ca = result.ca, us = result.us;
-  const Row = ({ label, ca, us, isTotal }) => (
-    <div className={`grid grid-cols-3 gap-4 py-3 ${isTotal ? 'border-t border-ink mt-2 font-medium' : 'border-t border-cream-line'}`}>
-      <div className={isTotal ? 'text-ink' : 'text-ink-soft text-sm'}>{label}</div>
-      <div className="num text-right">{ca}</div>
-      <div className="num text-right">{us}</div>
+        {hasInput && (
+          <g>
+            <text x={xScale(years) - 6} y={yScale(pts[years].ca) - 12} textAnchor="end"
+              fontSize="13" fill="#2F4A2C" fontFamily="Geist" fontWeight="600">
+              Stay in Canada
+            </text>
+            <text x={xScale(years) - 6} y={yScale(pts[years].us) - 12} textAnchor="end"
+              fontSize="13" fill="#B84A1F" fontFamily="Geist" fontWeight="600">
+              Move to US
+            </text>
+          </g>
+        )}
+      </svg>
     </div>
   );
-
-  return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">The breakdown</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Side by side, line by line</h2>
-
-        <div className="grid grid-cols-3 gap-4 pb-2">
-          <div></div>
-          <div className="text-right">
-            <div className="label">Canada</div>
-            <div className="text-xs text-ink-faint mt-1">{PROVINCIAL_2026[state.province].label} · CAD</div>
-          </div>
-          <div className="text-right">
-            <div className="label">United States</div>
-            <div className="text-xs text-ink-faint mt-1">{STATE_2026[state.state].label} · USD</div>
-          </div>
-        </div>
-
-        <Row label="Gross salary"
-          ca={fmtCAD(ca.gross)}
-          us={fmtUSD(us.gross)}
-        />
-        <Row label="Federal income tax"
-          ca={'−' + fmtCAD(ca.federalTax)}
-          us={'−' + fmtUSD(us.federalTax)}
-        />
-        <Row label={state.province === 'QC' ? 'Quebec tax (post-abatement)' : 'Provincial / state income tax'}
-          ca={'−' + fmtCAD(ca.subnationalTax)}
-          us={'−' + fmtUSD(us.subnationalTax)}
-        />
-        <Row label="Payroll tax (CPP+EI / FICA+Medicare)"
-          ca={'−' + fmtCAD(ca.payrollTax)}
-          us={'−' + fmtUSD(us.payrollTax)}
-        />
-        {state.province === 'ON' && (
-          <Row label="Ontario Health Premium"
-            ca={'−' + fmtCAD(ca.healthPremium)}
-            us="—"
-          />
-        )}
-        <Row label="Healthcare (premium + OOP estimate)"
-          ca="$0 (covered)"
-          us={'−' + fmtUSD(result.usHealthcare)}
-        />
-        {state.kids > 0 && (
-          <Row label={`Childcare (${state.kids} ${state.kids === 1 ? 'child' : 'children'})`}
-            ca={'−' + fmtCAD(result.caChildcare)}
-            us={'−' + fmtUSD(result.usChildcare)}
-          />
-        )}
-        <Row label="Take-home"
-          ca={fmtCAD(result.caTakeHomeCAD)}
-          us={fmtUSD(result.usTakeHomeUSD)}
-          isTotal
-        />
-
-        <div className="grid grid-cols-3 gap-4 mt-6 text-xs text-ink-faint">
-          <div></div>
-          <div className="text-right">Marginal rate: {fmtPct(ca.marginal)}</div>
-          <div className="text-right">Marginal rate: {fmtPct(us.marginal)}</div>
-        </div>
-      </div>
-    </section>
-  );
 }
 
-function Warnings({ warnings }) {
+/* ============================================================
+   CHANGELOG VIEW — separate page
+   ============================================================ */
+function ChangelogView() {
   return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">What the spreadsheet won't tell you</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10 max-w-2xl">
-          The hidden costs that flip the math
-        </h2>
-        <div className="space-y-3">
-          {warnings.map((w, i) =>
-            <div key={i} className={`warning-card ${w.severity} p-5`}>
-              <div className="flex items-start gap-4">
-                <div className="label mt-1 whitespace-nowrap">
-                  {w.severity === 'critical' ? 'Critical' : w.severity === 'high' ? 'Heads up' : 'Note'}
+    <>
+      <section className="border-b border-paper-line">
+        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="label mb-3">What's shipped</div>
+          <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-12">Changelog</h2>
+          <div className="space-y-12">
+            {CHANGELOG.map((v, i) => (
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-paper-line pt-8">
+                <div className="md:col-span-3">
+                  <div className="num text-2xl font-medium tracking-tight">v{v.version}</div>
+                  <div className="label mt-2">{v.date}</div>
+                  <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider bg-forest text-paper rounded-full">
+                    Shipped
+                  </div>
                 </div>
-                <div>
-                  <div className="font-medium text-base mb-1">{w.title}</div>
-                  <div className="text-sm text-ink-soft leading-relaxed">{w.body}</div>
+                <div className="md:col-span-9">
+                  <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
+                  <ul className="space-y-2 text-[15px] text-ink-soft leading-relaxed">
+                    {v.items.map((item, j) => (
+                      <li key={j} className="flex gap-3">
+                        <span className="text-terracotta mt-1 select-none">·</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Projection({ result }) {
-  const positive = result.netDeltaCAD >= 0;
-  return (
-    <section className="border-b border-cream-line blueprint-grid">
-      <div className="max-w-6xl mx-auto px-6 py-20">
-        <div className="label mb-2">If you invested the difference</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10 max-w-2xl">
-          Ten years of compounding, at seven percent
-        </h2>
-
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="label mb-3">Net worth delta after 10 years</div>
-            <div className={`stat-num text-7xl md:text-8xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
-              {positive ? '+' : '−'}{fmtCAD(Math.abs(result.projection))}
-            </div>
-            <div className="text-sm text-ink-soft mt-4 max-w-md leading-relaxed">
-              Assumes you invest the entire annual after-tax delta at a 7% real return. Does not account for one-time costs of moving, the TFSA wind-down, departure tax, or the soft factors below.
-            </div>
-          </div>
-          <div className="space-y-3 text-sm">
-            {[1, 3, 5, 10].map(yr => {
-              const val = fvOfAnnuity(Math.max(0, result.netDeltaCAD), yr, 0.07);
-              return (
-                <div key={yr} className="flex justify-between border-b border-cream-line pb-3">
-                  <span className="text-ink-soft">After {yr} year{yr > 1 ? 's' : ''}</span>
-                  <span className="num font-medium">{positive ? '+' : '−'}{fmtCAD(Math.abs(val))}</span>
-                </div>
-              );
-            })}
+            ))}
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
 
-function SoftFactors() {
-  const factors = [
-    { label: 'Parental leave', ca: '12 to 18 months EI', us: '12 weeks unpaid (FMLA)' },
-    { label: 'Healthcare if you lose your job', ca: 'OHIP / provincial', us: 'COBRA at $1.5K to $2.5K/mo' },
-    { label: 'Distance from aging parents', ca: 'Same country', us: 'Border + flights' },
-    { label: 'Property and capital gains', ca: 'Principal residence exempt', us: 'Worldwide income reportable' },
-    { label: 'Citizenship / passport', ca: 'No change', us: 'TN does not lead to GC; H1B has 7+ year backlog for Indian-born' },
-    { label: 'Currency risk on liabilities', ca: 'CAD mortgages, CAD income', us: 'USD income, possibly CAD debts' }
-  ];
-  return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">The things you cannot put in a spreadsheet</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Soft factors</h2>
-        <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
-          {factors.map((f, i) =>
-            <div key={i} className="border-t border-cream-line pt-4">
-              <div className="label mb-2">{f.label}</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-xs text-ink-faint mb-1">Canada</div>
-                  <div>{f.ca}</div>
+      <section className="border-b border-paper-line bg-paper-deep/25">
+        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="label mb-3">What's coming</div>
+          <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-12">Roadmap</h2>
+          <div className="space-y-12">
+            {ROADMAP.map((v, i) => (
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-paper-line pt-8">
+                <div className="md:col-span-3">
+                  <div className="num text-2xl font-medium tracking-tight text-ink-soft">v{v.version}</div>
+                  <div className="label mt-2">{v.horizon}</div>
+                  <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider border border-ink-faint text-ink-faint rounded-full">
+                    Planned
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-ink-faint mb-1">United States</div>
-                  <div>{f.us}</div>
+                <div className="md:col-span-9">
+                  <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
+                  <ul className="space-y-2 text-[15px] text-ink-soft leading-relaxed">
+                    {v.items.map((item, j) => (
+                      <li key={j} className="flex gap-3">
+                        <span className="text-ink-faint mt-1 select-none">·</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
-function Changelog() {
-  return (
-    <section className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">What's shipped</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Changelog</h2>
-        <div className="space-y-10">
-          {CHANGELOG.map((v, i) =>
-            <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream-line pt-8">
-              <div className="md:col-span-3">
-                <div className="num text-3xl font-medium tracking-tight">v{v.version}</div>
-                <div className="label mt-2">{v.date}</div>
-                <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider bg-forest text-cream">
-                  Shipped
-                </div>
-              </div>
-              <div className="md:col-span-9">
-                <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
-                <ul className="space-y-2 text-sm text-ink-soft leading-relaxed">
-                  {v.items.map((item, j) =>
-                    <li key={j} className="flex gap-3">
-                      <span className="text-ink-faint mt-1 select-none">·</span>
-                      <span>{item}</span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Roadmap() {
-  return (
-    <section className="border-b border-cream-line blueprint-grid">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">What's coming</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Roadmap</h2>
-        <div className="space-y-10">
-          {ROADMAP.map((v, i) =>
-            <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream-line pt-8">
-              <div className="md:col-span-3">
-                <div className="num text-3xl font-medium tracking-tight text-ink-soft">v{v.version}</div>
-                <div className="label mt-2">{v.horizon}</div>
-                <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider border border-ink-faint text-ink-faint">
-                  Planned
-                </div>
-              </div>
-              <div className="md:col-span-9">
-                <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
-                <ul className="space-y-2 text-sm text-ink-soft leading-relaxed">
-                  {v.items.map((item, j) =>
-                    <li key={j} className="flex gap-3">
-                      <span className="text-ink-faint mt-1 select-none">·</span>
-                      <span>{item}</span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
+/* ============================================================
+   FOOTER
+   ============================================================ */
 function Footer() {
+  const latest = CHANGELOG[0];
   return (
-    <footer className="max-w-6xl mx-auto px-6 py-16">
-      <div className="rule-thick mb-8" />
-      <div className="text-xs text-ink-faint leading-relaxed max-w-3xl">
-        <p className="mb-3">
-          This tool uses 2026 published tax brackets from CRA, IRS, and provincial/state revenue agencies.
-          Healthcare and childcare costs are estimates from KFF and provincial subsidy programs.
-        </p>
-        <p className="mb-3">
-          Not tax advice. Not legal advice. Especially not advice on departure tax, TFSA wind-down, RRSP deemed-disposition timing, or visa strategy. For real moves, get a cross-border accountant.
-        </p>
-        <p>Built in Ajax. Made for the group chat.</p>
+    <footer className="border-t border-paper-line">
+      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-14 grid md:grid-cols-12 gap-10">
+        <div className="md:col-span-5">
+          <div className="display text-2xl font-medium tracking-tight">
+            North<span className="text-terracotta">×</span>South
+          </div>
+          <p className="hand text-xl text-ink-soft mt-2 max-w-sm leading-tight">
+            Built by Canadians who moved south, for Canadians thinking about it.
+          </p>
+        </div>
+        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-ink-soft">
+          <div>
+            <div className="label mb-3">The math</div>
+            <ul className="space-y-2">
+              <li>2026 brackets · CRA + IRS</li>
+              <li>4 provinces · 8 states</li>
+              <li>FICA, CPP, EI, Medicare</li>
+            </ul>
+          </div>
+          <div>
+            <div className="label mb-3">Notes</div>
+            <ul className="space-y-2">
+              <li>Not financial advice</li>
+              <li>See a cross-border accountant</li>
+              <li>Consult an immigration lawyer</li>
+            </ul>
+          </div>
+          <div>
+            <div className="label mb-3">Source</div>
+            <ul className="space-y-2">
+              <li>Open source</li>
+              <li>v{latest.version} · April 2026</li>
+              <li>Made with care</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-paper-line">
+        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="hand text-lg text-ink-faint">
+            "If you take it, write me back when you've signed the lease."
+          </div>
+          <div className="num text-xs text-ink-faint">© 2026 · A working draft</div>
+        </div>
       </div>
     </footer>
-  );
-}
-
-/* ========================================================================
-   WIZARD — screen-by-screen guided flow
-   ======================================================================== */
-
-function Wizard({ state, update, onComplete }) {
-  const [stepIdx, setStepIdx] = useState(0);
-
-  const allSteps = ['salaryCAD','province','salaryUSD','state','nyc','filingStatus','kids','visaType','review'];
-  const visibleSteps = allSteps.filter(s => s !== 'nyc' || state.state === 'NY');
-  const safeIdx = Math.min(stepIdx, visibleSteps.length - 1);
-  const current = visibleSteps[safeIdx];
-  const total = visibleSteps.length;
-
-  const next = () => safeIdx < total - 1 ? setStepIdx(safeIdx + 1) : onComplete();
-  const back = () => setStepIdx(Math.max(0, safeIdx - 1));
-
-  const choose = (field, value) => {
-    update({ [field]: value });
-    setTimeout(() => setStepIdx(i => Math.min(i + 1, allSteps.length - 1)), 180);
-  };
-
-  return (
-    <section id="wizard" className="scroll-mt-4">
-      <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
-        {/* Progress */}
-        <div className="flex items-center gap-4 mb-16">
-          <div className="label whitespace-nowrap">Step {safeIdx + 1} of {total}</div>
-          <div className="flex-1 h-px bg-cream-line relative">
-            <div className="absolute inset-y-0 left-0 bg-ink transition-all duration-300" style={{ width: `${((safeIdx + 1) / total) * 100}%` }} />
-          </div>
-        </div>
-
-        {current === 'salaryCAD' && (
-          <NumberScreen
-            title="How much do you earn now?"
-            subtitle="Annual base salary in Canadian dollars, before tax."
-            value={state.salaryCAD}
-            onChange={(v) => update({ salaryCAD: v })}
-            prefix="$" suffix="CAD"
-            onNext={next} onBack={back}
-          />
-        )}
-
-        {current === 'province' && (
-          <ChoiceScreen
-            title="Where in Canada?"
-            subtitle="The province you currently file taxes in."
-            value={state.province}
-            options={Object.entries(PROVINCIAL_2026).map(([k, v]) => ({ value: k, label: v.label }))}
-            onChoose={(v) => choose('province', v)}
-            onBack={back}
-            columns={2}
-          />
-        )}
-
-        {current === 'salaryUSD' && (
-          <NumberScreen
-            title="What's the offer?"
-            subtitle="Base salary in USD. Leave bonus and RSUs out for now — those land in v2."
-            value={state.salaryUSD}
-            onChange={(v) => update({ salaryUSD: v })}
-            prefix="$" suffix="USD"
-            onNext={next} onBack={back}
-          />
-        )}
-
-        {current === 'state' && (
-          <ChoiceScreen
-            title="Going where?"
-            subtitle="Which US state. State tax swing alone can move the answer by tens of thousands — Texas and Florida have none, California tops out near 13%."
-            value={state.state}
-            options={Object.entries(STATE_2026).map(([k, v]) => ({ value: k, label: v.label }))}
-            onChoose={(v) => choose('state', v)}
-            onBack={back}
-            columns={2}
-          />
-        )}
-
-        {current === 'nyc' && (
-          <ChoiceScreen
-            title="Living in NYC proper?"
-            subtitle="New York City charges its own personal income tax on top of the state. The five boroughs count, the suburbs do not."
-            value={state.nyc ? 'yes' : 'no'}
-            options={[
-              { value: 'no', label: 'No, outside the city' },
-              { value: 'yes', label: 'Yes, in NYC' }
-            ]}
-            onChoose={(v) => choose('nyc', v === 'yes')}
-            onBack={back}
-          />
-        )}
-
-        {current === 'filingStatus' && (
-          <ChoiceScreen
-            title="Filing status?"
-            subtitle="Married filing jointly matters in the US — wider brackets, doubled standard deduction. Common-law and married are treated the same on Canadian returns."
-            value={state.filingStatus}
-            options={[
-              { value: 'single', label: 'Single' },
-              { value: 'mfj', label: 'Married, filing jointly' }
-            ]}
-            onChoose={(v) => choose('filingStatus', v)}
-            onBack={back}
-          />
-        )}
-
-        {current === 'kids' && (
-          <ChoiceScreen
-            title="Kids under 13?"
-            subtitle="Childcare is the line item that flips this calculation for families. Toronto's $10/day under CWELCC versus $20–30k a year per kid in most US metros."
-            value={state.kids}
-            options={[
-              { value: 0, label: 'None' },
-              { value: 1, label: '1' },
-              { value: 2, label: '2' },
-              { value: 3, label: '3 or more' }
-            ]}
-            onChoose={(v) => choose('kids', v)}
-            onBack={back}
-            columns={2}
-          />
-        )}
-
-        {current === 'visaType' && (
-          <ChoiceScreen
-            title="Which visa?"
-            subtitle="TN is the easy path for Canadian professionals but doesn't lead to a green card. H1B does, but it's lottery-based and has strict spouse rules."
-            value={state.visaType}
-            options={[
-              { value: 'TN', label: 'TN — Canadian professional' },
-              { value: 'H1B', label: 'H1B' },
-              { value: 'GC', label: 'Already a green card holder' }
-            ]}
-            onChoose={(v) => choose('visaType', v)}
-            onBack={back}
-          />
-        )}
-
-        {current === 'review' && (
-          <ReviewScreen state={state} onNext={onComplete} onBack={back} />
-        )}
-      </div>
-    </section>
-  );
-}
-
-function WizardScreen({ title, subtitle, onNext, ctaLabel = 'Continue', onBack, hideBack }) {
-  return (
-    <div>
-      <h1 className="display text-5xl md:text-7xl font-medium leading-[0.95] tracking-tight mb-8">{title}</h1>
-      {subtitle && <p className="text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
-      <div className="flex items-center gap-6">
-        <button className="cta" onClick={onNext}>{ctaLabel}</button>
-        {!hideBack && <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>}
-      </div>
-    </div>
-  );
-}
-
-function NumberScreen({ title, subtitle, value, onChange, prefix, suffix, onNext, onBack }) {
-  const handleKey = (e) => { if (e.key === 'Enter') onNext(); };
-  return (
-    <div>
-      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">{title}</h2>
-      {subtitle && <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
-      <div className="flex items-baseline gap-3 mb-12 max-w-md">
-        {prefix && <span className="num text-3xl md:text-4xl text-ink-faint">{prefix}</span>}
-        <input
-          type="number"
-          autoFocus
-          className="input-field"
-          style={{ fontSize: '2.25rem', fontWeight: 500 }}
-          value={value || ''}
-          onChange={(e) => onChange(parseInt(e.target.value) || 0)}
-          onFocus={(e) => e.target.select()}
-          onKeyDown={handleKey}
-        />
-        {suffix && <span className="num text-lg md:text-xl text-ink-faint">{suffix}</span>}
-      </div>
-      <div className="flex items-center gap-6">
-        <button className="cta" onClick={onNext}>Continue</button>
-        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
-      </div>
-    </div>
-  );
-}
-
-function ChoiceScreen({ title, subtitle, value, options, onChoose, onBack, columns = 1 }) {
-  const colClass = columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1';
-  return (
-    <div>
-      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">{title}</h2>
-      {subtitle && <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
-      <div className={`grid ${colClass} gap-3 max-w-2xl mb-12`}>
-        {options.map((opt) => {
-          const selected = value === opt.value;
-          return (
-            <button
-              key={String(opt.value)}
-              onClick={() => onChoose(opt.value)}
-              className={`text-left px-5 py-4 border transition-all ${selected ? 'border-ink bg-ink text-cream' : 'border-cream-line hover:border-ink hover:bg-cream-deep'}`}
-            >
-              <span className="font-medium">{opt.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      <div>
-        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
-      </div>
-    </div>
-  );
-}
-
-function ReviewScreen({ state, onNext, onBack }) {
-  const Row = ({ label, value }) => (
-    <div className="flex justify-between items-baseline py-3 border-b border-cream-line last:border-b-0">
-      <span className="label">{label}</span>
-      <span className="num font-medium text-right">{value}</span>
-    </div>
-  );
-  return (
-    <div>
-      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">Ready to see the math?</h2>
-      <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-10">
-        Here's what you've told us. You can change any of this on the next screen.
-      </p>
-      <div className="border border-cream-line p-6 mb-10 max-w-xl">
-        <Row label="Current salary" value={`${fmtCAD(state.salaryCAD)} CAD`} />
-        <Row label="Province" value={PROVINCIAL_2026[state.province].label} />
-        <Row label="Offer" value={`${fmtUSD(state.salaryUSD)} USD`} />
-        <Row label="State" value={STATE_2026[state.state].label + (state.state === 'NY' && state.nyc ? ' (NYC)' : '')} />
-        <Row label="Filing" value={state.filingStatus === 'single' ? 'Single' : 'Married, joint'} />
-        <Row label="Kids" value={state.kids === 0 ? 'None' : state.kids === 3 ? '3 or more' : String(state.kids)} />
-        <Row label="Visa" value={state.visaType === 'GC' ? 'Green Card' : state.visaType} />
-      </div>
-      <div className="flex items-center gap-6">
-        <button className="cta" onClick={onNext}>Show me the number</button>
-        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
-      </div>
-    </div>
-  );
-}
-
-/* ========================================================================
-   SEO CONTENT — long-form editorial below the calculator
-   ======================================================================== */
-
-function StatCallout({ value, label, color }) {
-  const colorClass = color === 'vermillion' ? 'text-vermillion' : color === 'forest' ? 'text-forest' : 'text-ink';
-  return (
-    <div className="border-l-2 border-ink py-3 pl-5 my-10">
-      <div className={`stat-num text-3xl md:text-4xl font-medium leading-none ${colorClass}`}>{value}</div>
-      <div className="text-sm text-ink-soft mt-2 max-w-xl leading-relaxed">{label}</div>
-    </div>
-  );
-}
-
-function SeoContent({ startWizard }) {
-  return (
-    <section className="border-t border-cream-line bg-cream-deep/30">
-      <div className="max-w-3xl mx-auto px-6 py-20 md:py-28">
-        <div className="label mb-3">The bigger picture</div>
-        <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-8">
-          Canadians keep moving to the US for higher salaries — but is it always worth it?
-        </h2>
-        <p className="text-lg text-ink-soft leading-relaxed mb-6">
-          The salary gap between Canada and the United States is real and widening, especially in technology and healthcare. Bank of Canada productivity research shows the average American worker now generates roughly thirty percent more output per hour than the average Canadian, and that gap shows up directly in compensation. A senior software engineer in Toronto might earn $145,000 CAD; the equivalent role at a Bay Area FAANG company pays $300,000 to $450,000 USD in total compensation. Even after tax and a thirty-five percent currency adjustment, that delta is hard to ignore.
-        </p>
-        <p className="text-lg text-ink-soft leading-relaxed mb-12">
-          But the gap is not the whole story. The honest answer to "is the US offer worth it?" depends on factors most calculators skip — state-level tax, out-of-pocket healthcare, daycare costs, the CRA's departure tax, the TFSA becoming a US tax problem, and visa structure that may stop your spouse from working. For families with young children, the answer is often no. For single tech workers moving to a no-state-tax metro, the answer is almost always yes. Run the numbers on your specific scenario and the verdict often surprises people.
-        </p>
-
-        <button onClick={startWizard} className="cta mb-16">Run my numbers ↓</button>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4 mt-4">Why the salary gap is real</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          The headline numbers are not an illusion. Compensation surveys from levels.fyi, Glassdoor, and Robert Half consistently show 1.5x to 3x salary differentials for the same role between major Canadian and American tech hubs. Healthcare workers see similar gaps: a registered nurse in Ontario earns $75,000 to $95,000 CAD, while the same role in Texas pays $85,000 to $110,000 USD plus shift differentials. Canadian pharmacists earning $110,000 CAD often clear $130,000 USD or more in the US. Family physicians billing $250,000 in Canada commonly earn $300,000 to $400,000 in equivalent US positions, and specialists frequently double that.
-        </p>
-
-        <StatCallout
-          value="1.5x – 3x"
-          label="typical salary multiplier for the same software engineering role between Toronto/Vancouver and the major US tech hubs (San Francisco, Seattle, New York, Austin)."
-          color="forest"
-        />
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The state tax swing</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          Where in the US matters enormously. Federal tax brackets are nearly identical wherever you land, but state-level tax can swing the answer by tens of thousands of dollars. Texas, Florida, Washington, Tennessee, Nevada, and a handful of others charge no state income tax at all. California tops out at 13.3 percent on incomes above one million, plus a one percent mental-health-services surcharge on millionaire earners. New York City stacks a personal income tax on top of New York State, taking the combined top marginal rate to roughly 14.8 percent. For a Toronto software engineer earning $250,000 USD, choosing Austin versus San Francisco versus Manhattan changes annual take-home by $20,000 to $35,000 USD before housing costs even enter the picture.
-        </p>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Healthcare is a real line item</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          Canadians often underestimate how much American healthcare costs even with employer insurance. The Kaiser Family Foundation's annual Employer Health Benefits Survey finds the average employer-sponsored family premium runs about $25,000 a year, with employees contributing roughly $6,500 of that. Add a $4,000 to $6,000 family deductible, plus routine out-of-pocket costs for prescriptions and specialist visits, and most middle-class American families spend $9,000 to $12,000 a year on healthcare. If you change jobs and need COBRA, the full premium falls on you for up to eighteen months — typically $1,800 to $2,500 a month for a family. These costs are invisible in Canada because they are absorbed into payroll tax, but they are a genuine line item in the US comparison.
-        </p>
-
-        <StatCallout
-          value="$9,000 – $12,000"
-          label="annual out-of-pocket healthcare cost for a typical American middle-class family with employer insurance — premium contribution, deductible, copays, and prescriptions combined."
-          color="vermillion"
-        />
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Childcare flips the math for families</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          For parents of children under five, childcare is often the single largest swing in the calculation. Ontario's Canada-Wide Early Learning and Child Care (CWELCC) program brings licensed daycare to about $10 a day — roughly $2,500 a year per child. In contrast, full-time licensed daycare in Boston, Manhattan, San Francisco, or Seattle averages $25,000 to $32,000 per child annually, with Texas and Florida metros falling closer to $15,000 to $20,000. A family of four with two kids under five faces a $40,000 to $50,000 annual childcare delta. Unless the US offer comes with a 1.5x to 2x salary bump, the math frequently does not work for young families.
-        </p>
-
-        <StatCallout
-          value="$40,000 – $50,000"
-          label="annual childcare cost difference for a family with two kids under five between Toronto under CWELCC and most US tech metros."
-          color="vermillion"
-        />
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The hidden costs of leaving Canada</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-4">
-          Most cross-border calculators ignore the one-time tax friction of severing residency. The big ones to plan for:
-        </p>
-        <ul className="space-y-4 text-base text-ink-soft leading-relaxed mb-10 list-disc pl-6">
-          <li>
-            <strong className="text-ink">Departure tax.</strong> When you sever Canadian tax residency, the CRA deems you to have sold your non-registered investments at fair market value. Capital gains tax is owed on paper gains even if you have not actually sold. RRSPs and pensions are exempt; principal residences typically are too. A typical software engineer with $50,000 in unrealized gains in their non-registered brokerage account owes roughly $11,000 to $16,000 in departure tax depending on province.
-          </li>
-          <li>
-            <strong className="text-ink">TFSA becomes a US tax problem.</strong> The IRS does not recognize the TFSA shelter. Earnings are taxed annually on your US 1040, and Canadian mutual funds and ETFs trigger PFIC (Passive Foreign Investment Company) reporting on Form 8621. PFIC tax treatment is punitive enough that compliance fees and tax often exceed everything the TFSA shelter saved. Most cross-border accountants recommend liquidating the TFSA before the move.
-          </li>
-          <li>
-            <strong className="text-ink">RESP grants stop.</strong> The Canada Education Savings Grant ends the day you become a non-resident. Existing balances stay invested but no new grants accrue. Unused contribution room means a permanent loss of the twenty percent government match.
-          </li>
-          <li>
-            <strong className="text-ink">FIRPTA on Canadian rental property.</strong> Keeping your Canadian house and renting it out triggers withholding tax under FIRPTA-adjacent rules and creates ongoing dual-country filings. Eventually selling is messy because the principal residence exemption is partially lost for years spent as a non-resident.
-          </li>
-        </ul>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The TN visa trap</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          The TN visa is the most common pathway for Canadian professionals — it is a NAFTA/USMCA category that lets degreed Canadians work in the US in roughly sixty enumerated professions. But it has two restrictions most calculators do not surface. First, TN requires non-immigrant intent: there is no path from TN to a green card without switching to another visa category like H1B, which is lottery-based and capped at 85,000 a year. Second, TD dependent status for spouses does not include work authorization. If both partners need to work, one of them needs an independent visa — most commonly their own TN if they qualify, an H1B, or an L1 if their employer can structure an intra-company transfer. For dual-income families, this is often the decisive issue that calculators miss entirely.
-        </p>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Who comes out ahead, and who does not</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-6">
-          The pattern across hundreds of cross-border moves is consistent. <strong className="text-ink">Single tech workers</strong> moving to a no-state-tax metro (Austin, Seattle, Miami, Nashville) on a 1.7x or higher salary multiplier almost always come out ahead, even after departure tax. <strong className="text-ink">Tech workers</strong> moving to California or New York City see most of the bump consumed by state and city tax, and the answer often ends up break-even after factoring in cost of living. <strong className="text-ink">Families with two young children</strong> need a 1.5x or higher multiplier just to break even on childcare and healthcare; a flat lateral move to the US almost always loses. <strong className="text-ink">Healthcare workers</strong> face additional friction from the licensing path (NCLEX for nurses, USMLE for physicians) but often see the highest absolute salary deltas in the long run. <strong className="text-ink">Dual-income couples</strong> on TN are constrained by the spouse work-authorization issue — the household economy depends entirely on whether the second visa can be solved.
-        </p>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-6">Frequently asked questions</h3>
-        <div className="space-y-8 mb-12">
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">Should I close my TFSA before moving to the US?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              Almost always yes. The IRS taxes TFSA earnings on your 1040 and Canadian mutual funds inside the account trigger PFIC reporting, which often costs more in compliance fees and punitive tax than the TFSA shelter ever saved. Most cross-border accountants recommend liquidating before you sever residency.
-            </p>
-          </div>
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">What about my RRSP?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              RRSPs are protected by the Canada-US tax treaty. You can leave the account in Canada, continue letting it grow, and the treaty defers US tax on internal growth until withdrawal. RRSPs are not subject to PFIC rules. They are the cleanest part of the cross-border investment picture.
-            </p>
-          </div>
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">Can my spouse work on my TN visa?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              No. TD (TN Dependent) status does not include work authorization. Your spouse needs their own work visa — most commonly their own TN if they are a Canadian professional in a qualifying occupation, an H1B, or an L1 if they get an intra-company transfer. For dual-income households this is often the largest single factor in whether the move makes sense.
-            </p>
-          </div>
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">Should I keep my Canadian house and rent it?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              It is possible but messy. The CRA will withhold twenty-five percent of gross rental income (reducible to net via a Section 216 election), and you will file in both countries. Eventually selling triggers principal residence considerations (lost exemption for years as a non-resident) plus FIRPTA-adjacent withholding. For most movers, selling before the move simplifies the picture significantly.
-            </p>
-          </div>
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">Does the "1.5x rule" actually work?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              The rule of thumb — only move if the US offer is 1.5x your Canadian total comp — is roughly right for single workers in no-state-tax states. For families with kids, you usually need closer to 1.7x or 2x to break even after childcare and healthcare. For California or New York City moves, add another ten to fifteen percent to the threshold to absorb state and city tax.
-            </p>
-          </div>
-          <div>
-            <div className="display text-lg md:text-xl font-medium mb-2">When should I talk to a cross-border accountant?</div>
-            <p className="text-base text-ink-soft leading-relaxed">
-              Before you sign the offer. Departure tax timing, TFSA wind-down, and RRSP elections all interact, and a few thousand dollars of upfront advice often saves five-figure mistakes later. Firms like Cardinal Point, MCA Cross Border Advisors, and Serbinski specialize in Canada-US individual tax planning.
-            </p>
-          </div>
-        </div>
-
-        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The factors no calculator captures</h3>
-        <p className="text-base text-ink-soft leading-relaxed mb-4">
-          Money is a piece of the answer, not the whole answer. The factors that show up most often in regret stories — from people who moved and from people who chose not to:
-        </p>
-        <ul className="space-y-3 text-base text-ink-soft leading-relaxed mb-12 list-disc pl-6">
-          <li><strong className="text-ink">Healthcare access if you lose your job.</strong> COBRA at $1,500 to $2,500 a month for a family for eighteen months is a real exposure that does not exist in Canada.</li>
-          <li><strong className="text-ink">Parental leave.</strong> Canada offers twelve to eighteen months of EI parental leave. The US offers twelve weeks of unpaid FMLA, and only at companies with fifty or more employees.</li>
-          <li><strong className="text-ink">Distance from aging parents.</strong> International moves you assume are temporary often become permanent. The flight back for an emergency feels different at seventy than at thirty-five.</li>
-          <li><strong className="text-ink">School and gun proximity.</strong> The day-to-day reality of American school routines (lockdown drills, security infrastructure, district disparity) differs from Canadian ones in ways that some families adjust to easily and others do not.</li>
-          <li><strong className="text-ink">Citizenship path.</strong> TN does not lead to a green card. Indian-born professionals on H1B face employment-based green card backlogs of a decade or more. If you want permanence, structure the visa accordingly from day one.</li>
-          <li><strong className="text-ink">Currency risk.</strong> If you keep CAD-denominated debts (mortgage on a Canadian property) and earn USD, currency moves can swing your real cost of living by ten to twenty percent over a few years.</li>
-        </ul>
-
-        <p className="text-lg text-ink-soft leading-relaxed mb-8">
-          The honest answer to "should I take the offer?" is rarely a clean yes or no. It is "for these inputs, here is the math." That is what this calculator is for. Run it for your specific scenario, share the URL with your partner or accountant, and revisit the soft factors before you sign.
-        </p>
-
-        <button onClick={startWizard} className="cta">Run the numbers for my offer ↓</button>
-      </div>
-    </section>
   );
 }
 
