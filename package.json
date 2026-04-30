@@ -1,6 +1,6 @@
 {
   "name": "canadatouscalculator",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": true,
   "description": "North×South — Canada-to-US compensation honesty audit. Static site, no build step.",
   "scripts": {

@@ -1,6 +1,8 @@
 # North×South
 
-A cross-border honesty audit for Canadians weighing a US job offer. Models the household — primary salary + spouse work-auth, housing on both sides, cost of living, departure tax, and what the employer is actually putting on the table — not just the salary delta.
+A cross-border honesty audit for Canadians weighing a US job offer. A joint project by [Mazin Kanuga](https://github.com/TechnoDudeX) and [Copilot Tax](https://copilottax.ca/) — the napkin math meets the actual cross-border CPA.
+
+Models the household — primary salary + spouse work-auth, housing on both sides, cost of living, departure tax, and what the employer is actually putting on the table — not just the salary delta.
 
 Live: https://canadatouscalculator.netlify.app/
 
@@ -46,7 +48,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v4.0.0.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.0.1.
 
 ## Tests
 

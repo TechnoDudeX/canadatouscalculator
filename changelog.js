@@ -9,6 +9,18 @@
 
 const CHANGELOG = [
   {
+    version: '4.0.1',
+    date: '2026-04-30',
+    title: 'Partner branding — North×South is now a joint project with Copilot Tax',
+    items: [
+      'Footer rebuilt around a prominent CTA panel: "Need help with your actual taxes? Visit Copilot Tax →" linking to https://copilottax.ca/',
+      'Byline updated to credit the partnership: "A joint project by Mazin Kanuga and Copilot Tax — the napkin math meets the actual cross-border CPA"',
+      'Old "About" footer column replaced with a "Partner" column linking to Copilot Tax',
+      'Footer copyright line updated: "© 2026 · North×South · Mazin Kanuga × Copilot Tax"',
+      'Added "Spouse work-auth · housing · COL" line under "The math" footer column to reflect the v4.0.0 household model'
+    ]
+  },
+  {
     version: '4.0.0',
     date: '2026-04-30',
     title: 'Household model — spouse work-auth, housing, COL, departure tax, offer credits',
