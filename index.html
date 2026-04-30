@@ -352,19 +352,40 @@ const CHILDCARE_STATE_DEFAULT = {
 };
 
 /* ========================================================================
-   CHANGELOG
-   --------
-   To update on deploy: prepend a new entry to the top of the array below.
-   Status values: 'shipped' | 'in-progress' | 'planned'.
-   Date format: 'YYYY-MM-DD' for shipped versions, 'Planned' / 'Future'
-   for forward-looking ones. Keep items short — one line each.
+   CHANGELOG (shipped) + ROADMAP (planned)
+   ---------------------------------------
+   On every deploy, prepend a new entry to CHANGELOG. If a planned item
+   just shipped, also remove it from ROADMAP.
+   Date format for CHANGELOG: 'YYYY-MM-DD'. Items are one short line each.
    ======================================================================== */
 
 const CHANGELOG = [
   {
+    version: '1.0.2',
+    date: '2026-04-30',
+    title: 'Split Changelog and Roadmap into separate sections',
+    items: [
+      'Changelog now lists only shipped versions; Roadmap holds future work',
+      'Roadmap section uses blueprint-grid background to read as forward-looking',
+      'CHANGELOG bump is now part of every deploy by default'
+    ]
+  },
+  {
+    version: '1.0.1',
+    date: '2026-04-30',
+    title: 'Screen-by-screen wizard',
+    items: [
+      'New first-time visitor flow — one question per screen with progress bar',
+      'Choice screens auto-advance after selection; number screens accept Enter to continue',
+      'Conditional NYC sub-step appears only when New York is chosen',
+      'Review screen summarizes answers before showing the result',
+      '"Restart wizard" link in header on the results page',
+      'Shared URLs still skip the wizard and load straight to results'
+    ]
+  },
+  {
     version: '1.0.0',
     date: '2026-04-30',
-    status: 'shipped',
     title: 'Initial release',
     items: [
       '2026 federal tax brackets for Canada (CRA) and US (IRS)',
@@ -379,11 +400,13 @@ const CHANGELOG = [
       'Soft factors comparison (parental leave, healthcare-after-job-loss, etc.)',
       'Shareable URL state — every input encodes into query params'
     ]
-  },
+  }
+];
+
+const ROADMAP = [
   {
     version: '1.1.0',
-    date: 'Planned',
-    status: 'planned',
+    horizon: 'Next',
     title: 'Verified brackets + small fixes',
     items: [
       'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers',
@@ -395,8 +418,7 @@ const CHANGELOG = [
   },
   {
     version: '2.0.0',
-    date: 'Planned',
-    status: 'planned',
+    horizon: 'Soon',
     title: 'Equity, housing, multi-state',
     items: [
       'RSU and stock option cross-border treatment (the real money for tech moves)',
@@ -411,11 +433,9 @@ const CHANGELOG = [
   },
   {
     version: '3.0.0',
-    date: 'Future',
-    status: 'planned',
-    title: 'Guided wizard + persona variants',
+    horizon: 'Later',
+    title: 'Persona variants + monetization',
     items: [
-      'Guided visa-and-tax wizard (TN vs H1B vs L1 decision tree)',
       'Healthcare worker variant — NCLEX path, malpractice insurance line item',
       'Dual-income couple modeling with TN/TD spouse work restriction',
       'Family-of-four GTA-to-Texas/Florida preset scenario',
@@ -732,6 +752,7 @@ function App() {
       <Projection result={result} />
       <SoftFactors />
       <Changelog />
+      <Roadmap />
       <Footer copyShare={copyShare} copied={copied} />
     </main>
   );
@@ -1118,26 +1139,54 @@ function SoftFactors() {
 }
 
 function Changelog() {
-  const statusStyle = (s) => {
-    if (s === 'shipped') return 'bg-forest text-cream';
-    if (s === 'in-progress') return 'bg-vermillion text-cream';
-    return 'border border-ink-faint text-ink-faint';
-  };
-  const statusLabel = (s) => s === 'shipped' ? 'Shipped' : s === 'in-progress' ? 'In progress' : 'Planned';
-
   return (
     <section className="border-b border-cream-line">
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="label mb-2">What's shipped, what's next</div>
-        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Changelog &amp; roadmap</h2>
+        <div className="label mb-2">What's shipped</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Changelog</h2>
         <div className="space-y-10">
           {CHANGELOG.map((v, i) =>
             <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream-line pt-8">
               <div className="md:col-span-3">
                 <div className="num text-3xl font-medium tracking-tight">v{v.version}</div>
                 <div className="label mt-2">{v.date}</div>
-                <div className={`inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider ${statusStyle(v.status)}`}>
-                  {statusLabel(v.status)}
+                <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider bg-forest text-cream">
+                  Shipped
+                </div>
+              </div>
+              <div className="md:col-span-9">
+                <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
+                <ul className="space-y-2 text-sm text-ink-soft leading-relaxed">
+                  {v.items.map((item, j) =>
+                    <li key={j} className="flex gap-3">
+                      <span className="text-ink-faint mt-1 select-none">·</span>
+                      <span>{item}</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Roadmap() {
+  return (
+    <section className="border-b border-cream-line blueprint-grid">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">What's coming</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Roadmap</h2>
+        <div className="space-y-10">
+          {ROADMAP.map((v, i) =>
+            <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream-line pt-8">
+              <div className="md:col-span-3">
+                <div className="num text-3xl font-medium tracking-tight text-ink-soft">v{v.version}</div>
+                <div className="label mt-2">{v.horizon}</div>
+                <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider border border-ink-faint text-ink-faint">
+                  Planned
                 </div>
               </div>
               <div className="md:col-span-9">
