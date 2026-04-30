@@ -44,4 +44,13 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v3.2.1.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v3.3.0.
+
+## Tests
+
+```bash
+npm install
+npm test
+```
+
+Vitest covers the pure calc functions in `calc.js` (bracket math, CPP/EI, US/Canada take-home, breakeven).
