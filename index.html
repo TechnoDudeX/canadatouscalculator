@@ -906,7 +906,7 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
    ============================================================ */
 function VerdictSection({ state, update, result, aiTrigger }) {
   const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
-  const [chartInsight, setChartInsight] = React.useState('');
+  const [chartInsight, setChartInsight] = useState('');
   const fiveYrDelta = result.fiveYrDelta;
   const threeYrDelta = result.threeYrDelta;
 
@@ -1174,8 +1174,6 @@ function ExplainPanel({ state, result, hasInput, autoTrigger, onChartInsight }) 
   const [model, setModel] = useState('');
   const [throttledUntil, setThrottledUntil] = useState(0);
 
-  if (!hasInput) return null;
-
   const now = Date.now();
   const throttledMs = Math.max(0, throttledUntil - now);
   const throttled = throttledMs > 0;
@@ -1205,8 +1203,10 @@ function ExplainPanel({ state, result, hasInput, autoTrigger, onChartInsight }) 
   };
 
   useEffect(() => {
-    if (autoTrigger > 0 && !throttled && status === 'idle') generate();
-  }, [autoTrigger]);
+    if (autoTrigger > 0 && hasInput && !throttled && status === 'idle') generate();
+  }, [autoTrigger, hasInput]);
+
+  if (!hasInput) return null;
 
   return (
     <div className="panel-night p-6 md:p-10 mb-14 text-cream">
