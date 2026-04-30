@@ -49,264 +49,12 @@
   <!-- Trimmed weights — only what's actually used (Fraunces 700/800, Space Grotesk 400/500/600/700, Geist 400/500, Geist Mono 400/500) -->
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Fraunces', 'Georgia', 'serif'],
-            grotesk: ['Space Grotesk', 'system-ui', 'sans-serif'],
-            sans: ['Geist', 'system-ui', 'sans-serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            night: '#0E0B2C',
-            'night-deep': '#070518',
-            'night-soft': '#1A1545',
-            cream: '#FFF6E5',
-            'cream-soft': '#F5EBD3',
-            lime: '#D4FF3A',
-            'lime-deep': '#A8D420',
-            pink: '#FF3D7F',
-            'pink-deep': '#D11758',
-            cobalt: '#3956FF',
-            'cobalt-deep': '#1F36C7',
-            tangerine: '#FF8A2B',
-            lavender: '#B9A8FF'
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="style.css" />
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <style>
-    html, body { background: #F5EBD3; color: #0E0B2C; }
-    body { font-family: 'Geist', system-ui, sans-serif; }
-    .display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01' 1; }
-    .grotesk { font-family: 'Space Grotesk', sans-serif; }
-    .num { font-family: 'Geist Mono', monospace; font-feature-settings: 'tnum' 1; }
-
-    .label {
-      font-family: 'Space Grotesk', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .stat-num {
-      font-family: 'Fraunces', serif;
-      font-feature-settings: 'tnum' 1;
-      font-variation-settings: 'opsz' 144;
-      letter-spacing: -0.04em;
-      font-weight: 700;
-    }
-
-    /* Gradient mesh background — softer for light mode */
-    body::before {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 15% 12%, rgba(255, 61, 127, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 85% 25%, rgba(57, 86, 255, 0.16) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 50% at 50% 95%, rgba(212, 255, 58, 0.20) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 75%, rgba(185, 168, 255, 0.14) 0%, transparent 60%);
-    }
-    body::after {
-      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      opacity: 0.35;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0 0.17 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    main, header, footer { position: relative; z-index: 1; }
-
-    /* Sticker / badge */
-    .sticker {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-radius: 999px;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.25);
-    }
-    .sticker-lime { background: #D4FF3A; color: #0E0B2C; }
-    .sticker-pink { background: #FF3D7F; color: #FFF6E5; }
-    .sticker-cobalt { background: #3956FF; color: #FFF6E5; }
-    .sticker-cream { background: #FFF6E5; color: #0E0B2C; }
-    .sticker-night { background: #0E0B2C; color: #FFF6E5; }
-    .sticker-outline { border: 2px solid #0E0B2C; color: #0E0B2C; box-shadow: none; }
-
-    /* Highlight bar behind text */
-    .hl-lime, .hl-pink, .hl-cobalt {
-      padding: 0 0.1em;
-      -webkit-box-decoration-break: clone;
-      box-decoration-break: clone;
-    }
-    .hl-lime { background: linear-gradient(180deg, transparent 60%, #D4FF3A 60%); color: #0E0B2C; }
-    .hl-pink { background: linear-gradient(180deg, transparent 60%, #FF3D7F 60%); color: #FFF6E5; }
-    .hl-cobalt { background: linear-gradient(180deg, transparent 60%, #3956FF 60%); color: #FFF6E5; }
-
-    /* Chunky underline */
-    .u-lime { box-shadow: inset 0 -0.18em 0 #D4FF3A; padding-bottom: 0.05em; }
-    .u-pink { box-shadow: inset 0 -0.18em 0 #FF3D7F; padding-bottom: 0.05em; }
-
-    /* Strike */
-    .strike-pink { position: relative; display: inline-block; }
-    .strike-pink::after {
-      content: ''; position: absolute; left: -2%; right: -2%; top: 52%;
-      height: 0.16em; background: #FF3D7F; transform: rotate(-3deg);
-    }
-
-    /* Marquee */
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
-    }
-    .marquee { animation: marquee 40s linear infinite; }
-    .marquee-wrap:hover .marquee { animation-play-state: paused; }
-
-    /* Card / block */
-    .panel {
-      background: rgba(14, 11, 44, 0.04);
-      border: 1px solid rgba(14, 11, 44, 0.14);
-      backdrop-filter: blur(8px);
-      border-radius: 24px;
-    }
-    .panel-lime { background: #D4FF3A; color: #0E0B2C; border-radius: 28px; }
-    .panel-pink { background: #FF3D7F; color: #FFF6E5; border-radius: 28px; }
-    .panel-cobalt { background: #3956FF; color: #FFF6E5; border-radius: 28px; }
-    .panel-cream { background: #FFF6E5; color: #0E0B2C; border-radius: 28px; }
-    .panel-night { background: #0E0B2C; color: #FFF6E5; border-radius: 28px; }
-
-    /* Inputs */
-    .input-line {
-      background: transparent; border: none;
-      border-bottom: 2px solid #0E0B2C;
-      padding: 6px 2px 8px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 24px; font-weight: 500; color: #0E0B2C;
-      width: 100%; outline: none; transition: border-color 150ms;
-    }
-    .input-line:focus { border-bottom-color: #FF3D7F; }
-    .input-line::placeholder { color: rgba(14, 11, 44, 0.35); }
-
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 11px 18px;
-      min-height: 44px;
-      border: 1.5px solid rgba(14, 11, 44, 0.4);
-      border-radius: 999px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 14px; font-weight: 500;
-      cursor: pointer; user-select: none;
-      transition: all 150ms;
-      background: transparent; color: #0E0B2C;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-    .pill:hover { background: rgba(212, 255, 58, 0.35); border-color: #0E0B2C; }
-    .pill.active { background: #0E0B2C; color: #FFF6E5; border-color: #0E0B2C; }
-
-    .btn-primary {
-      background: #D4FF3A; color: #0E0B2C;
-      padding: 16px 28px;
-      min-height: 48px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700; font-size: 13px;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      border-radius: 999px;
-      transition: all 150ms;
-      box-shadow: 0 6px 0 #A8D420;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-    .btn-primary:hover { background: #0E0B2C; color: #D4FF3A; box-shadow: 0 6px 0 #B9A8FF; transform: translateY(-1px); }
-    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #A8D420; }
-    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-    .btn-ghost {
-      background: transparent; color: #0E0B2C;
-      padding: 14px 24px;
-      border: 1.5px solid rgba(14, 11, 44, 0.4);
-      border-radius: 999px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 600; font-size: 13px;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      transition: all 150ms;
-    }
-    .btn-ghost:hover { border-color: #0E0B2C; background: #0E0B2C; color: #D4FF3A; }
-
-    /* Floating tag */
-    .floating-tag {
-      transform: rotate(-6deg);
-      transition: transform 200ms;
-    }
-    .floating-tag:hover { transform: rotate(-2deg) scale(1.04); }
-    .floating-tag-r { transform: rotate(5deg); transition: transform 200ms; }
-    .floating-tag-r:hover { transform: rotate(2deg) scale(1.04); }
-
-    /* Number-input cleanup */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
-
-    html { scroll-behavior: smooth; }
-    ::selection { background: #D4FF3A; color: #0E0B2C; }
-
-    /* Focus visible — keyboard accessibility */
-    :focus-visible {
-      outline: 2px solid #D4FF3A;
-      outline-offset: 3px;
-      border-radius: 4px;
-    }
-    .pill:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
-      outline-offset: 4px;
-    }
-
-    /* Skip link */
-    .skip-link {
-      position: absolute; left: 8px; top: 8px;
-      background: #D4FF3A; color: #0E0B2C;
-      padding: 10px 14px; border-radius: 8px;
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700; font-size: 13px;
-      transform: translateY(-200%);
-      transition: transform 150ms;
-      z-index: 50;
-    }
-    .skip-link:focus { transform: translateY(0); }
-
-    /* Safe-area insets (iOS notch / home bar) */
-    @supports (padding: env(safe-area-inset-bottom)) {
-      footer { padding-bottom: env(safe-area-inset-bottom); }
-    }
-
-    /* Tighter mobile spacing for huge headlines so the layout stops feeling cramped */
-    @media (max-width: 480px) {
-      .stat-num { letter-spacing: -0.03em; }
-      .panel-lime, .panel-pink, .panel-cobalt, .panel-cream { border-radius: 22px; }
-      .sticker { font-size: 11px; padding: 5px 12px; }
-    }
-
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-      }
-      .marquee { animation: none !important; }
-      .floating-tag, .floating-tag-r { transform: none !important; }
-    }
-  </style>
 </head>
 <body>
   <noscript>
@@ -318,6 +66,7 @@
   <div id="root"></div>
 
 <script src="calc.js"></script>
+<script src="changelog.js"></script>
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useMemo } = React;
 
@@ -327,220 +76,8 @@ const { useState, useEffect, useMemo } = React;
    live in calc.js — see <script src="calc.js"> above. They are visible here
    as globals. calc.js is also the import target for the Node test suite. */
 
-/* ========================================================================
-   CHANGELOG (shipped) + ROADMAP (planned)
-   On every deploy, prepend a new entry to CHANGELOG.
-   ======================================================================== */
-
-const CHANGELOG = [
-  {
-    version: '3.3.0',
-    date: '2026-04-30',
-    title: 'Extract calc + tax data into calc.js, add vitest test suite',
-    items: [
-      'New calc.js — all 2026 tax data and pure calculation functions (applyBrackets, calcCPP, calcEI, calculateCanada, calcStateTax, calculateUS, estimateHealthcareCost, buildBreakeven) live here',
-      'index.html dropped from 1755 → 1499 lines; loads calc.js as a plain <script> before the JSX block',
-      'CommonJS export shim at the bottom of calc.js so Node tests can require() it without a build step',
-      'New calc.test.mjs with 28 vitest tests covering bracket math, CPP/EI ceilings, OHP plateaus, Canada/US take-home invariants (AB > ON, TX > CA, CTC effect), state-tax modes, and breakeven detection',
-      'package.json with vitest as the only devDep; npm test runs the suite',
-      '.gitignore added for node_modules'
-    ]
-  },
-  {
-    version: '3.2.1',
-    date: '2026-04-30',
-    title: 'Fix lime text-on-cream readability regressions from light-mode flip',
-    items: [
-      'Hero closing line: lime body text → night with hl-lime highlight on key phrase',
-      'Verdict headline dollar amount: text-lime/text-pink → hl-lime/hl-pink bars (matches "five years" pattern)',
-      'Wizard kicker (Q1/5) and CAD/USD input labels: text-lime → muted night',
-      'Changelog bullet separators: text-lime → muted night'
-    ]
-  },
-  {
-    version: '3.2.0',
-    date: '2026-04-30',
-    title: 'Switch to light mode + Canadian/US flags in header',
-    items: [
-      'Body background flipped to warm cream (#F5EBD3) with softer gradient mesh and lighter noise overlay',
-      'All body text flipped from cream to night (#0E0B2C); meta theme-color and color-scheme updated to light',
-      'Added 🇨🇦 and 🇺🇸 flag emojis flanking the North×South wordmark in the header (and footer)',
-      'New panel-night and sticker-night variants — used for Departure tax card, 3-yr nest egg stat block, and "⚠ The trouble" sticker so the dark surfaces still pop on light bg',
-      'Pill borders, input underlines, btn-ghost, and glass .panel translucency all retuned for light surface',
-      'Pill active state flipped to night-on-cream (was lime-on-night) for stronger selection contrast',
-      'Chart axis labels, breakeven crosshair, and breakeven pill switched to night fills so they read on light bg',
-      'Nav hover swapped to pink (was lime — lime hover was barely visible on cream)',
-      'Sticker-outline border updated to night so it shows up on light bg'
-    ]
-  },
-  {
-    version: '3.1.2',
-    date: '2026-04-30',
-    title: 'Fix lime-highlight clipping and overlap in big headlines',
-    items: [
-      'box-decoration-break: clone on .hl-lime / .hl-pink / .hl-cobalt — highlights split cleanly across line wraps',
-      'Highlight gradient stops at 60% (was 55%) so the lime bar takes less vertical room',
-      'Loosened tight line-heights: hero 0.92 → 1.02, pivot 0.96 → 1.04, section asides 0.96 → 1.06, verdict 0.96 → 1.05',
-      'Added padding-bottom to highlighted h2/h3 elements so descender + highlight bar are not clipped by section overflow:hidden'
-    ]
-  },
-  {
-    version: '3.1.1',
-    date: '2026-04-30',
-    title: 'Fix homepage scrolling to Section 1 again',
-    items: [
-      'Removed content-visibility: auto from offscreen sections — its placeholder size was causing scroll-anchoring to nudge the page',
-      'history.scrollRestoration set to manual so the browser stops restoring stale scroll positions on reload/back-forward',
-      'On every fresh load (no #changelog hash), explicitly scroll to (0, 0) before React paints the rest'
-    ]
-  },
-  {
-    version: '3.1.0',
-    date: '2026-04-30',
-    title: 'Web + mobile optimization pass',
-    items: [
-      'SEO: Open Graph + Twitter card meta, JSON-LD WebApplication schema, canonical URL',
-      'Browser chrome: theme-color, color-scheme, apple-mobile-web-app-* meta tags',
-      'Inline SVG favicon (lime N×S on night background) — no external request',
-      'Mobile: viewport-fit=cover with safe-area-inset padding for iOS notch/home bar',
-      'Touch targets: pills bumped to 44px min-height, btn-primary to 48px, font 13px → 14px on pills',
-      '-webkit-tap-highlight-color: transparent on interactive elements (no blue flash on tap)',
-      'touch-action: manipulation to remove the 300ms double-tap delay',
-      'Trimmed Google Fonts: only the weights actually used (Fraunces 700/800, Geist 400/500, Geist Mono 400/500)',
-      'Skip-to-content link for keyboard users',
-      ':focus-visible rings (lime, 2px, 3px offset) on every interactive element',
-      'prefers-reduced-motion: pauses the marquee, disables floating-tag rotation, kills transitions',
-      'content-visibility: auto on below-fold sections — faster initial paint',
-      'noscript fallback message',
-      'Mobile-tightened sticker padding and panel border-radius under 480px'
-    ]
-  },
-  {
-    version: '3.0.0',
-    date: '2026-04-30',
-    title: 'Bold electric redesign — youth-skewing, sticker-heavy aesthetic',
-    items: [
-      'New palette: deep midnight indigo background with hot lime, pink, cobalt accents',
-      'Type system: Fraunces display + Space Grotesk grotesk + Geist body + Geist Mono numbers (dropped Caveat handwriting)',
-      'Gradient mesh + noise overlay across the page; chunky drop-shadow stickers and pill buttons',
-      'Hero: 3 colored "plan" cards (pink, cobalt, lime) + 3 glass "fail mode" panels with strike-pink emphasis',
-      'New marquee strip below header with the seven punchy facts about the move',
-      'Section 01: 4 colored cost cards (pink/cobalt/lime/cream) replace the letter-style point list',
-      'Section 02: wizard inside a glass panel with animated lime progress bar',
-      'Section 03: floating verdict sticker (lime if positive, pink if negative) + 4 colored stat blocks',
-      'Chart: lime/pink lines on dark, with cream-pill BREAKEVEN label at the crossover'
-    ]
-  },
-  {
-    version: '2.0.1',
-    date: '2026-04-30',
-    title: 'Fix homepage auto-scrolling to Section 1',
-    items: [
-      'Header nav links no longer mutate the URL hash',
-      'Stale section hashes are stripped on page load',
-      'Anchor scroll goes through JS so the URL stays clean'
-    ]
-  },
-  {
-    version: '2.0.0',
-    date: '2026-04-30',
-    title: 'Aged-paper letter-to-a-friend redesign',
-    items: [
-      'Aged-paper aesthetic with Fraunces + Caveat handwriting + terracotta accent (superseded by v3.0.0)',
-      'Hero framing: most Canadians plan a 3–5 year detour, the math decides if it works',
-      'The four numbers that flip the plan (healthcare, childcare, TFSA, departure tax)',
-      'Condensed 5-question wizard (was 9)',
-      'Verdict section with sidebar stats + breakeven chart with hand-drawn arrow'
-    ]
-  },
-  {
-    version: '1.3.1',
-    date: '2026-04-30',
-    title: 'Clean URL on landing — no more default-number pollution',
-    items: [
-      'Removed URL state syncing — landing page no longer redirects to ?cad=145000&...',
-      'Salary inputs start blank instead of pre-filled',
-      'Removed the share-link section from footer'
-    ]
-  },
-  {
-    version: '1.3.0',
-    date: '2026-04-30',
-    title: 'Header nav, dedicated Changelog tab, and SEO content section',
-    items: [
-      'Calculator and Changelog as separate tabs (hash-based routing)',
-      'Header CTA "Start ↓" scrolls smoothly to wizard step 1',
-      'New SEO content section with sourced stats and FAQ'
-    ]
-  },
-  {
-    version: '1.2.0',
-    date: '2026-04-30',
-    title: 'Wizard becomes the primary input flow',
-    items: [
-      'Removed the inline calculator panel from the landing page',
-      'Step-by-step wizard sits below the hero',
-      'Hero answer panel updates live as the user answers each wizard question'
-    ]
-  },
-  {
-    version: '1.1.0',
-    date: '2026-04-30',
-    title: 'Landing-first flow + 5-year breakeven chart',
-    items: [
-      'Page opens on the landing view — hero, calculator, and results inline',
-      'New Breakeven section: 5-year cumulative take-home for staying vs moving',
-      'US line starts negative to reflect moving costs and departure tax',
-      'Editable moving costs input ($25k default)'
-    ]
-  },
-  {
-    version: '1.0.0',
-    date: '2026-04-30',
-    title: 'Initial release',
-    items: [
-      '2026 federal tax brackets for Canada (CRA) and US (IRS)',
-      '4 provinces, 8 states with full bracket coverage',
-      'CPP, EI, FICA, Medicare, Additional Medicare',
-      'Healthcare and childcare cost line items',
-      '10-year future value projection at 7%'
-    ]
-  }
-];
-
-const ROADMAP = [
-  {
-    version: '3.1.0', horizon: 'Next', title: 'Verified brackets + small fixes',
-    items: [
-      'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers',
-      'Canada Employment Amount credit (~$200 understatement currently)',
-      'AMT comparison check on US side',
-      'Live FX rate fetch with manual override',
-      'Remaining provinces: MB, SK, NS, NB, NL, PE'
-    ]
-  },
-  {
-    version: '4.0.0', horizon: 'Soon', title: 'Equity, housing, multi-state',
-    items: [
-      'RSU and stock option cross-border treatment',
-      'Cost-of-living adjustment by metro — $200k in Austin vs $250k in SF',
-      'Itemized deductions, mortgage interest, SALT cap math',
-      'Multi-state allocation for partial-year residents',
-      'Departure tax estimator with portfolio inputs',
-      'TFSA wind-down calculator with PFIC liability projection'
-    ]
-  },
-  {
-    version: '5.0.0', horizon: 'Later', title: 'Persona variants + monetization',
-    items: [
-      'Healthcare worker variant — NCLEX path, malpractice insurance line item',
-      'Dual-income couple modeling with TN/TD spouse work restriction',
-      'Family-of-four GTA-to-Texas/Florida preset scenario',
-      'Downloadable PDF report for accountant or offer negotiation',
-      'Cross-border accountant + immigration lawyer referral integration'
-    ]
-  }
-];
+/* CHANGELOG and ROADMAP arrays live in changelog.js (loaded as a separate
+   <script> above). Visible here as globals. Prepend new entries there. */
 
 /* Pure calc functions (applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
    calcCPP, calcEI, calculateCanada, calcStateTax, calculateUS,
@@ -1137,10 +674,14 @@ function VerdictSection({ state, update, result }) {
 
         <div className="grid md:grid-cols-12 gap-10 mb-14">
           <div className="md:col-span-7">
-            <div className="flex items-center gap-3 mb-5 flex-wrap">
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
               <span className="sticker sticker-lime">Section 03</span>
               <span className="grotesk text-night/60 text-sm">{inputSummary}</span>
             </div>
+            <p className="grotesk text-xs text-night/50 mb-5 max-w-2xl leading-relaxed">
+              <span className="font-semibold">Estimates only</span> · 2026 brackets (BC, QC, CA, NY currently approximated — final published numbers landing in v3.5.0) · <span className="font-semibold">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
+              {' '}Assumes $1 USD = <FxRateEdit fx={state.fxRate} onChange={(v) => update({ fxRate: v })}/> CAD <span className="text-night/35">(click to edit)</span>.
+            </p>
             {hasInput ? (
               <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
                 Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
@@ -1216,6 +757,39 @@ function VerdictSection({ state, update, result }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function FxRateEdit({ fx, onChange }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(String(fx));
+  useEffect(() => { setVal(String(fx)); }, [fx]);
+  const commit = () => {
+    const n = parseFloat(val);
+    if (Number.isFinite(n) && n > 0 && n < 10) onChange(n);
+    else setVal(String(fx));
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <input
+        type="number" step="0.01" min="0.1" max="9.99" autoFocus
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') { setVal(String(fx)); setEditing(false); } }}
+        className="num bg-transparent border-b border-night/60 outline-none w-14 text-night text-xs"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setVal(String(fx)); setEditing(true); }}
+      className="num text-night font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-2 rounded"
+      aria-label="Edit FX rate"
+    >
+      ${fx.toFixed(2)}
+    </button>
   );
 }
 

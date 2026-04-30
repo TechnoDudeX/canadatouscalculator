@@ -161,6 +161,69 @@ describe('estimateHealthcareCost', () => {
   });
 });
 
+/* Pinned-value scenarios — these lock the current calc output to exact dollar
+   amounts. They are an intentional snapshot, not authoritative-CRA/IRS truth.
+   When you intentionally change brackets, regenerate baselines and update these.
+   When they break unexpectedly, you have a real regression. */
+describe('Canada take-home — pinned scenarios (2026 brackets, currently approximated)', () => {
+  test('$100k Ontario single → $73,993', () => {
+    const r = calculateCanada({ income: 100000, province: 'ON' });
+    expect(Math.round(r.takeHome)).toBe(73993);
+  });
+
+  test('$200k Ontario → $130,927', () => {
+    const r = calculateCanada({ income: 200000, province: 'ON' });
+    expect(Math.round(r.takeHome)).toBe(130927);
+  });
+
+  test('$400k Ontario → $226,393', () => {
+    const r = calculateCanada({ income: 400000, province: 'ON' });
+    expect(Math.round(r.takeHome)).toBe(226393);
+  });
+
+  test('$200k Alberta → $137,535', () => {
+    const r = calculateCanada({ income: 200000, province: 'AB' });
+    expect(Math.round(r.takeHome)).toBe(137535);
+  });
+
+  test('$200k Quebec (with federal abatement) → $123,897', () => {
+    const r = calculateCanada({ income: 200000, province: 'QC' });
+    expect(Math.round(r.takeHome)).toBe(123897);
+  });
+});
+
+describe('US take-home — pinned scenarios (2026 brackets, currently approximated)', () => {
+  test('$100k Texas single (no state tax) → $79,180', () => {
+    const r = calculateUS({ income: 100000, state: 'TX', filingStatus: 'single', kids: 0 });
+    expect(Math.round(r.takeHome)).toBe(79180);
+  });
+
+  test('$200k Texas single → $148,927', () => {
+    const r = calculateUS({ income: 200000, state: 'TX', filingStatus: 'single', kids: 0 });
+    expect(Math.round(r.takeHome)).toBe(148927);
+  });
+
+  test('$400k Texas single → $277,827', () => {
+    const r = calculateUS({ income: 400000, state: 'TX', filingStatus: 'single', kids: 0 });
+    expect(Math.round(r.takeHome)).toBe(277827);
+  });
+
+  test('$200k California single → $135,364', () => {
+    const r = calculateUS({ income: 200000, state: 'CA', filingStatus: 'single', kids: 0 });
+    expect(Math.round(r.takeHome)).toBe(135364);
+  });
+
+  test('$300k California mfj + 2 kids → $220,867', () => {
+    const r = calculateUS({ income: 300000, state: 'CA', filingStatus: 'mfj', kids: 2 });
+    expect(Math.round(r.takeHome)).toBe(220867);
+  });
+
+  test('$300k New York mfj no kids → $219,365', () => {
+    const r = calculateUS({ income: 300000, state: 'NY', filingStatus: 'mfj', kids: 0 });
+    expect(Math.round(r.takeHome)).toBe(219365);
+  });
+});
+
 describe('buildBreakeven', () => {
   test('produces year 0..N points with the right shape', () => {
     const r = buildBreakeven({ caTakeHomeCAD: 100000, usTakeHomeCAD: 130000, movingCostsCAD: 25000, years: 5 });

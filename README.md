@@ -18,9 +18,9 @@ A single-page calculator that compares a current Canadian compensation package a
 
 ## Stack
 
-- Single static `index.html` — no build step
+- `index.html` + `calc.js` (tax data + pure functions) + `changelog.js` + built `style.css`
 - React 18 + Babel standalone (in-browser JSX)
-- Tailwind via CDN
+- Tailwind via CLI (`npm run build:css` regenerates `style.css` from `src.css` + `tailwind.config.js`)
 - Deployed on Netlify (root publish, see `netlify.toml`)
 
 ## Local development
@@ -44,7 +44,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v3.3.0.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v3.4.0.
 
 ## Tests
 
