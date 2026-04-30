@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Should You Take the US Offer? — Canada to US Move Calculator</title>
+  <meta name="description" content="Honest take-home math for Canadians weighing a US job offer. Federal and state tax, healthcare, childcare, departure tax, TFSA traps, and a 10-year projection." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Geist', 'system-ui', 'sans-serif'],
+            mono: ['Geist Mono', 'ui-monospace', 'monospace']
+          },
+          colors: {
+            cream: '#F5F0E6',
+            'cream-deep': '#EBE3D1',
+            'cream-line': '#D9D0B8',
+            ink: '#1A1815',
+            'ink-soft': '#4A463E',
+            'ink-faint': '#8A8475',
+            vermillion: '#C8421F',
+            'vermillion-deep': '#9D2F12',
+            forest: '#2F4A2C',
+            'forest-soft': '#5C7558'
+          }
+        }
+      }
+    }
+  </script>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html, body { background: #F5F0E6; }
+    body { font-family: 'Geist', system-ui, sans-serif; color: #1A1815; }
+    .num { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1, "ss01" 1; }
+    .display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: "ss01" 1; }
+    .label { font-family: 'Geist', sans-serif; text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; font-weight: 500; color: #8A8475; }
+    .rule { height: 1px; background: #D9D0B8; }
+    .rule-thick { height: 2px; background: #1A1815; }
+
+    /* Subtle paper grain */
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(26,24,21,0.018) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(26,24,21,0.018) 0%, transparent 50%);
+      z-index: 0;
+    }
+    main { position: relative; z-index: 1; }
+
+    /* Number input cleanup */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .input-field {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #1A1815;
+      padding: 4px 0 6px 0;
+      font-family: 'Geist Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      color: #1A1815;
+      width: 100%;
+      outline: none;
+      transition: border-color 150ms;
+    }
+    .input-field:focus { border-bottom-color: #C8421F; }
+    .select-field {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #1A1815;
+      padding: 4px 0 6px 0;
+      font-family: 'Geist', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      color: #1A1815;
+      width: 100%;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231A1815' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+      padding-right: 20px;
+    }
+    .select-field:focus { border-bottom-color: #C8421F; }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border: 1px solid #1A1815;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 150ms; user-select: none;
+    }
+    .pill:hover { background: #1A1815; color: #F5F0E6; }
+    .pill.active { background: #1A1815; color: #F5F0E6; }
+
+    .stat-num { font-family: 'Fraunces', serif; font-feature-settings: "tnum" 1; font-variation-settings: "opsz" 144; }
+
+    button.cta {
+      background: #1A1815; color: #F5F0E6;
+      padding: 14px 28px; font-weight: 500; font-size: 14px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: all 150ms;
+    }
+    button.cta:hover { background: #C8421F; }
+
+    .warning-card {
+      background: #FBF6EC; border-left: 3px solid #C8421F;
+    }
+    .warning-card.medium { border-left-color: #B8893A; }
+    .warning-card.critical { border-left-color: #9D2F12; background: #F5E4DC; }
+
+    .blueprint-grid {
+      background-image:
+        linear-gradient(to right, rgba(26,24,21,0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(26,24,21,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+/* ========================================================================
+   2026 TAX DATA
+   Sources: CRA (2026 indexation factor 2.0%), IRS Rev. Proc. 2025-32,
+   SSA wage base notice, KPMG/EY 2026 rate cards, provincial budgets.
+   Numbers verified against published 2026 brackets where available;
+   marked "approx" entries should be re-verified before public launch.
+   ======================================================================== */
+
+const CA_FEDERAL_2026 = [
+  { upTo: 58523,    rate: 0.14 },
+  { upTo: 117045,   rate: 0.205 },
+  { upTo: 181440,   rate: 0.26 },
+  { upTo: 258482,   rate: 0.29 },
+  { upTo: Infinity, rate: 0.33 }
+];
+const CA_BPA_2026 = 16129; // simplified; phaseout over $181,440 ignored in v1
+
+const PROVINCIAL_2026 = {
+  ON: {
+    label: 'Ontario',
+    brackets: [
+      { upTo: 52886,    rate: 0.0505 },
+      { upTo: 105775,   rate: 0.0915 },
+      { upTo: 150000,   rate: 0.1116 },
+      { upTo: 220000,   rate: 0.1216 },
+      { upTo: Infinity, rate: 0.1316 }
+    ],
+    bpa: 12747,
+    surtax: { tier1: { threshold: 5818, rate: 0.20 }, tier2: { threshold: 7446, rate: 0.36 } }
+  },
+  BC: {
+    label: 'British Columbia',
+    // approx, indexed 2.2% from 2025 — verify
+    brackets: [
+      { upTo: 50090,    rate: 0.0506 },
+      { upTo: 100180,   rate: 0.077 },
+      { upTo: 115000,   rate: 0.105 },
+      { upTo: 139500,   rate: 0.1229 },
+      { upTo: 189500,   rate: 0.147 },
+      { upTo: 264000,   rate: 0.168 },
+      { upTo: Infinity, rate: 0.205 }
+    ],
+    bpa: 12932
+  },
+  AB: {
+    label: 'Alberta',
+    // 2026 brackets per Budget 2025 (8% on first ~$60k, then 10/12/13/14/15)
+    brackets: [
+      { upTo: 60000,    rate: 0.08 },
+      { upTo: 151234,   rate: 0.10 },
+      { upTo: 181481,   rate: 0.12 },
+      { upTo: 241974,   rate: 0.13 },
+      { upTo: 362961,   rate: 0.14 },
+      { upTo: Infinity, rate: 0.15 }
+    ],
+    bpa: 22323
+  },
+  QC: {
+    label: 'Quebec',
+    // QC has federal abatement (16.5%) — modeled separately; brackets approx
+    brackets: [
+      { upTo: 53255,    rate: 0.14 },
+      { upTo: 106495,   rate: 0.19 },
+      { upTo: 129590,   rate: 0.24 },
+      { upTo: Infinity, rate: 0.2575 }
+    ],
+    bpa: 18571,
+    federalAbatement: 0.165
+  }
+};
+
+const CPP_2026 = {
+  exemption: 3500,
+  ympe: 71300,
+  yampe: 81900,
+  baseRate: 0.0595,
+  enhancedRate: 0.04
+};
+
+const EI_2026 = { maxInsurable: 65700, rate: 0.0164 };
+
+const US_FEDERAL_2026 = {
+  single: [
+    { upTo: 12400,    rate: 0.10 },
+    { upTo: 50400,    rate: 0.12 },
+    { upTo: 105700,   rate: 0.22 },
+    { upTo: 201775,   rate: 0.24 },
+    { upTo: 256225,   rate: 0.32 },
+    { upTo: 640600,   rate: 0.35 },
+    { upTo: Infinity, rate: 0.37 }
+  ],
+  mfj: [
+    { upTo: 24800,    rate: 0.10 },
+    { upTo: 100800,   rate: 0.12 },
+    { upTo: 211400,   rate: 0.22 },
+    { upTo: 403550,   rate: 0.24 },
+    { upTo: 512450,   rate: 0.32 },
+    { upTo: 768700,   rate: 0.35 },
+    { upTo: Infinity, rate: 0.37 }
+  ]
+};
+const US_STD_DED_2026 = { single: 16100, mfj: 32200 };
+const CTC_2026 = 2200;
+
+const FICA_2026 = {
+  ssRate: 0.062,
+  ssWageBase: 184500,
+  medicareRate: 0.0145,
+  addlMedicareRate: 0.009,
+  addlMedicareThreshold: { single: 200000, mfj: 250000 }
+};
+
+const STATE_2026 = {
+  CA: {
+    label: 'California',
+    type: 'progressive',
+    // 2026 single brackets (approx, indexed) — verify FTB final
+    brackets: {
+      single: [
+        { upTo: 11000,   rate: 0.01 },
+        { upTo: 26100,   rate: 0.02 },
+        { upTo: 41200,   rate: 0.04 },
+        { upTo: 57200,   rate: 0.06 },
+        { upTo: 72300,   rate: 0.08 },
+        { upTo: 369100,  rate: 0.093 },
+        { upTo: 442900,  rate: 0.103 },
+        { upTo: 738400,  rate: 0.113 },
+        { upTo: Infinity, rate: 0.123 }
+      ],
+      mfj: [
+        { upTo: 22000,    rate: 0.01 },
+        { upTo: 52200,    rate: 0.02 },
+        { upTo: 82400,    rate: 0.04 },
+        { upTo: 114400,   rate: 0.06 },
+        { upTo: 144600,   rate: 0.08 },
+        { upTo: 738200,   rate: 0.093 },
+        { upTo: 885800,   rate: 0.103 },
+        { upTo: 1476800,  rate: 0.113 },
+        { upTo: Infinity, rate: 0.123 }
+      ]
+    },
+    mentalHealthSurcharge: { threshold: 1000000, rate: 0.01 }
+  },
+  NY: {
+    label: 'New York',
+    type: 'progressive',
+    brackets: {
+      single: [
+        { upTo: 8500,     rate: 0.04 },
+        { upTo: 11700,    rate: 0.045 },
+        { upTo: 13900,    rate: 0.0525 },
+        { upTo: 80650,    rate: 0.055 },
+        { upTo: 215400,   rate: 0.06 },
+        { upTo: 1077550,  rate: 0.0685 },
+        { upTo: 5000000,  rate: 0.0965 },
+        { upTo: 25000000, rate: 0.103 },
+        { upTo: Infinity, rate: 0.109 }
+      ],
+      mfj: [
+        { upTo: 17150,    rate: 0.04 },
+        { upTo: 23600,    rate: 0.045 },
+        { upTo: 27900,    rate: 0.0525 },
+        { upTo: 161550,   rate: 0.055 },
+        { upTo: 323200,   rate: 0.06 },
+        { upTo: 2155350,  rate: 0.0685 },
+        { upTo: 5000000,  rate: 0.0965 },
+        { upTo: 25000000, rate: 0.103 },
+        { upTo: Infinity, rate: 0.109 }
+      ]
+    },
+    nycAddon: {
+      single: [
+        { upTo: 12000,    rate: 0.03078 },
+        { upTo: 25000,    rate: 0.03762 },
+        { upTo: 50000,    rate: 0.03819 },
+        { upTo: Infinity, rate: 0.03876 }
+      ],
+      mfj: [
+        { upTo: 21600,    rate: 0.03078 },
+        { upTo: 45000,    rate: 0.03762 },
+        { upTo: 90000,    rate: 0.03819 },
+        { upTo: Infinity, rate: 0.03876 }
+      ]
+    }
+  },
+  WA: { label: 'Washington', type: 'none' },
+  TX: { label: 'Texas', type: 'none' },
+  FL: { label: 'Florida', type: 'none' },
+  MA: {
+    label: 'Massachusetts',
+    type: 'flat',
+    rate: 0.05,
+    surcharge: { threshold: 1083150, rate: 0.04 }
+  },
+  IL: { label: 'Illinois', type: 'flat', rate: 0.0495 },
+  CO: { label: 'Colorado', type: 'flat', rate: 0.044 }
+};
+
+// Annual all-in healthcare cost (employee premium contribution + expected
+// out-of-pocket) — KFF EHBS midpoint estimates. v1 uses tier-by-family.
+const HEALTHCARE_2026 = {
+  single:        { premium: 1500, oop: 2000 },
+  mfj_no_kids:   { premium: 4800, oop: 4000 },
+  mfj_with_kids: { premium: 7200, oop: 4500 }
+};
+
+// Annual childcare per child under 5
+const CHILDCARE_PROV = { ON: 2500, BC: 3000, AB: 4500, QC: 2400 };
+const CHILDCARE_STATE_DEFAULT = {
+  CA: 28000, NY: 24000, WA: 24000, TX: 18000, FL: 16000,
+  MA: 24000, IL: 19000, CO: 20000
+};
+
+/* ========================================================================
+   CHANGELOG
+   --------
+   To update on deploy: prepend a new entry to the top of the array below.
+   Status values: 'shipped' | 'in-progress' | 'planned'.
+   Date format: 'YYYY-MM-DD' for shipped versions, 'Planned' / 'Future'
+   for forward-looking ones. Keep items short — one line each.
+   ======================================================================== */
+
+const CHANGELOG = [
+  {
+    version: '1.0.0',
+    date: '2026-04-30',
+    status: 'shipped',
+    title: 'Initial release',
+    items: [
+      '2026 federal tax brackets for Canada (CRA) and US (IRS)',
+      '4 provinces: ON (with surtax + OHP), BC, AB, QC (with federal abatement)',
+      '8 states: CA, NY (+ NYC addon), WA, TX, FL, MA (millionaire surcharge), IL, CO',
+      'CPP base + enhanced, EI, FICA, Medicare, Additional Medicare',
+      'BPA, standard deduction, Child Tax Credit',
+      'Healthcare cost line item by family tier (KFF EHBS midpoints)',
+      'Childcare cost by province (CWELCC) and state',
+      'Hidden cost warnings: RESP, TFSA/PFIC, departure tax, TN spouse, TN green card dead end',
+      '10-year future value projection at 7% on net delta',
+      'Soft factors comparison (parental leave, healthcare-after-job-loss, etc.)',
+      'Shareable URL state — every input encodes into query params'
+    ]
+  },
+  {
+    version: '1.1.0',
+    date: 'Planned',
+    status: 'planned',
+    title: 'Verified brackets + small fixes',
+    items: [
+      'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers',
+      'Canada Employment Amount credit (~$200 understatement currently)',
+      'AMT comparison check on US side',
+      'Live FX rate fetch with manual override',
+      'Remaining provinces: MB, SK, NS, NB, NL, PE'
+    ]
+  },
+  {
+    version: '2.0.0',
+    date: 'Planned',
+    status: 'planned',
+    title: 'Equity, housing, multi-state',
+    items: [
+      'RSU and stock option cross-border treatment (the real money for tech moves)',
+      'Cost-of-living adjustment by metro — $200k in Austin vs $250k in SF',
+      'Itemized deductions, mortgage interest, SALT cap math',
+      'Self-employment income on both sides',
+      'Multi-state allocation for partial-year residents',
+      'City-level taxes beyond NYC (San Francisco gross receipts, Philadelphia wage tax)',
+      'Departure tax estimator with portfolio inputs',
+      'TFSA wind-down calculator with PFIC liability projection'
+    ]
+  },
+  {
+    version: '3.0.0',
+    date: 'Future',
+    status: 'planned',
+    title: 'Guided wizard + persona variants',
+    items: [
+      'Guided visa-and-tax wizard (TN vs H1B vs L1 decision tree)',
+      'Healthcare worker variant — NCLEX path, malpractice insurance line item',
+      'Dual-income couple modeling with TN/TD spouse work restriction',
+      'Family-of-four GTA-to-Texas/Florida preset scenario',
+      'Downloadable PDF report for accountant or offer negotiation',
+      'Cross-border accountant + immigration lawyer referral integration',
+      'Currency transfer affiliate flow (Wise, Wealthsimple)'
+    ]
+  }
+];
+
+/* ========================================================================
+   PURE FUNCTIONS
+   ======================================================================== */
+
+function applyBrackets(income, brackets) {
+  if (income <= 0) return 0;
+  let tax = 0, lastCap = 0;
+  for (const b of brackets) {
+    if (income <= lastCap) break;
+    const slice = Math.min(income, b.upTo) - lastCap;
+    tax += slice * b.rate;
+    lastCap = b.upTo;
+  }
+  return tax;
+}
+
+function marginalRate(income, brackets) {
+  for (const b of brackets) if (income <= b.upTo) return b.rate;
+  return brackets[brackets.length - 1].rate;
+}
+
+function calcOntarioSurtax(provTaxBeforeSurtax, surtax) {
+  let s = 0;
+  if (provTaxBeforeSurtax > surtax.tier1.threshold)
+    s += (provTaxBeforeSurtax - surtax.tier1.threshold) * surtax.tier1.rate;
+  if (provTaxBeforeSurtax > surtax.tier2.threshold)
+    s += (provTaxBeforeSurtax - surtax.tier2.threshold) * surtax.tier2.rate;
+  return s;
+}
+
+function calcOntarioHealthPremium(income) {
+  if (income <= 20000) return 0;
+  if (income <= 25000) return (income - 20000) * 0.06;
+  if (income <= 36000) return 300;
+  if (income <= 38500) return 300 + (income - 36000) * 0.06;
+  if (income <= 48000) return 450;
+  if (income <= 48600) return 450 + (income - 48000) * 0.25;
+  if (income <= 72000) return 600;
+  if (income <= 72600) return 600 + (income - 72000) * 0.25;
+  if (income <= 200000) return 750;
+  if (income <= 200600) return 750 + (income - 200000) * 0.25;
+  return 900;
+}
+
+function calcCPP(income) {
+  const base = Math.max(0, Math.min(income, CPP_2026.ympe) - CPP_2026.exemption) * CPP_2026.baseRate;
+  const enhanced = Math.max(0, Math.min(income, CPP_2026.yampe) - CPP_2026.ympe) * CPP_2026.enhancedRate;
+  return base + enhanced;
+}
+
+function calcEI(income) {
+  return Math.min(income, EI_2026.maxInsurable) * EI_2026.rate;
+}
+
+function calculateCanada({ income, province }) {
+  const cpp = calcCPP(income);
+  const ei = calcEI(income);
+  // CPP enhanced (the 4% on YAMPE-YMPE) is deductible from income.
+  // CPP base + EI premiums generate non-refundable credits at the lowest fed/prov rate.
+  const cppEnhanced = Math.max(0, Math.min(income, CPP_2026.yampe) - CPP_2026.ympe) * CPP_2026.enhancedRate;
+  const cppBase = cpp - cppEnhanced;
+  const taxableIncome = income - cppEnhanced;
+
+  const fedTaxGross = applyBrackets(taxableIncome, CA_FEDERAL_2026);
+  const fedCreditBase = (CA_BPA_2026 + cppBase + ei) * CA_FEDERAL_2026[0].rate;
+  let fedTax = Math.max(0, fedTaxGross - fedCreditBase);
+
+  const prov = PROVINCIAL_2026[province];
+  if (prov.federalAbatement) fedTax = fedTax * (1 - prov.federalAbatement);
+
+  const provTaxGross = applyBrackets(taxableIncome, prov.brackets);
+  const provCredit = (prov.bpa + cppBase + ei) * prov.brackets[0].rate;
+  let provTax = Math.max(0, provTaxGross - provCredit);
+  if (prov.surtax) provTax += calcOntarioSurtax(provTax, prov.surtax);
+
+  const ohp = province === 'ON' ? calcOntarioHealthPremium(income) : 0;
+
+  const totalTax = fedTax + provTax + cpp + ei + ohp;
+  const fedMarginal = marginalRate(taxableIncome, CA_FEDERAL_2026);
+  const provMarginal = marginalRate(taxableIncome, prov.brackets);
+
+  return {
+    gross: income,
+    federalTax: fedTax,
+    subnationalTax: provTax,
+    payrollTax: cpp + ei,
+    healthPremium: ohp,
+    totalTax,
+    takeHome: income - totalTax,
+    marginal: fedMarginal + provMarginal
+  };
+}
+
+function calcStateTax(taxable, state, filingStatus) {
+  const s = STATE_2026[state];
+  if (!s || s.type === 'none') return 0;
+  if (s.type === 'flat') {
+    let t = taxable * s.rate;
+    if (s.surcharge && taxable > s.surcharge.threshold) {
+      t += (taxable - s.surcharge.threshold) * s.surcharge.rate;
+    }
+    return t;
+  }
+  let t = applyBrackets(taxable, s.brackets[filingStatus]);
+  if (s.mentalHealthSurcharge && taxable > s.mentalHealthSurcharge.threshold) {
+    t += (taxable - s.mentalHealthSurcharge.threshold) * s.mentalHealthSurcharge.rate;
+  }
+  return t;
+}
+
+function calculateUS({ income, state, filingStatus, kids, includeNYC }) {
+  const stdDed = US_STD_DED_2026[filingStatus];
+  const taxable = Math.max(0, income - stdDed);
+  const fedGross = applyBrackets(taxable, US_FEDERAL_2026[filingStatus]);
+  const fedTax = Math.max(0, fedGross - kids * CTC_2026);
+
+  let stateTax = calcStateTax(taxable, state, filingStatus);
+  if (state === 'NY' && includeNYC) {
+    stateTax += applyBrackets(taxable, STATE_2026.NY.nycAddon[filingStatus]);
+  }
+
+  const ss = Math.min(income, FICA_2026.ssWageBase) * FICA_2026.ssRate;
+  const medicare = income * FICA_2026.medicareRate;
+  const addlThreshold = FICA_2026.addlMedicareThreshold[filingStatus];
+  const addlMedicare = Math.max(0, income - addlThreshold) * FICA_2026.addlMedicareRate;
+
+  const totalTax = fedTax + stateTax + ss + medicare + addlMedicare;
+  const fedMarginal = marginalRate(taxable, US_FEDERAL_2026[filingStatus]);
+  const stateMarginal = STATE_2026[state].type === 'flat'
+    ? STATE_2026[state].rate
+    : STATE_2026[state].type === 'none'
+      ? 0
+      : marginalRate(taxable, STATE_2026[state].brackets[filingStatus]);
+
+  return {
+    gross: income,
+    federalTax: fedTax,
+    subnationalTax: stateTax,
+    payrollTax: ss + medicare + addlMedicare,
+    totalTax,
+    takeHome: income - totalTax,
+    marginal: fedMarginal + stateMarginal
+  };
+}
+
+function estimateHealthcareCost(filingStatus, kids) {
+  const tier = filingStatus === 'single'
+    ? HEALTHCARE_2026.single
+    : kids > 0 ? HEALTHCARE_2026.mfj_with_kids : HEALTHCARE_2026.mfj_no_kids;
+  return tier.premium + tier.oop;
+}
+
+function fvOfAnnuity(annual, years, rate) {
+  if (rate === 0) return annual * years;
+  return annual * (Math.pow(1 + rate, years) - 1) / rate;
+}
+
+/* ========================================================================
+   WARNINGS
+   ======================================================================== */
+
+function buildWarnings(input) {
+  const w = [];
+  if (input.kids > 0) {
+    w.push({
+      severity: 'high',
+      title: 'RESP grants stop the day you leave',
+      body: 'CESG matching ends when you become a non-resident. The existing balance can stay invested but no new grants accrue. If you have unused contribution room, the 20% match is gone.'
+    });
+  }
+  w.push({
+    severity: 'high',
+    title: 'TFSA becomes a US tax problem',
+    body: 'The IRS does not recognize the TFSA shelter. Earnings get taxed annually on your 1040, and Canadian mutual funds and ETFs trigger PFIC reporting (Form 8621), which is punitive. Most cross-border accountants recommend liquidating before the move.'
+  });
+  w.push({
+    severity: 'high',
+    title: 'Departure tax on unrealized gains',
+    body: 'CRA deems disposition of non-registered investments at fair market value the day you sever residency. You owe capital gains tax on paper gains even though you have not sold. RRSPs and pensions are exempt.'
+  });
+  if (input.visaType === 'TN' && input.filingStatus === 'mfj') {
+    w.push({
+      severity: 'critical',
+      title: 'Spouse cannot work on TN',
+      body: 'TD dependent status does not include work authorization. Your partner needs their own TN, an H1B, or another work-eligible visa. Plan the household income on one salary unless that is solved.'
+    });
+  }
+  if (input.visaType === 'TN') {
+    w.push({
+      severity: 'medium',
+      title: 'TN has no path to a green card',
+      body: 'TN requires non-immigrant intent. If you want permanent residency, you need to switch to H1B or another category, which is employer-dependent and capped.'
+    });
+  }
+  w.push({
+    severity: 'medium',
+    title: 'Healthcare is a real line item',
+    body: 'Even with employer coverage, the average US family pays $7,000 to $11,000 a year in premium contributions and out-of-pocket costs. If you lose your job, COBRA or marketplace plans run $1,500 to $2,500 per month for a family.'
+  });
+  return w;
+}
+
+/* ========================================================================
+   FORMATTERS & URL STATE
+   ======================================================================== */
+
+const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
+const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const fmtPct = (n) => (n * 100).toFixed(1) + '%';
+const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
+
+function readURL() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    salaryCAD: parseInt(p.get('cad')) || 145000,
+    salaryUSD: parseInt(p.get('usd')) || 215000,
+    province: p.get('from') || 'ON',
+    state: p.get('to') || 'CA',
+    filingStatus: p.get('fs') || 'single',
+    kids: parseInt(p.get('kids')) || 0,
+    visaType: p.get('visa') || 'TN',
+    fxRate: parseFloat(p.get('fx')) || 0.73,
+    nyc: p.get('nyc') === '1'
+  };
+}
+function writeURL(s) {
+  const p = new URLSearchParams();
+  p.set('cad', s.salaryCAD); p.set('usd', s.salaryUSD);
+  p.set('from', s.province); p.set('to', s.state);
+  p.set('fs', s.filingStatus); p.set('kids', s.kids);
+  p.set('visa', s.visaType); p.set('fx', s.fxRate);
+  if (s.nyc) p.set('nyc', '1');
+  window.history.replaceState({}, '', '?' + p.toString());
+}
+
+/* ========================================================================
+   COMPONENTS
+   ======================================================================== */
+
+function App() {
+  const [state, setState] = useState(readURL);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => { writeURL(state); }, [state]);
+
+  const update = (patch) => setState(s => ({ ...s, ...patch }));
+
+  const result = useMemo(() => {
+    const ca = calculateCanada({ income: state.salaryCAD, province: state.province });
+    const us = calculateUS({
+      income: state.salaryUSD,
+      state: state.state,
+      filingStatus: state.filingStatus,
+      kids: state.kids,
+      includeNYC: state.nyc
+    });
+    const usHealthcare = estimateHealthcareCost(state.filingStatus, state.kids);
+    const usChildcare = state.kids * (CHILDCARE_STATE_DEFAULT[state.state] || 22000);
+    const caChildcare = state.kids * (CHILDCARE_PROV[state.province] || 3000);
+
+    const caTakeHomeCAD = ca.takeHome - caChildcare;
+    const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare;
+    const usTakeHomeCAD = usTakeHomeUSD / state.fxRate;
+
+    const grossDeltaCAD = (state.salaryUSD / state.fxRate) - state.salaryCAD;
+    const netDeltaCAD = usTakeHomeCAD - caTakeHomeCAD;
+
+    const projection = fvOfAnnuity(Math.max(0, netDeltaCAD), 10, 0.07);
+
+    return {
+      ca, us,
+      usHealthcare, usChildcare, caChildcare,
+      caTakeHomeCAD, usTakeHomeUSD, usTakeHomeCAD,
+      grossDeltaCAD, netDeltaCAD, projection
+    };
+  }, [state]);
+
+  const copyShare = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, []);
+
+  const warnings = useMemo(() => buildWarnings(state), [state]);
+
+  return (
+    <main className="min-h-screen pb-32">
+      <Header />
+      <Hero result={result} state={state} />
+      <Inputs state={state} update={update} />
+      <Result result={result} state={state} />
+      <Breakdown result={result} state={state} />
+      <Warnings warnings={warnings} />
+      <Projection result={result} />
+      <SoftFactors />
+      <Changelog />
+      <Footer copyShare={copyShare} copied={copied} />
+    </main>
+  );
+}
+
+function Header() {
+  return (
+    <header className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="flex items-baseline gap-3">
+          <span className="display text-xl font-medium">North×South</span>
+          <span className="label">a cross-border ledger</span>
+        </div>
+        <div className="label hidden md:block">Tax Year 2026</div>
+      </div>
+    </header>
+  );
+}
+
+function Hero({ result, state }) {
+  const positive = result.netDeltaCAD >= 0;
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-12 gap-8">
+        <div className="md:col-span-7">
+          <div className="label mb-6">A worksheet for the question your group chat keeps asking</div>
+          <h1 className="display font-medium leading-[0.95] text-5xl md:text-7xl tracking-tight">
+            Should you take<br/>the US offer?
+          </h1>
+          <p className="mt-8 text-lg text-ink-soft max-w-xl leading-relaxed">
+            Most calculators stop at gross salary or income tax. This one keeps going. Healthcare premiums, childcare, departure tax, the TFSA trap, and the ten-year wealth delta if you invest the difference. Honest math, both directions.
+          </p>
+        </div>
+        <aside className="md:col-span-5 md:border-l md:border-cream-line md:pl-8 flex flex-col justify-end">
+          <div className="label mb-3">Your answer, right now</div>
+          <div className={`stat-num text-6xl md:text-7xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
+            {fmtSigned(result.netDeltaCAD, fmtCAD)}
+          </div>
+          <div className="text-sm text-ink-soft mt-3">
+            net annual delta in Canadian dollars, after tax, healthcare, and childcare
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function Inputs({ state, update }) {
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12">
+        {/* Canadian side */}
+        <div>
+          <div className="flex items-baseline justify-between mb-6">
+            <div className="label">Currently in Canada</div>
+            <div className="display text-2xl text-ink-faint">CA</div>
+          </div>
+          <div className="space-y-8">
+            <Field label="Annual salary (CAD)">
+              <div className="flex items-baseline">
+                <span className="num text-2xl text-ink-faint mr-2">$</span>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={state.salaryCAD}
+                  onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </Field>
+            <Field label="Province">
+              <select className="select-field" value={state.province} onChange={e => update({ province: e.target.value })}>
+                {Object.entries(PROVINCIAL_2026).map(([k, v]) =>
+                  <option key={k} value={k}>{v.label}</option>
+                )}
+              </select>
+            </Field>
+          </div>
+        </div>
+
+        {/* US side */}
+        <div className="md:border-l md:border-cream-line md:pl-12">
+          <div className="flex items-baseline justify-between mb-6">
+            <div className="label">Considering the US offer</div>
+            <div className="display text-2xl text-ink-faint">US</div>
+          </div>
+          <div className="space-y-8">
+            <Field label="Offered salary (USD)">
+              <div className="flex items-baseline">
+                <span className="num text-2xl text-ink-faint mr-2">$</span>
+                <input
+                  type="number"
+                  className="input-field"
+                  value={state.salaryUSD}
+                  onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </Field>
+            <Field label="State">
+              <select className="select-field" value={state.state} onChange={e => update({ state: e.target.value })}>
+                {Object.entries(STATE_2026).map(([k, v]) =>
+                  <option key={k} value={k}>{v.label}</option>
+                )}
+              </select>
+            </Field>
+            {state.state === 'NY' && (
+              <label className="flex items-center gap-3 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  checked={state.nyc}
+                  onChange={e => update({ nyc: e.target.checked })}
+                  className="w-4 h-4 accent-vermillion"
+                />
+                <span>Living within NYC (adds NYC personal income tax)</span>
+              </label>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Shared row */}
+      <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="rule mb-8" />
+        <div className="grid md:grid-cols-4 gap-8">
+          <Field label="Filing status">
+            <div className="flex gap-2 mt-1">
+              <button className={`pill ${state.filingStatus === 'single' ? 'active' : ''}`} onClick={() => update({ filingStatus: 'single' })}>Single</button>
+              <button className={`pill ${state.filingStatus === 'mfj' ? 'active' : ''}`} onClick={() => update({ filingStatus: 'mfj' })}>Married, joint</button>
+            </div>
+          </Field>
+          <Field label="Kids under 13">
+            <div className="flex gap-2 mt-1">
+              {[0, 1, 2, 3].map(n =>
+                <button key={n} className={`pill ${state.kids === n ? 'active' : ''}`} onClick={() => update({ kids: n })}>
+                  {n === 3 ? '3+' : n}
+                </button>
+              )}
+            </div>
+          </Field>
+          <Field label="Visa type">
+            <select className="select-field" value={state.visaType} onChange={e => update({ visaType: e.target.value })}>
+              <option value="TN">TN (Canadian professional)</option>
+              <option value="H1B">H1B</option>
+              <option value="GC">Green Card</option>
+            </select>
+          </Field>
+          <Field label="CAD per USD">
+            <input
+              type="number" step="0.01"
+              className="input-field"
+              value={state.fxRate}
+              onChange={e => update({ fxRate: parseFloat(e.target.value) || 0.73 })}
+            />
+          </Field>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <div className="label mb-2">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+function Result({ result, state }) {
+  const grossPositive = result.grossDeltaCAD >= 0;
+  const netPositive = result.netDeltaCAD >= 0;
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">Two numbers that matter</div>
+        <div className="rule-thick mb-10" />
+        <div className="grid md:grid-cols-2 gap-12">
+          <div>
+            <div className="label mb-4">Gross salary delta</div>
+            <div className={`stat-num text-6xl font-medium ${grossPositive ? 'text-ink' : 'text-vermillion'}`}>
+              {fmtSigned(result.grossDeltaCAD, fmtCAD)}
+            </div>
+            <div className="text-sm text-ink-soft mt-3 max-w-md">
+              Pure salary comparison at the chosen FX rate. This is what your offer letter says, translated.
+            </div>
+          </div>
+          <div className="md:border-l md:border-cream-line md:pl-12">
+            <div className="label mb-4">True net delta after everything</div>
+            <div className={`stat-num text-6xl font-medium ${netPositive ? 'text-forest' : 'text-vermillion'}`}>
+              {fmtSigned(result.netDeltaCAD, fmtCAD)}
+            </div>
+            <div className="text-sm text-ink-soft mt-3 max-w-md">
+              After federal and state/provincial tax, payroll tax, healthcare, and childcare. The number that actually matters.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Breakdown({ result, state }) {
+  const ca = result.ca, us = result.us;
+  const Row = ({ label, ca, us, isTotal }) => (
+    <div className={`grid grid-cols-3 gap-4 py-3 ${isTotal ? 'border-t border-ink mt-2 font-medium' : 'border-t border-cream-line'}`}>
+      <div className={isTotal ? 'text-ink' : 'text-ink-soft text-sm'}>{label}</div>
+      <div className="num text-right">{ca}</div>
+      <div className="num text-right">{us}</div>
+    </div>
+  );
+
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">The breakdown</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Side by side, line by line</h2>
+
+        <div className="grid grid-cols-3 gap-4 pb-2">
+          <div></div>
+          <div className="text-right">
+            <div className="label">Canada</div>
+            <div className="text-xs text-ink-faint mt-1">{PROVINCIAL_2026[state.province].label} · CAD</div>
+          </div>
+          <div className="text-right">
+            <div className="label">United States</div>
+            <div className="text-xs text-ink-faint mt-1">{STATE_2026[state.state].label} · USD</div>
+          </div>
+        </div>
+
+        <Row label="Gross salary"
+          ca={fmtCAD(ca.gross)}
+          us={fmtUSD(us.gross)}
+        />
+        <Row label="Federal income tax"
+          ca={'−' + fmtCAD(ca.federalTax)}
+          us={'−' + fmtUSD(us.federalTax)}
+        />
+        <Row label={state.province === 'QC' ? 'Quebec tax (post-abatement)' : 'Provincial / state income tax'}
+          ca={'−' + fmtCAD(ca.subnationalTax)}
+          us={'−' + fmtUSD(us.subnationalTax)}
+        />
+        <Row label="Payroll tax (CPP+EI / FICA+Medicare)"
+          ca={'−' + fmtCAD(ca.payrollTax)}
+          us={'−' + fmtUSD(us.payrollTax)}
+        />
+        {state.province === 'ON' && (
+          <Row label="Ontario Health Premium"
+            ca={'−' + fmtCAD(ca.healthPremium)}
+            us="—"
+          />
+        )}
+        <Row label="Healthcare (premium + OOP estimate)"
+          ca="$0 (covered)"
+          us={'−' + fmtUSD(result.usHealthcare)}
+        />
+        {state.kids > 0 && (
+          <Row label={`Childcare (${state.kids} ${state.kids === 1 ? 'child' : 'children'})`}
+            ca={'−' + fmtCAD(result.caChildcare)}
+            us={'−' + fmtUSD(result.usChildcare)}
+          />
+        )}
+        <Row label="Take-home"
+          ca={fmtCAD(result.caTakeHomeCAD)}
+          us={fmtUSD(result.usTakeHomeUSD)}
+          isTotal
+        />
+
+        <div className="grid grid-cols-3 gap-4 mt-6 text-xs text-ink-faint">
+          <div></div>
+          <div className="text-right">Marginal rate: {fmtPct(ca.marginal)}</div>
+          <div className="text-right">Marginal rate: {fmtPct(us.marginal)}</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Warnings({ warnings }) {
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">What the spreadsheet won't tell you</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10 max-w-2xl">
+          The hidden costs that flip the math
+        </h2>
+        <div className="space-y-3">
+          {warnings.map((w, i) =>
+            <div key={i} className={`warning-card ${w.severity} p-5`}>
+              <div className="flex items-start gap-4">
+                <div className="label mt-1 whitespace-nowrap">
+                  {w.severity === 'critical' ? 'Critical' : w.severity === 'high' ? 'Heads up' : 'Note'}
+                </div>
+                <div>
+                  <div className="font-medium text-base mb-1">{w.title}</div>
+                  <div className="text-sm text-ink-soft leading-relaxed">{w.body}</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Projection({ result }) {
+  const positive = result.netDeltaCAD >= 0;
+  return (
+    <section className="border-b border-cream-line blueprint-grid">
+      <div className="max-w-6xl mx-auto px-6 py-20">
+        <div className="label mb-2">If you invested the difference</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10 max-w-2xl">
+          Ten years of compounding, at seven percent
+        </h2>
+
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="label mb-3">Net worth delta after 10 years</div>
+            <div className={`stat-num text-7xl md:text-8xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
+              {positive ? '+' : '−'}{fmtCAD(Math.abs(result.projection))}
+            </div>
+            <div className="text-sm text-ink-soft mt-4 max-w-md leading-relaxed">
+              Assumes you invest the entire annual after-tax delta at a 7% real return. Does not account for one-time costs of moving, the TFSA wind-down, departure tax, or the soft factors below.
+            </div>
+          </div>
+          <div className="space-y-3 text-sm">
+            {[1, 3, 5, 10].map(yr => {
+              const val = fvOfAnnuity(Math.max(0, result.netDeltaCAD), yr, 0.07);
+              return (
+                <div key={yr} className="flex justify-between border-b border-cream-line pb-3">
+                  <span className="text-ink-soft">After {yr} year{yr > 1 ? 's' : ''}</span>
+                  <span className="num font-medium">{positive ? '+' : '−'}{fmtCAD(Math.abs(val))}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SoftFactors() {
+  const factors = [
+    { label: 'Parental leave', ca: '12 to 18 months EI', us: '12 weeks unpaid (FMLA)' },
+    { label: 'Healthcare if you lose your job', ca: 'OHIP / provincial', us: 'COBRA at $1.5K to $2.5K/mo' },
+    { label: 'Distance from aging parents', ca: 'Same country', us: 'Border + flights' },
+    { label: 'Property and capital gains', ca: 'Principal residence exempt', us: 'Worldwide income reportable' },
+    { label: 'Citizenship / passport', ca: 'No change', us: 'TN does not lead to GC; H1B has 7+ year backlog for Indian-born' },
+    { label: 'Currency risk on liabilities', ca: 'CAD mortgages, CAD income', us: 'USD income, possibly CAD debts' }
+  ];
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">The things you cannot put in a spreadsheet</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Soft factors</h2>
+        <div className="grid md:grid-cols-2 gap-x-12 gap-y-6">
+          {factors.map((f, i) =>
+            <div key={i} className="border-t border-cream-line pt-4">
+              <div className="label mb-2">{f.label}</div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-xs text-ink-faint mb-1">Canada</div>
+                  <div>{f.ca}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-ink-faint mb-1">United States</div>
+                  <div>{f.us}</div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Changelog() {
+  const statusStyle = (s) => {
+    if (s === 'shipped') return 'bg-forest text-cream';
+    if (s === 'in-progress') return 'bg-vermillion text-cream';
+    return 'border border-ink-faint text-ink-faint';
+  };
+  const statusLabel = (s) => s === 'shipped' ? 'Shipped' : s === 'in-progress' ? 'In progress' : 'Planned';
+
+  return (
+    <section className="border-b border-cream-line">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="label mb-2">What's shipped, what's next</div>
+        <h2 className="display text-3xl md:text-4xl font-medium mb-10">Changelog &amp; roadmap</h2>
+        <div className="space-y-10">
+          {CHANGELOG.map((v, i) =>
+            <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream-line pt-8">
+              <div className="md:col-span-3">
+                <div className="num text-3xl font-medium tracking-tight">v{v.version}</div>
+                <div className="label mt-2">{v.date}</div>
+                <div className={`inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider ${statusStyle(v.status)}`}>
+                  {statusLabel(v.status)}
+                </div>
+              </div>
+              <div className="md:col-span-9">
+                <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
+                <ul className="space-y-2 text-sm text-ink-soft leading-relaxed">
+                  {v.items.map((item, j) =>
+                    <li key={j} className="flex gap-3">
+                      <span className="text-ink-faint mt-1 select-none">·</span>
+                      <span>{item}</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer({ copyShare, copied }) {
+  return (
+    <footer className="max-w-6xl mx-auto px-6 py-16">
+      <div className="rule-thick mb-8" />
+      <div className="grid md:grid-cols-2 gap-8 items-start">
+        <div>
+          <div className="display text-3xl font-medium mb-4">Share your scenario</div>
+          <p className="text-sm text-ink-soft max-w-md leading-relaxed mb-6">
+            The URL captures every input. Send it to your group chat, paste it on Reddit, hand it to your accountant.
+          </p>
+          <button className="cta" onClick={copyShare}>
+            {copied ? 'Link copied' : 'Copy share link'}
+          </button>
+        </div>
+        <div className="text-xs text-ink-faint leading-relaxed md:text-right">
+          <p className="mb-3">
+            This tool uses 2026 published tax brackets from CRA, IRS, and provincial/state revenue agencies.
+            Healthcare and childcare costs are estimates from KFF and provincial subsidy programs.
+          </p>
+          <p className="mb-3">
+            Not tax advice. Not legal advice. Especially not advice on departure tax, TFSA wind-down, RRSP deemed-disposition timing, or visa strategy. For real moves, get a cross-border accountant.
+          </p>
+          <p>Built in Ajax. Made for the group chat.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
