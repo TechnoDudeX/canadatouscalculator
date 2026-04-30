@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700&family=Caveat:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -17,22 +17,24 @@
         extend: {
           fontFamily: {
             display: ['Fraunces', 'Georgia', 'serif'],
+            grotesk: ['Space Grotesk', 'system-ui', 'sans-serif'],
             sans: ['Geist', 'system-ui', 'sans-serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace'],
-            hand: ['Caveat', 'cursive']
+            mono: ['Geist Mono', 'ui-monospace', 'monospace']
           },
           colors: {
-            paper: '#F0E8D6',
-            'paper-deep': '#E5DBC2',
-            'paper-line': '#D2C5A4',
-            ink: '#22180F',
-            'ink-soft': '#5C4A36',
-            'ink-faint': '#9C8A6E',
-            terracotta: '#B84A1F',
-            'terracotta-deep': '#8A3214',
-            forest: '#2F4A2C',
-            'forest-soft': '#5C7558',
-            ochre: '#C99A3D'
+            night: '#0E0B2C',
+            'night-deep': '#070518',
+            'night-soft': '#1A1545',
+            cream: '#FFF6E5',
+            'cream-soft': '#F5EBD3',
+            lime: '#D4FF3A',
+            'lime-deep': '#A8D420',
+            pink: '#FF3D7F',
+            'pink-deep': '#D11758',
+            cobalt: '#3956FF',
+            'cobalt-deep': '#1F36C7',
+            tangerine: '#FF8A2B',
+            lavender: '#B9A8FF'
           }
         }
       }
@@ -44,165 +46,167 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    html, body {
-      background: #F0E8D6;
-      color: #22180F;
-    }
-    body {
-      font-family: 'Geist', system-ui, sans-serif;
-      font-feature-settings: "ss01" 1;
-    }
-    .display { font-family: 'Fraunces', Georgia, serif; }
-    .hand { font-family: 'Caveat', cursive; }
-    .num { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1; }
+    html, body { background: #0E0B2C; color: #FFF6E5; }
+    body { font-family: 'Geist', system-ui, sans-serif; }
+    .display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01' 1; }
+    .grotesk { font-family: 'Space Grotesk', sans-serif; }
+    .num { font-family: 'Geist Mono', monospace; font-feature-settings: 'tnum' 1; }
 
     .label {
-      font-family: 'Geist', sans-serif;
+      font-family: 'Space Grotesk', sans-serif;
       text-transform: uppercase;
       letter-spacing: 0.18em;
       font-size: 11px;
-      font-weight: 500;
-      color: #9C8A6E;
+      font-weight: 600;
     }
-
-    /* Paper texture — warm, irregular, hand-aged */
-    body::before {
-      content: "";
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      background-image:
-        radial-gradient(ellipse at 15% 20%, rgba(184, 74, 31, 0.04) 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 70%, rgba(34, 24, 15, 0.05) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 100%, rgba(201, 154, 61, 0.03) 0%, transparent 50%);
-    }
-    body::after {
-      content: "";
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      opacity: 0.4;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.09 0 0 0 0 0.06 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-    }
-    main, header, footer { position: relative; z-index: 1; }
-
-    /* Hand-drawn underline */
-    .underline-hand {
-      position: relative;
-      display: inline-block;
-    }
-    .underline-hand::after {
-      content: "";
-      position: absolute;
-      left: -2%; right: -2%; bottom: -0.08em;
-      height: 0.18em;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 50 2, 100 6 T 198 5' fill='none' stroke='%23B84A1F' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-    }
-
-    .strike-hand {
-      position: relative;
-      display: inline-block;
-    }
-    .strike-hand::after {
-      content: "";
-      position: absolute;
-      left: -4%; right: -4%; top: 50%;
-      height: 0.18em; transform: translateY(-50%);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q 60 9, 100 6 T 198 7' fill='none' stroke='%239C8A6E' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-    }
-
-    .input-line {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid #22180F;
-      padding: 6px 2px 8px 2px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 22px;
-      font-weight: 500;
-      color: #22180F;
-      width: 100%;
-      outline: none;
-      transition: border-color 150ms;
-    }
-    .input-line:focus { border-bottom-color: #B84A1F; }
-    .input-line::placeholder { color: #C9B68A; }
-
-    .pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 16px;
-      border: 1.5px solid #22180F;
-      border-radius: 999px;
-      font-size: 13px; font-weight: 500;
-      cursor: pointer;
-      transition: all 150ms;
-      user-select: none;
-      background: transparent;
-      color: #22180F;
-    }
-    .pill:hover { background: #22180F; color: #F0E8D6; }
-    .pill.active { background: #22180F; color: #F0E8D6; }
 
     .stat-num {
       font-family: 'Fraunces', serif;
-      font-feature-settings: "tnum" 1;
-      font-variation-settings: "opsz" 144;
-      letter-spacing: -0.03em;
+      font-feature-settings: 'tnum' 1;
+      font-variation-settings: 'opsz' 144;
+      letter-spacing: -0.04em;
+      font-weight: 700;
     }
+
+    /* Gradient mesh background */
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 12%, rgba(255, 61, 127, 0.30) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 85% 25%, rgba(57, 86, 255, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 95%, rgba(212, 255, 58, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 75%, rgba(185, 168, 255, 0.18) 0%, transparent 60%);
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      opacity: 0.5;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    main, header, footer { position: relative; z-index: 1; }
+
+    /* Sticker / badge */
+    .sticker {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+    }
+    .sticker-lime { background: #D4FF3A; color: #0E0B2C; }
+    .sticker-pink { background: #FF3D7F; color: #FFF6E5; }
+    .sticker-cobalt { background: #3956FF; color: #FFF6E5; }
+    .sticker-cream { background: #FFF6E5; color: #0E0B2C; }
+    .sticker-outline { border: 2px solid #FFF6E5; color: #FFF6E5; box-shadow: none; }
+
+    /* Highlight bar behind text */
+    .hl-lime { background: linear-gradient(180deg, transparent 55%, #D4FF3A 55%); padding: 0 0.1em; color: #0E0B2C; }
+    .hl-pink { background: linear-gradient(180deg, transparent 55%, #FF3D7F 55%); padding: 0 0.1em; color: #FFF6E5; }
+    .hl-cobalt { background: linear-gradient(180deg, transparent 55%, #3956FF 55%); padding: 0 0.1em; color: #FFF6E5; }
+
+    /* Chunky underline */
+    .u-lime { box-shadow: inset 0 -0.18em 0 #D4FF3A; padding-bottom: 0.05em; }
+    .u-pink { box-shadow: inset 0 -0.18em 0 #FF3D7F; padding-bottom: 0.05em; }
+
+    /* Strike */
+    .strike-pink { position: relative; display: inline-block; }
+    .strike-pink::after {
+      content: ''; position: absolute; left: -2%; right: -2%; top: 52%;
+      height: 0.16em; background: #FF3D7F; transform: rotate(-3deg);
+    }
+
+    /* Marquee */
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee { animation: marquee 40s linear infinite; }
+    .marquee-wrap:hover .marquee { animation-play-state: paused; }
+
+    /* Card / block */
+    .panel {
+      background: rgba(255, 246, 229, 0.04);
+      border: 1px solid rgba(255, 246, 229, 0.12);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+    }
+    .panel-lime { background: #D4FF3A; color: #0E0B2C; border-radius: 28px; }
+    .panel-pink { background: #FF3D7F; color: #FFF6E5; border-radius: 28px; }
+    .panel-cobalt { background: #3956FF; color: #FFF6E5; border-radius: 28px; }
+    .panel-cream { background: #FFF6E5; color: #0E0B2C; border-radius: 28px; }
+
+    /* Inputs */
+    .input-line {
+      background: transparent; border: none;
+      border-bottom: 2px solid #FFF6E5;
+      padding: 6px 2px 8px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 24px; font-weight: 500; color: #FFF6E5;
+      width: 100%; outline: none; transition: border-color 150ms;
+    }
+    .input-line:focus { border-bottom-color: #D4FF3A; }
+    .input-line::placeholder { color: rgba(255, 246, 229, 0.35); }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px;
+      border: 1.5px solid rgba(255, 246, 229, 0.4);
+      border-radius: 999px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; user-select: none;
+      transition: all 150ms;
+      background: transparent; color: #FFF6E5;
+    }
+    .pill:hover { background: rgba(212, 255, 58, 0.12); border-color: #D4FF3A; }
+    .pill.active { background: #D4FF3A; color: #0E0B2C; border-color: #D4FF3A; }
 
     .btn-primary {
-      background: #22180F; color: #F0E8D6;
-      padding: 14px 28px;
-      font-weight: 500; font-size: 13px;
+      background: #D4FF3A; color: #0E0B2C;
+      padding: 16px 28px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 13px;
       letter-spacing: 0.12em; text-transform: uppercase;
-      transition: all 150ms;
       border-radius: 999px;
+      transition: all 150ms;
+      box-shadow: 0 6px 0 #A8D420;
+      cursor: pointer;
     }
-    .btn-primary:hover { background: #B84A1F; }
+    .btn-primary:hover { background: #FFF6E5; box-shadow: 0 6px 0 #B9A8FF; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #A8D420; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-    /* Margin note — handwritten, terracotta */
-    .margin-note {
-      font-family: 'Caveat', cursive;
-      color: #B84A1F;
-      font-size: 22px;
-      line-height: 1.15;
-      transform: rotate(-2deg);
-      transform-origin: left center;
+    .btn-ghost {
+      background: transparent; color: #FFF6E5;
+      padding: 14px 24px;
+      border: 1.5px solid rgba(255, 246, 229, 0.4);
+      border-radius: 999px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600; font-size: 13px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      transition: all 150ms;
     }
+    .btn-ghost:hover { border-color: #D4FF3A; color: #D4FF3A; }
 
-    /* Hand-drawn circle highlight */
-    .circled {
-      position: relative;
-      display: inline-block;
-      padding: 0 0.2em;
+    /* Floating tag */
+    .floating-tag {
+      transform: rotate(-6deg);
+      transition: transform 200ms;
     }
-    .circled::before {
-      content: "";
-      position: absolute;
-      inset: -0.15em -0.3em;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'%3E%3Cpath d='M 100 8 C 50 8, 12 25, 12 40 C 12 60, 60 72, 110 72 C 170 70, 192 55, 188 38 C 184 22, 145 10, 95 10' fill='none' stroke='%23B84A1F' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-      pointer-events: none;
-    }
-
-    /* Subtle horizontal rule, hand-drawn */
-    .rule-hand {
-      height: 8px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 8' preserveAspectRatio='none'%3E%3Cpath d='M2 4 Q 80 2, 200 4 T 398 4' fill='none' stroke='%2322180F' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-    }
+    .floating-tag:hover { transform: rotate(-2deg) scale(1.04); }
+    .floating-tag-r { transform: rotate(5deg); transition: transform 200ms; }
+    .floating-tag-r:hover { transform: rotate(2deg) scale(1.04); }
 
     /* Number-input cleanup */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
 
-    /* Scroll behavior */
     html { scroll-behavior: smooth; }
-
-    /* Selection */
-    ::selection { background: #B84A1F; color: #F0E8D6; }
+    ::selection { background: #D4FF3A; color: #0E0B2C; }
   </style>
 </head>
 <body>
@@ -216,59 +220,43 @@ const { useState, useEffect, useMemo } = React;
    ======================================================================== */
 
 const CA_FEDERAL_2026 = [
-  { upTo: 58523,    rate: 0.14 },
-  { upTo: 117045,   rate: 0.205 },
-  { upTo: 181440,   rate: 0.26 },
-  { upTo: 258482,   rate: 0.29 },
+  { upTo: 58523, rate: 0.14 }, { upTo: 117045, rate: 0.205 },
+  { upTo: 181440, rate: 0.26 }, { upTo: 258482, rate: 0.29 },
   { upTo: Infinity, rate: 0.33 }
 ];
 const CA_BPA_2026 = 16129;
 
 const PROVINCIAL_2026 = {
-  ON: {
-    label: 'Ontario',
+  ON: { label: 'Ontario', short: 'Ontario',
     brackets: [
-      { upTo: 52886,    rate: 0.0505 },
-      { upTo: 105775,   rate: 0.0915 },
-      { upTo: 150000,   rate: 0.1116 },
-      { upTo: 220000,   rate: 0.1216 },
+      { upTo: 52886, rate: 0.0505 }, { upTo: 105775, rate: 0.0915 },
+      { upTo: 150000, rate: 0.1116 }, { upTo: 220000, rate: 0.1216 },
       { upTo: Infinity, rate: 0.1316 }
     ],
     bpa: 12747,
     surtax: { tier1: { threshold: 5818, rate: 0.20 }, tier2: { threshold: 7446, rate: 0.36 } }
   },
-  BC: {
-    label: 'British Columbia',
+  BC: { label: 'British Columbia', short: 'BC',
     brackets: [
-      { upTo: 50090,    rate: 0.0506 },
-      { upTo: 100180,   rate: 0.077 },
-      { upTo: 115000,   rate: 0.105 },
-      { upTo: 139500,   rate: 0.1229 },
-      { upTo: 189500,   rate: 0.147 },
-      { upTo: 264000,   rate: 0.168 },
+      { upTo: 50090, rate: 0.0506 }, { upTo: 100180, rate: 0.077 },
+      { upTo: 115000, rate: 0.105 }, { upTo: 139500, rate: 0.1229 },
+      { upTo: 189500, rate: 0.147 }, { upTo: 264000, rate: 0.168 },
       { upTo: Infinity, rate: 0.205 }
     ],
     bpa: 12932
   },
-  AB: {
-    label: 'Alberta',
+  AB: { label: 'Alberta', short: 'Alberta',
     brackets: [
-      { upTo: 60000,    rate: 0.08 },
-      { upTo: 151234,   rate: 0.10 },
-      { upTo: 181481,   rate: 0.12 },
-      { upTo: 241974,   rate: 0.13 },
-      { upTo: 362961,   rate: 0.14 },
-      { upTo: Infinity, rate: 0.15 }
+      { upTo: 60000, rate: 0.08 }, { upTo: 151234, rate: 0.10 },
+      { upTo: 181481, rate: 0.12 }, { upTo: 241974, rate: 0.13 },
+      { upTo: 362961, rate: 0.14 }, { upTo: Infinity, rate: 0.15 }
     ],
     bpa: 22323
   },
-  QC: {
-    label: 'Quebec',
+  QC: { label: 'Quebec', short: 'Quebec',
     brackets: [
-      { upTo: 53255,    rate: 0.14 },
-      { upTo: 106495,   rate: 0.19 },
-      { upTo: 129590,   rate: 0.24 },
-      { upTo: Infinity, rate: 0.2575 }
+      { upTo: 53255, rate: 0.14 }, { upTo: 106495, rate: 0.19 },
+      { upTo: 129590, rate: 0.24 }, { upTo: Infinity, rate: 0.2575 }
     ],
     bpa: 18571,
     federalAbatement: 0.165
@@ -280,21 +268,15 @@ const EI_2026 = { maxInsurable: 65700, rate: 0.0164 };
 
 const US_FEDERAL_2026 = {
   single: [
-    { upTo: 12400,    rate: 0.10 },
-    { upTo: 50400,    rate: 0.12 },
-    { upTo: 105700,   rate: 0.22 },
-    { upTo: 201775,   rate: 0.24 },
-    { upTo: 256225,   rate: 0.32 },
-    { upTo: 640600,   rate: 0.35 },
+    { upTo: 12400, rate: 0.10 }, { upTo: 50400, rate: 0.12 },
+    { upTo: 105700, rate: 0.22 }, { upTo: 201775, rate: 0.24 },
+    { upTo: 256225, rate: 0.32 }, { upTo: 640600, rate: 0.35 },
     { upTo: Infinity, rate: 0.37 }
   ],
   mfj: [
-    { upTo: 24800,    rate: 0.10 },
-    { upTo: 100800,   rate: 0.12 },
-    { upTo: 211400,   rate: 0.22 },
-    { upTo: 403550,   rate: 0.24 },
-    { upTo: 512450,   rate: 0.32 },
-    { upTo: 768700,   rate: 0.35 },
+    { upTo: 24800, rate: 0.10 }, { upTo: 100800, rate: 0.12 },
+    { upTo: 211400, rate: 0.22 }, { upTo: 403550, rate: 0.24 },
+    { upTo: 512450, rate: 0.32 }, { upTo: 768700, rate: 0.35 },
     { upTo: Infinity, rate: 0.37 }
   ]
 };
@@ -302,65 +284,56 @@ const US_STD_DED_2026 = { single: 16100, mfj: 32200 };
 const CTC_2026 = 2200;
 
 const FICA_2026 = {
-  ssRate: 0.062,
-  ssWageBase: 184500,
-  medicareRate: 0.0145,
-  addlMedicareRate: 0.009,
+  ssRate: 0.062, ssWageBase: 184500,
+  medicareRate: 0.0145, addlMedicareRate: 0.009,
   addlMedicareThreshold: { single: 200000, mfj: 250000 }
 };
 
 const STATE_2026 = {
-  CA: {
-    label: 'California',
-    type: 'progressive',
+  CA: { label: 'California', short: 'California', type: 'progressive',
     brackets: {
       single: [
-        { upTo: 11000,   rate: 0.01 }, { upTo: 26100,   rate: 0.02 },
-        { upTo: 41200,   rate: 0.04 }, { upTo: 57200,   rate: 0.06 },
-        { upTo: 72300,   rate: 0.08 }, { upTo: 369100,  rate: 0.093 },
-        { upTo: 442900,  rate: 0.103 }, { upTo: 738400,  rate: 0.113 },
+        { upTo: 11000, rate: 0.01 }, { upTo: 26100, rate: 0.02 },
+        { upTo: 41200, rate: 0.04 }, { upTo: 57200, rate: 0.06 },
+        { upTo: 72300, rate: 0.08 }, { upTo: 369100, rate: 0.093 },
+        { upTo: 442900, rate: 0.103 }, { upTo: 738400, rate: 0.113 },
         { upTo: Infinity, rate: 0.123 }
       ],
       mfj: [
-        { upTo: 22000,    rate: 0.01 }, { upTo: 52200,    rate: 0.02 },
-        { upTo: 82400,    rate: 0.04 }, { upTo: 114400,   rate: 0.06 },
-        { upTo: 144600,   rate: 0.08 }, { upTo: 738200,   rate: 0.093 },
-        { upTo: 885800,   rate: 0.103 }, { upTo: 1476800,  rate: 0.113 },
+        { upTo: 22000, rate: 0.01 }, { upTo: 52200, rate: 0.02 },
+        { upTo: 82400, rate: 0.04 }, { upTo: 114400, rate: 0.06 },
+        { upTo: 144600, rate: 0.08 }, { upTo: 738200, rate: 0.093 },
+        { upTo: 885800, rate: 0.103 }, { upTo: 1476800, rate: 0.113 },
         { upTo: Infinity, rate: 0.123 }
       ]
     },
     mentalHealthSurcharge: { threshold: 1000000, rate: 0.01 }
   },
-  NY: {
-    label: 'New York',
-    type: 'progressive',
+  NY: { label: 'New York', short: 'New York', type: 'progressive',
     brackets: {
       single: [
-        { upTo: 8500,     rate: 0.04 }, { upTo: 11700,    rate: 0.045 },
-        { upTo: 13900,    rate: 0.0525 }, { upTo: 80650,    rate: 0.055 },
-        { upTo: 215400,   rate: 0.06 }, { upTo: 1077550,  rate: 0.0685 },
-        { upTo: 5000000,  rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
+        { upTo: 8500, rate: 0.04 }, { upTo: 11700, rate: 0.045 },
+        { upTo: 13900, rate: 0.0525 }, { upTo: 80650, rate: 0.055 },
+        { upTo: 215400, rate: 0.06 }, { upTo: 1077550, rate: 0.0685 },
+        { upTo: 5000000, rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
         { upTo: Infinity, rate: 0.109 }
       ],
       mfj: [
-        { upTo: 17150,    rate: 0.04 }, { upTo: 23600,    rate: 0.045 },
-        { upTo: 27900,    rate: 0.0525 }, { upTo: 161550,   rate: 0.055 },
-        { upTo: 323200,   rate: 0.06 }, { upTo: 2155350,  rate: 0.0685 },
-        { upTo: 5000000,  rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
+        { upTo: 17150, rate: 0.04 }, { upTo: 23600, rate: 0.045 },
+        { upTo: 27900, rate: 0.0525 }, { upTo: 161550, rate: 0.055 },
+        { upTo: 323200, rate: 0.06 }, { upTo: 2155350, rate: 0.0685 },
+        { upTo: 5000000, rate: 0.0965 }, { upTo: 25000000, rate: 0.103 },
         { upTo: Infinity, rate: 0.109 }
       ]
     }
   },
-  WA: { label: 'Washington', type: 'none' },
-  TX: { label: 'Texas', type: 'none' },
-  FL: { label: 'Florida', type: 'none' },
-  MA: {
-    label: 'Massachusetts',
-    type: 'flat', rate: 0.05,
-    surcharge: { threshold: 1083150, rate: 0.04 }
-  },
-  IL: { label: 'Illinois', type: 'flat', rate: 0.0495 },
-  CO: { label: 'Colorado', type: 'flat', rate: 0.044 }
+  WA: { label: 'Washington', short: 'Washington', type: 'none' },
+  TX: { label: 'Texas', short: 'Texas', type: 'none' },
+  FL: { label: 'Florida', short: 'Florida', type: 'none' },
+  MA: { label: 'Massachusetts', short: 'Mass.', type: 'flat', rate: 0.05,
+    surcharge: { threshold: 1083150, rate: 0.04 } },
+  IL: { label: 'Illinois', short: 'Illinois', type: 'flat', rate: 0.0495 },
+  CO: { label: 'Colorado', short: 'Colorado', type: 'flat', rate: 0.044 }
 };
 
 const HEALTHCARE_2026 = {
@@ -377,35 +350,46 @@ const CHILDCARE_STATE_DEFAULT = {
 
 /* ========================================================================
    CHANGELOG (shipped) + ROADMAP (planned)
-   On every deploy, prepend a new entry to CHANGELOG. If a planned item just
-   shipped, also remove it from ROADMAP.
+   On every deploy, prepend a new entry to CHANGELOG.
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '3.0.0',
+    date: '2026-04-30',
+    title: 'Bold electric redesign — youth-skewing, sticker-heavy aesthetic',
+    items: [
+      'New palette: deep midnight indigo background with hot lime, pink, cobalt accents',
+      'Type system: Fraunces display + Space Grotesk grotesk + Geist body + Geist Mono numbers (dropped Caveat handwriting)',
+      'Gradient mesh + noise overlay across the page; chunky drop-shadow stickers and pill buttons',
+      'Hero: 3 colored "plan" cards (pink, cobalt, lime) + 3 glass "fail mode" panels with strike-pink emphasis',
+      'New marquee strip below header with the seven punchy facts about the move',
+      'Section 01: 4 colored cost cards (pink/cobalt/lime/cream) replace the letter-style point list',
+      'Section 02: wizard inside a glass panel with animated lime progress bar',
+      'Section 03: floating verdict sticker (lime if positive, pink if negative) + 4 colored stat blocks',
+      'Chart: lime/pink lines on dark, with cream-pill BREAKEVEN label at the crossover'
+    ]
+  },
   {
     version: '2.0.1',
     date: '2026-04-30',
     title: 'Fix homepage auto-scrolling to Section 1',
     items: [
-      'Header nav links (The plan / Hidden costs / Run the math) no longer mutate the URL hash',
-      'Stale section hashes (e.g. #hidden) are stripped on page load and scroll position resets to top',
-      'Anchor scroll now goes through JS so the URL stays clean and navigation does not surprise the user',
-      'Changelog hash routing still works — only section anchors are de-hash-ified'
+      'Header nav links no longer mutate the URL hash',
+      'Stale section hashes are stripped on page load',
+      'Anchor scroll goes through JS so the URL stays clean'
     ]
   },
   {
     version: '2.0.0',
     date: '2026-04-30',
-    title: 'Full visual redesign — North×South letter to a friend',
+    title: 'Aged-paper letter-to-a-friend redesign',
     items: [
-      'Aged-paper aesthetic — Fraunces display, Caveat handwriting, terracotta accent on cream',
-      'New hero frames the actual question: most Canadians plan a 3–5 year detour, the math decides if it works',
-      'Section one: the four numbers that flip the plan (healthcare, childcare, TFSA, departure tax)',
-      'Section two: condensed 5-question wizard (was 9) with pill selectors and step dots',
-      'Section three: the verdict — "Stay 5 years, you come home roughly $X ahead" with sidebar stats and breakeven chart',
-      'Hand-drawn flourishes: underlines, circles, margin notes, breakeven arrow on the chart',
-      'Three reality-check footers under the verdict (cost of living, lifestyle drift, FX re-entry risk)',
-      'Dropped: standalone Result/Breakdown/Warnings/Projection/SoftFactors/SeoContent sections (consolidated into the new layout)'
+      'Aged-paper aesthetic with Fraunces + Caveat handwriting + terracotta accent (superseded by v3.0.0)',
+      'Hero framing: most Canadians plan a 3–5 year detour, the math decides if it works',
+      'The four numbers that flip the plan (healthcare, childcare, TFSA, departure tax)',
+      'Condensed 5-question wizard (was 9)',
+      'Verdict section with sidebar stats + breakeven chart with hand-drawn arrow'
     ]
   },
   {
@@ -413,10 +397,9 @@ const CHANGELOG = [
     date: '2026-04-30',
     title: 'Clean URL on landing — no more default-number pollution',
     items: [
-      'Removed URL state syncing — landing page no longer redirects to ?cad=145000&usd=215000&...',
-      'Salary inputs now start blank in the wizard instead of pre-filled with sample numbers',
-      'Hero answer panel shows placeholder until salaries are entered',
-      'Removed the "Share your scenario" / Copy share link section from the footer'
+      'Removed URL state syncing — landing page no longer redirects to ?cad=145000&...',
+      'Salary inputs start blank instead of pre-filled',
+      'Removed the share-link section from footer'
     ]
   },
   {
@@ -424,11 +407,9 @@ const CHANGELOG = [
     date: '2026-04-30',
     title: 'Header nav, dedicated Changelog tab, and SEO content section',
     items: [
-      'New header navigation: Calculator and Changelog as separate tabs (hash-based routing)',
+      'Calculator and Changelog as separate tabs (hash-based routing)',
       'Header CTA "Start ↓" scrolls smoothly to wizard step 1',
-      'Changelog and Roadmap moved off the main page into their own dedicated tab',
-      'New SEO content section below the wizard with sourced stats and FAQ',
-      'Removed dead inline Inputs and Field components'
+      'New SEO content section with sourced stats and FAQ'
     ]
   },
   {
@@ -437,8 +418,7 @@ const CHANGELOG = [
     title: 'Wizard becomes the primary input flow',
     items: [
       'Removed the inline calculator panel from the landing page',
-      'Step-by-step wizard now sits below the hero',
-      'Wizard opens directly on "How much do you earn now?"',
+      'Step-by-step wizard sits below the hero',
       'Hero answer panel updates live as the user answers each wizard question'
     ]
   },
@@ -447,29 +427,10 @@ const CHANGELOG = [
     date: '2026-04-30',
     title: 'Landing-first flow + 5-year breakeven chart',
     items: [
-      'Page now opens on the landing view — hero, calculator, and results inline',
+      'Page opens on the landing view — hero, calculator, and results inline',
       'New Breakeven section: 5-year cumulative take-home for staying vs moving',
       'US line starts negative to reflect moving costs and departure tax',
-      'Breakeven crossover point marked on the chart with year (e.g. "Year 1.4")',
       'Editable moving costs input ($25k default)'
-    ]
-  },
-  {
-    version: '1.0.2',
-    date: '2026-04-30',
-    title: 'Split Changelog and Roadmap into separate sections',
-    items: [
-      'Changelog now lists only shipped versions; Roadmap holds future work',
-      'CHANGELOG bump is now part of every deploy by default'
-    ]
-  },
-  {
-    version: '1.0.1',
-    date: '2026-04-30',
-    title: 'Screen-by-screen wizard',
-    items: [
-      'New first-time visitor flow — one question per screen with progress bar',
-      'Choice screens auto-advance after selection; number screens accept Enter to continue'
     ]
   },
   {
@@ -481,7 +442,6 @@ const CHANGELOG = [
       '4 provinces, 8 states with full bracket coverage',
       'CPP, EI, FICA, Medicare, Additional Medicare',
       'Healthcare and childcare cost line items',
-      'Hidden cost warnings (TFSA, departure tax, TN visa)',
       '10-year future value projection at 7%'
     ]
   }
@@ -489,9 +449,7 @@ const CHANGELOG = [
 
 const ROADMAP = [
   {
-    version: '2.1.0',
-    horizon: 'Next',
-    title: 'Verified brackets + small fixes',
+    version: '3.1.0', horizon: 'Next', title: 'Verified brackets + small fixes',
     items: [
       'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers',
       'Canada Employment Amount credit (~$200 understatement currently)',
@@ -501,9 +459,7 @@ const ROADMAP = [
     ]
   },
   {
-    version: '3.0.0',
-    horizon: 'Soon',
-    title: 'Equity, housing, multi-state',
+    version: '4.0.0', horizon: 'Soon', title: 'Equity, housing, multi-state',
     items: [
       'RSU and stock option cross-border treatment',
       'Cost-of-living adjustment by metro — $200k in Austin vs $250k in SF',
@@ -514,9 +470,7 @@ const ROADMAP = [
     ]
   },
   {
-    version: '4.0.0',
-    horizon: 'Later',
-    title: 'Persona variants + monetization',
+    version: '5.0.0', horizon: 'Later', title: 'Persona variants + monetization',
     items: [
       'Healthcare worker variant — NCLEX path, malpractice insurance line item',
       'Dual-income couple modeling with TN/TD spouse work restriction',
@@ -583,21 +537,16 @@ function calculateCanada({ income, province }) {
   const cppEnhanced = Math.max(0, Math.min(income, CPP_2026.yampe) - CPP_2026.ympe) * CPP_2026.enhancedRate;
   const cppBase = cpp - cppEnhanced;
   const taxableIncome = income - cppEnhanced;
-
   const fedTaxGross = applyBrackets(taxableIncome, CA_FEDERAL_2026);
   const fedCreditBase = (CA_BPA_2026 + cppBase + ei) * CA_FEDERAL_2026[0].rate;
   let fedTax = Math.max(0, fedTaxGross - fedCreditBase);
-
   const prov = PROVINCIAL_2026[province];
   if (prov.federalAbatement) fedTax = fedTax * (1 - prov.federalAbatement);
-
   const provTaxGross = applyBrackets(taxableIncome, prov.brackets);
   const provCredit = (prov.bpa + cppBase + ei) * prov.brackets[0].rate;
   let provTax = Math.max(0, provTaxGross - provCredit);
   if (prov.surtax) provTax += calcOntarioSurtax(provTax, prov.surtax);
-
   const ohp = province === 'ON' ? calcOntarioHealthPremium(income) : 0;
-
   const totalTax = fedTax + provTax + cpp + ei + ohp;
   return { gross: income, takeHome: income - totalTax };
 }
@@ -625,14 +574,11 @@ function calculateUS({ income, state, filingStatus, kids }) {
   const taxable = Math.max(0, income - stdDed);
   const fedGross = applyBrackets(taxable, US_FEDERAL_2026[filingStatus]);
   const fedTax = Math.max(0, fedGross - kids * CTC_2026);
-
   const stateTax = calcStateTax(taxable, state, filingStatus);
-
   const ss = Math.min(income, FICA_2026.ssWageBase) * FICA_2026.ssRate;
   const medicare = income * FICA_2026.medicareRate;
   const addlThreshold = FICA_2026.addlMedicareThreshold[filingStatus];
   const addlMedicare = Math.max(0, income - addlThreshold) * FICA_2026.addlMedicareRate;
-
   const totalTax = fedTax + stateTax + ss + medicare + addlMedicare;
   return { gross: income, takeHome: income - totalTax };
 }
@@ -669,11 +615,8 @@ function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 
   return { pts, breakeven };
 }
 
-/* ========================================================================
-   FORMATTERS
-   ======================================================================== */
-
 const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
+const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
 const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 
 /* ========================================================================
@@ -709,10 +652,6 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
-  const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   const update = (patch) => setState(s => ({ ...s, ...patch }));
 
   const navigate = (toView) => {
@@ -723,6 +662,10 @@ function App() {
     }
     setView(toView);
     window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const scrollToWizard = () => {
@@ -751,7 +694,6 @@ function App() {
     const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare;
     const usTakeHomeCAD = state.salaryUSD > 0 ? usTakeHomeUSD / state.fxRate : 0;
 
-    const grossDeltaCAD = (state.salaryUSD / state.fxRate) - state.salaryCAD;
     const netDeltaCAD = usTakeHomeCAD - caTakeHomeCAD;
 
     const { pts, breakeven } = buildBreakeven({
@@ -761,17 +703,15 @@ function App() {
     const threeYrDelta = pts[3].us - pts[3].ca;
 
     return {
-      caTakeHomeCAD, usTakeHomeUSD, usTakeHomeCAD,
-      usHealthcare, usChildcare, caChildcare,
-      grossDeltaCAD, netDeltaCAD,
-      pts, breakeven, fiveYrDelta, threeYrDelta
+      caTakeHomeCAD, usTakeHomeCAD, usHealthcare, usChildcare, caChildcare,
+      netDeltaCAD, pts, breakeven, fiveYrDelta, threeYrDelta
     };
   }, [state]);
 
   if (view === 'changelog') {
     return (
       <main className="min-h-screen">
-        <Header scrollToWizard={scrollToWizard} scrollToSection={scrollToSection} navigate={navigate} view={view} />
+        <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
         <ChangelogView />
         <Footer />
       </main>
@@ -780,11 +720,12 @@ function App() {
 
   return (
     <main className="min-h-screen">
-      <Header scrollToWizard={scrollToWizard} scrollToSection={scrollToSection} navigate={navigate} view={view} />
+      <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
+      <Marquee />
       <Hero scrollToWizard={scrollToWizard} />
-      <TheLetter result={result} state={state} />
-      <Wizard state={state} update={update} />
-      <BreakevenSection state={state} update={update} result={result} />
+      <HiddenCosts result={result} state={state} />
+      <Wizard state={state} update={update} scrollToSection={scrollToSection} />
+      <VerdictSection state={state} update={update} result={result} />
       <Footer />
     </main>
   );
@@ -793,252 +734,254 @@ function App() {
 /* ============================================================
    HEADER
    ============================================================ */
-function Header({ scrollToWizard, scrollToSection, navigate, view }) {
+function Header({ navigate, scrollToSection, scrollToWizard, view }) {
   return (
-    <header className="border-b border-paper-line">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 pt-6 pb-5">
-        <div className="flex items-start justify-between gap-6">
-          <button onClick={() => navigate('main')} className="text-left">
-            <div className="label mb-1.5">A cross-border honesty audit · 2026</div>
-            <div className="flex items-baseline gap-3">
-              <h1 className="display text-2xl md:text-[28px] font-medium tracking-tight">
-                North<span className="text-terracotta">×</span>South
-              </h1>
-            </div>
+    <header className="border-b border-cream/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-6">
+        <button onClick={() => navigate('main')} className="flex items-center gap-3 text-left">
+          <div className="w-10 h-10 rounded-full bg-lime grid place-items-center">
+            <span className="display text-night text-xl font-bold leading-none">N×S</span>
+          </div>
+          <div>
+            <div className="grotesk font-bold text-cream text-lg leading-none">North<span className="text-lime">×</span>South</div>
+            <div className="label text-cream/50 mt-1">Cross-border honesty audit</div>
+          </div>
+        </button>
+        <nav className="flex items-center gap-3 md:gap-5">
+          {view === 'main' && (
+            <>
+              <button onClick={() => scrollToSection('thesis')} className="label text-cream/70 hover:text-lime transition-colors hidden sm:inline">The plan</button>
+              <button onClick={() => scrollToSection('hidden')} className="label text-cream/70 hover:text-lime transition-colors hidden md:inline">Hidden costs</button>
+              <button onClick={() => scrollToSection('wizard')} className="label text-cream/70 hover:text-lime transition-colors hidden md:inline">Run it</button>
+            </>
+          )}
+          <button onClick={() => navigate('changelog')} className={`label transition-colors hidden sm:inline ${view === 'changelog' ? 'text-lime' : 'text-cream/70 hover:text-lime'}`}>
+            Changelog
           </button>
-          <nav className="flex items-center gap-5 md:gap-8 pt-2">
-            {view === 'main' && (
-              <>
-                <button onClick={() => scrollToSection('thesis')} className="label hover:text-ink transition-colors">The plan</button>
-                <button onClick={() => scrollToSection('hidden')} className="label hover:text-ink transition-colors hidden sm:inline">Hidden costs</button>
-                <button onClick={() => scrollToSection('wizard')} className="label hover:text-ink transition-colors hidden md:inline">Run the math</button>
-              </>
-            )}
-            <button onClick={() => navigate('changelog')} className={`label transition-colors ${view === 'changelog' ? 'text-ink' : 'hover:text-ink'}`}>
-              Changelog
-            </button>
-            <button onClick={scrollToWizard} className="btn-primary">Start ↓</button>
-          </nav>
-        </div>
+          <button onClick={scrollToWizard} className="btn-primary">Start ↓</button>
+        </nav>
       </div>
     </header>
   );
 }
 
 /* ============================================================
-   HERO
+   MARQUEE
+   ============================================================ */
+function Marquee() {
+  const items = [
+    'CRA WANTS A DEPARTURE BILL',
+    'TFSA ≠ TAX-FREE IN THE US',
+    'SF RENT IS 2.4× TORONTO',
+    'CHILDCARE: $2.4K vs $28K',
+    "TN VISA = SPOUSE CAN'T WORK",
+    'PFIC FORM 8621 IS NOT A JOKE',
+    'COBRA = $2K/MO IF FIRED',
+  ];
+  const row = (
+    <>
+      {items.map((t, i) => (
+        <span key={i} className="grotesk font-bold text-base md:text-lg tracking-wider whitespace-nowrap mx-8 inline-flex items-center">
+          <span className="inline-block w-2 h-2 rounded-full bg-pink mx-3 -translate-y-0.5"/>
+          {t}
+        </span>
+      ))}
+    </>
+  );
+  return (
+    <div className="bg-lime text-night py-3 overflow-hidden border-y-2 border-night-deep marquee-wrap">
+      <div className="flex marquee whitespace-nowrap">
+        <div className="flex shrink-0">{row}</div>
+        <div className="flex shrink-0" aria-hidden="true">{row}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   HERO — the thesis
    ============================================================ */
 function Hero({ scrollToWizard }) {
   return (
-    <section id="thesis" className="border-b border-paper-line relative overflow-hidden">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 pt-14 md:pt-20 pb-20 md:pb-28">
+    <section id="thesis" className="relative overflow-hidden">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
 
-        <div className="flex items-baseline gap-4 mb-10 md:mb-14">
-          <span className="label">Premise</span>
-          <span className="hand text-xl md:text-2xl text-ink-soft">the math you don't see on the offer letter</span>
+        <div className="flex items-center gap-3 mb-10 md:mb-14 flex-wrap">
+          <span className="sticker sticker-lime">Premise</span>
+          <span className="grotesk text-cream/70 text-sm md:text-base">— the math you don't see on the offer letter</span>
         </div>
 
         <div className="relative">
-          <h2 className="display font-medium text-[clamp(2.5rem,7.6vw,6.5rem)] leading-[0.95] tracking-tight max-w-[18ch]">
-            Most Canadians moving south<br className="hidden md:block"/>
-            have <span className="italic">the same plan.</span>
+          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[0.92] tracking-tight text-cream max-w-[14ch]">
+            Most Canadians moving south have <span className="hl-lime">the same plan</span>.
           </h2>
-
-          <div className="hidden lg:block absolute right-0 top-2 w-64">
-            <svg viewBox="0 0 200 80" className="absolute -left-10 top-12 w-12 opacity-70">
-              <path d="M 4 70 Q 60 20, 180 14 L 168 4 M 180 14 L 174 26"
-                fill="none" stroke="#B84A1F" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <div className="margin-note text-right pt-2">
-              if you're reading this,<br/>you probably have it too
+          <div className="hidden lg:block absolute right-0 top-8 floating-tag-r">
+            <div className="sticker sticker-pink text-sm py-3 px-5">
+              you have it too, don't you 👀
             </div>
           </div>
         </div>
 
-        <div className="mt-12 md:mt-16 grid md:grid-cols-12 gap-x-8 gap-y-8">
-          <div className="md:col-span-8 md:col-start-2">
-            <div className="space-y-5 display text-2xl md:text-[30px] leading-[1.35] text-ink-soft">
-              <PlanBeat n="i." text={<>Take the bigger US offer. <span className="text-ink">Six figures beats five</span> on paper.</>} />
-              <PlanBeat n="ii." text={<>Grind for <span className="circled text-ink">three to five years</span>. Save aggressively.</>} />
-              <PlanBeat n="iii." text={<>Come home with a down payment, an investment portfolio, and a story.</>} />
-            </div>
-          </div>
+        <div className="mt-14 md:mt-20 grid md:grid-cols-3 gap-5 md:gap-6">
+          <PlanCard n="01" color="pink" headline="Take the bigger US offer"
+            sub={<>Six figures beats five <span className="opacity-60">on paper</span>.</>}/>
+          <PlanCard n="02" color="cobalt" headline="Grind 3–5 years"
+            sub={<>Save aggressively. Avoid lifestyle creep.</>}/>
+          <PlanCard n="03" color="lime" headline="Come home rich"
+            sub={<>Down payment, portfolio, a story to tell.</>}/>
         </div>
 
-        <div className="mt-16 md:mt-24 grid md:grid-cols-12 gap-8 items-end">
+        <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
-            <div className="label mb-4">The trouble with the plan</div>
-            <h3 className="display font-medium text-[clamp(2.25rem,5.6vw,4.75rem)] leading-[0.98] tracking-tight">
-              The detour <span className="italic">doesn't</span> always<br/>
-              <span className="underline-hand">end with you ahead.</span>
+            <div className="flex items-center gap-3 mb-5 flex-wrap">
+              <span className="sticker sticker-cream">⚠ The trouble</span>
+              <span className="grotesk text-cream/60 text-sm">with the plan, that is</span>
+            </div>
+            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[0.96] tracking-tight text-cream">
+              The detour <span className="strike-pink text-cream/60">always</span> ends with you ahead.
+              <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
-            <p className="text-lg md:text-xl text-ink-soft mt-7 max-w-2xl leading-relaxed">
-              Higher salary, higher cost of living, healthcare you've never paid for, childcare that costs as much as a second mortgage,
-              a TFSA the IRS will tax, and a departure bill from CRA on your way out.
-              <span className="text-ink"> The gap between the offer and the outcome is where this calculator lives.</span>
+            <p className="grotesk text-lg md:text-xl text-cream/80 mt-7 max-w-2xl leading-relaxed">
+              Higher salary, higher cost of living. Healthcare premiums you've never paid.
+              Childcare priced like a second mortgage. A TFSA the IRS will tax.
+              And a goodbye bill from CRA on your way out.
+            </p>
+            <p className="grotesk text-lg md:text-xl text-lime mt-5 max-w-2xl leading-relaxed font-semibold">
+              The gap between the offer and the outcome is where this calculator lives.
             </p>
           </div>
 
-          <div className="md:col-span-5 md:pl-8 md:border-l md:border-paper-line space-y-5">
-            <div className="label mb-1">What it can look like</div>
-            <FailMode
-              kicker="The break-even illusion"
-              line="You netted +$110k/yr on paper. Healthcare and childcare ate $40k of it."
-            />
-            <FailMode
-              kicker="The cost-of-living trap"
-              line="SF rent is 2.4× Toronto. The raise vanishes into a one-bedroom."
-            />
-            <FailMode
-              kicker="The exit penalty"
-              line="CRA's departure tax + TFSA wind-down = $20k–$60k on the way out."
-            />
+          <div className="md:col-span-5 space-y-4">
+            <FailMode n="i" kicker="The break-even illusion" line="On paper: +$110k/yr. After healthcare + childcare: +$40k less."/>
+            <FailMode n="ii" kicker="The cost-of-living trap" line="SF rent is 2.4× Toronto. The raise vanishes into a 1-bed."/>
+            <FailMode n="iii" kicker="The exit penalty" line="CRA departure tax + TFSA wind-down = $20k–$60k on the way out."/>
           </div>
         </div>
 
-        <div className="mt-20 md:mt-24 pt-10 border-t-2 border-ink/15 flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+        <div className="mt-20 md:mt-28 flex flex-col md:flex-row md:items-center gap-6">
           <button onClick={scrollToWizard} className="btn-primary self-start">
             See if your plan survives the math ↓
           </button>
-          <div className="hand text-xl text-ink-soft max-w-md leading-tight">
-            five questions, three minutes — your numbers, not a stranger's
+          <div className="grotesk text-cream/70 text-base md:text-lg max-w-md">
+            5 questions · 3 minutes · your numbers, not a stranger's
           </div>
         </div>
-
       </div>
     </section>
   );
 }
 
-function PlanBeat({ n, text }) {
+function PlanCard({ n, color, headline, sub }) {
+  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
   return (
-    <div className="grid grid-cols-[44px_1fr] gap-3 items-baseline">
-      <div className="display italic text-2xl text-terracotta">{n}</div>
-      <div>{text}</div>
+    <div className={`${cls} p-7 md:p-8 relative overflow-hidden`}>
+      <div className="grotesk font-bold text-sm opacity-80 mb-8">STEP {n}</div>
+      <div className="display text-2xl md:text-[28px] font-bold leading-tight mb-3">{headline}</div>
+      <div className="grotesk text-base opacity-80">{sub}</div>
+      <div className="absolute -right-6 -bottom-8 stat-num text-[140px] font-bold opacity-10 leading-none">{n}</div>
     </div>
   );
 }
 
-function FailMode({ kicker, line }) {
+function FailMode({ n, kicker, line }) {
   return (
-    <div className="border-t border-paper-line pt-4">
-      <div className="hand text-xl text-terracotta mb-1 leading-tight">{kicker}</div>
-      <div className="text-[15px] text-ink-soft leading-snug">{line}</div>
+    <div className="panel p-5 md:p-6 grid grid-cols-[36px_1fr] gap-4">
+      <div className="display italic text-2xl text-pink leading-none pt-1">{n}.</div>
+      <div>
+        <div className="grotesk font-bold text-cream text-base mb-1">{kicker}</div>
+        <div className="text-sm text-cream/70 leading-snug">{line}</div>
+      </div>
     </div>
   );
 }
 
 /* ============================================================
-   THE LETTER — Section 1: hidden costs
+   HIDDEN COSTS — Section 1
    ============================================================ */
-function TheLetter({ result, state }) {
+function HiddenCosts({ result, state }) {
   const hasUSD = state.salaryUSD > 0;
-  const usHealthcareLine = hasUSD ? '−' + fmtCAD(result.usHealthcare / state.fxRate) : '−$7,000–$12,000';
+  const usHealthcareLine = hasUSD ? '−' + fmtUSD(result.usHealthcare) : '−$11,700';
+  const healthcareLabel = hasUSD
+    ? (state.filingStatus === 'single' ? 'single, annual' : state.kids > 0 ? `family of ${2 + state.kids}` : 'married, no kids')
+    : 'family of 3';
   const usChildcareLine = state.kids > 0
-    ? '−' + fmtCAD((CHILDCARE_STATE_DEFAULT[state.state] || 22000) / state.fxRate)
+    ? '−' + fmtUSD(CHILDCARE_STATE_DEFAULT[state.state] || 22000)
     : '−$25,500';
-  const childcareLabel = state.kids > 0 ? `per child, per year (${STATE_2026[state.state].label})` : 'per child, per year';
-  const healthcareLabel = hasUSD ? `family scenario, ${STATE_2026[state.state].label}` : 'this scenario, family of 3';
+  const childcareLabel = state.kids > 0
+    ? `${STATE_2026[state.state].short} per kid`
+    : 'CA vs ON delta';
 
   return (
-    <section id="hidden" className="border-b border-paper-line">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
-
-        <aside className="md:col-span-3">
+    <section id="hidden" className="border-t border-cream/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+        <aside className="md:col-span-4">
           <div className="sticky top-10">
-            <div className="label mb-3">Section one · the hidden costs</div>
-            <div className="display text-3xl font-medium leading-tight">
-              The four numbers<br/>that flip the plan
-            </div>
-            <div className="hand text-xl text-ink-soft mt-4">
-              none of them appear on<br/>the offer letter
-            </div>
+            <div className="sticker sticker-cobalt mb-5">Section 01</div>
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+              The four numbers<br/>that <span className="hl-pink">flip the plan</span>
+            </h3>
+            <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
+              None of these appear on the offer letter. All of them show up in your bank account.
+            </p>
           </div>
         </aside>
 
-        <div className="md:col-span-9 space-y-12">
-          <p className="display text-2xl md:text-[28px] leading-[1.4] text-ink max-w-3xl">
-            Most calculators stop at gross. They look at <span className="strike-hand text-ink-faint">$245,000</span>{' '}
-            and call it a day. <span className="underline-hand">The real math is downstream of that.</span>
-          </p>
+        <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
+          <CostCard n="i" color="pink" title="Healthcare" tag="annual"
+            num={usHealthcareLine} label={healthcareLabel}
+            body="Premiums + out-of-pocket runs $7k–$12k a year. Get fired? COBRA hits $2,000/month."/>
+          <CostCard n="ii" color="cobalt" title="Childcare" tag="per kid"
+            num={usChildcareLine} label={childcareLabel}
+            body="CWELCC is real — Ontario daycare is $2.4k/yr. California daycare is $28k. Per kid. Per year."/>
+          <CostCard n="iii" color="lime" title="The TFSA trap" tag="one-time"
+            num="$3–8k" label="accountant + tax"
+            body="IRS doesn't recognize the shelter. ETFs trigger PFIC reporting (Form 8621). Liquidate before you go."/>
+          <CostCard n="iv" color="cream" title="Departure tax" tag="one-time"
+            num="varies" label="depends on portfolio"
+            body="CRA deems disposition the day you sever residency. You owe capital gains on paper gains. RRSPs exempt."/>
+        </div>
 
-          <p className="text-lg leading-relaxed text-ink-soft max-w-3xl">
-            Four costs decide whether the 3-to-5-year detour ends with you ahead or behind.
-            Healthcare, childcare, the TFSA, and the bill CRA mails you on your way out.
-            Skim them, then run your own numbers below.
-          </p>
-
-          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-10 pt-4">
-            <LetterPoint
-              n="i."
-              title="Healthcare actually costs you"
-              hand="even with great employer coverage"
-              body="Premiums plus out-of-pocket runs $7k–$12k a year for a family. Lose your job and COBRA is $1,500–$2,500 a month."
-              num={usHealthcareLine}
-              numLabel={healthcareLabel}
-            />
-            <LetterPoint
-              n="ii."
-              title="Childcare is the silent salary killer"
-              hand="$2,400/yr in Ontario, $28,000/yr in California"
-              body="CWELCC is real. The CA delta alone eats $25k of the salary bump every year, every kid."
-              num={usChildcareLine}
-              numLabel={childcareLabel}
-            />
-            <LetterPoint
-              n="iii."
-              title="The TFSA becomes a tax problem"
-              hand="the IRS doesn't recognize the shelter"
-              body="Earnings get taxed. Canadian ETFs trigger PFIC reporting (Form 8621) — the meanest form in the IRS arsenal. Liquidate first."
-              num="One-time"
-              numLabel="$3k–$8k accountant cost"
-              tone="terracotta"
-            />
-            <LetterPoint
-              n="iv."
-              title="Departure tax is real and immediate"
-              hand="CRA wants their cut on paper gains"
-              body="Deemed disposition the day you sever residency. You owe capital gains tax on unrealized gains. RRSPs and pensions are exempt."
-              num="One-time"
-              numLabel="depends on your portfolio"
-              tone="terracotta"
-            />
-          </div>
-
-          <div className="rule-hand mt-12 mb-2 opacity-40"></div>
-
-          <p className="display italic text-2xl text-ink-soft max-w-3xl leading-snug pt-2">
-            Now feed in <span className="underline-hand">your numbers</span> and see what your plan actually nets.
-          </p>
+        <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
+          <span className="sticker sticker-lime">Next ↓</span>
+          <span className="grotesk text-cream/70 text-base md:text-lg">
+            Plug in your numbers. Section 03 reveals what's actually left.
+          </span>
         </div>
       </div>
     </section>
   );
 }
 
-function LetterPoint({ n, title, hand, body, num, numLabel, tone = 'forest' }) {
-  const toneClass = tone === 'terracotta' ? 'text-terracotta' : 'text-forest';
+function CostCard({ n, color, title, tag, num, label, body }) {
+  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
   return (
-    <div className="grid grid-cols-[40px_1fr] gap-4">
-      <div className="display italic text-2xl text-terracotta pt-1">{n}</div>
-      <div>
-        <div className="display text-[22px] font-medium leading-tight mb-1">{title}</div>
-        <div className="hand text-lg text-ink-soft mb-3 leading-tight">{hand}</div>
-        <p className="text-[15px] leading-relaxed text-ink-soft mb-4">{body}</p>
-        <div className="border-t border-paper-line pt-3 flex items-baseline gap-3">
-          <span className={`stat-num text-2xl font-medium ${toneClass}`}>{num}</span>
-          <span className="text-xs text-ink-faint">{numLabel}</span>
-        </div>
+    <div className={`${cls} p-7 md:p-8 relative overflow-hidden flex flex-col`}>
+      <div className="flex items-baseline justify-between mb-6">
+        <span className="grotesk font-bold text-sm opacity-80">{n.toUpperCase()}</span>
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-60">{tag}</span>
       </div>
+      <div className="display text-2xl md:text-3xl font-bold leading-tight mb-4">{title}</div>
+      <div className="stat-num text-[40px] md:text-[52px] leading-none mb-1">{num}</div>
+      <div className="grotesk text-xs uppercase tracking-wider opacity-70 mb-5">{label}</div>
+      <div className="grotesk text-sm leading-relaxed opacity-85 mt-auto">{body}</div>
     </div>
   );
 }
 
 /* ============================================================
-   WIZARD — Section 2: 5 questions
+   WIZARD
    ============================================================ */
-function Wizard({ state, update }) {
+function Wizard({ state, update, scrollToSection }) {
   const [step, setStep] = useState(0);
+  const steps = [
+    { kicker: 'Q1 / 5', q: "What's your salary now?", sub: 'Annual base, in Canadian dollars.' },
+    { kicker: 'Q2 / 5', q: "What's the US offer?", sub: 'Annual base, in US dollars.' },
+    { kicker: 'Q3 / 5', q: 'Where in Canada?', sub: 'Province changes the tax math.' },
+    { kicker: 'Q4 / 5', q: 'Where in the US?', sub: 'State matters more than you think.' },
+    { kicker: 'Q5 / 5', q: 'Family situation?', sub: 'Affects healthcare, childcare, filing status.' },
+  ];
+  const cur = steps[step];
+  const pct = ((step + 1) / steps.length) * 100;
 
   const setFamily = (situation) => {
     if (situation === 'single') update({ familySituation: 'single', filingStatus: 'single', kids: 0 });
@@ -1046,186 +989,149 @@ function Wizard({ state, update }) {
     else update({ familySituation: 'mfj-with-kids', filingStatus: 'mfj', kids: state.kids || 1 });
   };
 
-  const steps = [
-    { kicker: 'Question one of five', q: 'How much do you earn now?', sub: 'Annual salary in Canadian dollars, before tax.' },
-    { kicker: 'Question two of five', q: "What's the US offer?", sub: 'Annual base, before tax, in US dollars.' },
-    { kicker: 'Question three of five', q: 'Where in Canada are you now?', sub: 'Province changes the tax math.' },
-    { kicker: 'Question four of five', q: 'Where would you land in the US?', sub: 'State matters more than you think.' },
-    { kicker: 'Question five of five', q: 'Family situation?', sub: 'Affects healthcare, childcare, filing status.' },
-  ];
-  const cur = steps[step];
-  const pct = ((step + 1) / steps.length) * 100;
+  const handleEnter = (e) => {
+    if (e.key === 'Enter') setStep(Math.min(steps.length - 1, step + 1));
+  };
 
-  const handleEnter = (e) => { if (e.key === 'Enter') setStep(Math.min(steps.length - 1, step + 1)); };
+  const handleNext = () => {
+    if (step === steps.length - 1) {
+      scrollToSection('verdict');
+    } else {
+      setStep(step + 1);
+    }
+  };
 
   return (
-    <section id="wizard" className="border-b border-paper-line bg-paper-deep/40">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
+    <section id="wizard" className="border-t border-cream/10 bg-night-deep/40">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
         <div className="grid md:grid-cols-12 gap-10">
-          <aside className="md:col-span-3">
-            <div className="label mb-3">Section two · your numbers</div>
-            <div className="display text-3xl font-medium leading-tight">
-              Five questions,<br/>three minutes
-            </div>
-            <div className="hand text-xl text-ink-soft mt-4">
-              your inputs power the<br/>verdict in section three
+          <aside className="md:col-span-4">
+            <div className="sticky top-10">
+              <div className="sticker sticker-pink mb-5">Section 02</div>
+              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+                Your turn —<br/>five quick <span className="hl-cobalt">questions</span>
+              </h3>
+              <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
+                Your inputs power the verdict in section 03. Nothing leaves your browser.
+              </p>
             </div>
           </aside>
 
-          <div className="md:col-span-9">
-            <div className="mb-10">
-              <div className="flex items-baseline justify-between mb-3">
-                <span className="label">{cur.kicker}</span>
-                <span className="num text-xs text-ink-faint">{step + 1} / {steps.length}</span>
+          <div className="md:col-span-8">
+            <div className="panel p-8 md:p-10">
+              <div className="flex items-center justify-between mb-8">
+                <span className="label text-lime">{cur.kicker}</span>
+                <span className="num text-xs text-cream/50">{step + 1} / {steps.length}</span>
               </div>
-              <div className="h-[3px] bg-paper-line relative">
-                <div className="absolute inset-y-0 left-0 bg-terracotta transition-all duration-500" style={{width: pct + '%'}}/>
+              <div className="h-[4px] bg-cream/10 rounded-full mb-10 overflow-hidden">
+                <div className="h-full bg-lime rounded-full transition-all duration-500" style={{width: pct + '%'}}/>
               </div>
-            </div>
 
-            <div className="min-h-[420px]">
-              <h3 className="display text-4xl md:text-5xl font-medium leading-[1.05] mb-3 max-w-2xl">
-                {cur.q}
-              </h3>
-              <p className="display italic text-lg md:text-xl text-ink-soft mb-12 max-w-xl">
-                {cur.sub}
-              </p>
+              <div className="min-h-[300px]">
+                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.0] mb-3 text-cream tracking-tight">
+                  {cur.q}
+                </h4>
+                <p className="grotesk text-base md:text-lg text-cream/60 mb-10">{cur.sub}</p>
 
-              {step === 0 && (
-                <div className="max-w-md">
-                  <div className="flex items-baseline gap-2">
-                    <span className="num text-2xl text-ink-faint">$</span>
-                    <input
-                      autoFocus
-                      type="number"
-                      className="input-line"
-                      placeholder="165,000"
-                      value={state.salaryCAD || ''}
-                      onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
-                      onKeyDown={handleEnter}
-                      onFocus={e => e.target.select()}
-                    />
-                    <span className="num text-sm text-ink-faint">CAD</span>
+                {step === 0 && (
+                  <div className="max-w-md">
+                    <div className="flex items-baseline gap-2">
+                      <span className="num text-2xl text-cream/40">$</span>
+                      <input
+                        autoFocus
+                        type="number"
+                        inputMode="numeric"
+                        className="input-line"
+                        placeholder="165,000"
+                        value={state.salaryCAD || ''}
+                        onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
+                        onKeyDown={handleEnter}
+                        onFocus={e => e.target.select()}
+                      />
+                      <span className="num text-sm text-lime">CAD</span>
+                    </div>
                   </div>
-                  <div className="hand text-lg text-ink-soft mt-4">
-                    base salary only — bonuses and RSUs are a different conversation.
+                )}
+                {step === 1 && (
+                  <div className="max-w-md">
+                    <div className="flex items-baseline gap-2">
+                      <span className="num text-2xl text-cream/40">$</span>
+                      <input
+                        autoFocus
+                        type="number"
+                        inputMode="numeric"
+                        className="input-line"
+                        placeholder="245,000"
+                        value={state.salaryUSD || ''}
+                        onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
+                        onKeyDown={handleEnter}
+                        onFocus={e => e.target.select()}
+                      />
+                      <span className="num text-sm text-lime">USD</span>
+                    </div>
                   </div>
-                </div>
-              )}
-              {step === 1 && (
-                <div className="max-w-md">
-                  <div className="flex items-baseline gap-2">
-                    <span className="num text-2xl text-ink-faint">$</span>
-                    <input
-                      autoFocus
-                      type="number"
-                      className="input-line"
-                      placeholder="245,000"
-                      value={state.salaryUSD || ''}
-                      onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
-                      onKeyDown={handleEnter}
-                      onFocus={e => e.target.select()}
-                    />
-                    <span className="num text-sm text-ink-faint">USD</span>
-                  </div>
-                  <div className="hand text-lg text-ink-soft mt-4">
-                    if they offered RSUs too, ignore them for now — we'll get to those.
-                  </div>
-                </div>
-              )}
-              {step === 2 && (
-                <div className="flex flex-wrap gap-2 max-w-2xl">
-                  {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
-                    <button
-                      key={k}
-                      className={`pill ${state.province === k ? 'active' : ''}`}
-                      onClick={() => update({ province: k })}
-                    >
-                      {v.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {step === 3 && (
-                <div className="flex flex-wrap gap-2 max-w-2xl">
-                  {Object.entries(STATE_2026).map(([k, v]) => (
-                    <button
-                      key={k}
-                      className={`pill ${state.state === k ? 'active' : ''}`}
-                      onClick={() => update({ state: k })}
-                    >
-                      {v.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {step === 4 && (
-                <div className="space-y-6 max-w-xl">
+                )}
+                {step === 2 && (
                   <div className="flex flex-wrap gap-2">
-                    {[
-                      { id: 'single', label: 'Single' },
-                      { id: 'mfj-no-kids', label: 'Married, no kids' },
-                      { id: 'mfj-with-kids', label: 'Married, with kids' }
-                    ].map(s => (
-                      <button
-                        key={s.id}
-                        className={`pill ${state.familySituation === s.id ? 'active' : ''}`}
-                        onClick={() => setFamily(s.id)}
-                      >
-                        {s.label}
+                    {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
+                      <button key={k} className={`pill ${state.province === k ? 'active' : ''}`}
+                        onClick={() => update({ province: k })}>
+                        {v.label}
                       </button>
                     ))}
                   </div>
-                  {state.familySituation === 'mfj-with-kids' && (
-                    <div className="flex items-baseline gap-4">
-                      <span className="label">Number of kids</span>
-                      <input
-                        type="number"
-                        min="1"
-                        className="input-line max-w-[120px]"
-                        value={state.kids || 1}
-                        onChange={e => update({ kids: parseInt(e.target.value) || 1 })}
-                      />
+                )}
+                {step === 3 && (
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(STATE_2026).map(([k, v]) => (
+                      <button key={k} className={`pill ${state.state === k ? 'active' : ''}`}
+                        onClick={() => update({ state: k })}>
+                        {v.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {step === 4 && (
+                  <div className="space-y-6 max-w-xl">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { id: 'single', label: 'Single' },
+                        { id: 'mfj-no-kids', label: 'Married, no kids' },
+                        { id: 'mfj-with-kids', label: 'Married, with kids' }
+                      ].map(s => (
+                        <button key={s.id} className={`pill ${state.familySituation === s.id ? 'active' : ''}`}
+                          onClick={() => setFamily(s.id)}>
+                          {s.label}
+                        </button>
+                      ))}
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
+                    {state.familySituation === 'mfj-with-kids' && (
+                      <div className="flex items-baseline gap-4">
+                        <span className="label text-cream/60">Number of kids</span>
+                        <input type="number" min="1" className="input-line max-w-[120px]"
+                          value={state.kids || 1}
+                          onChange={e => update({ kids: parseInt(e.target.value) || 1 })}/>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-            <div className="mt-12 flex items-center justify-between gap-6 pt-8 border-t border-paper-line">
-              <button
-                onClick={() => setStep(Math.max(0, step - 1))}
-                disabled={step === 0}
-                className="label hover:text-ink transition-colors disabled:opacity-30"
-              >
-                ← Previous
-              </button>
-              <div className="flex items-center gap-6">
-                <span className="hand text-lg text-ink-faint hidden sm:inline">press enter to continue</span>
-                <button
-                  onClick={() => {
-                    if (step === steps.length - 1) {
-                      document.getElementById('verdict')?.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      setStep(step + 1);
-                    }
-                  }}
-                  className="btn-primary"
-                >
-                  {step === steps.length - 1 ? 'See the answer →' : 'Next →'}
+              <div className="mt-12 flex items-center justify-between gap-4 pt-7 border-t border-cream/10">
+                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}
+                  className="label text-cream/60 hover:text-cream disabled:opacity-30">
+                  ← Back
+                </button>
+                <button onClick={handleNext} className="btn-primary">
+                  {step === steps.length - 1 ? 'See the verdict →' : 'Next →'}
                 </button>
               </div>
             </div>
 
-            <div className="mt-10 flex justify-center gap-2">
+            <div className="mt-8 flex justify-center gap-2">
               {steps.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setStep(i)}
-                  className={`h-2 rounded-full transition-all ${
-                    i === step ? 'bg-terracotta w-6' : i < step ? 'bg-ink/40 w-2' : 'bg-paper-line w-2'
-                  }`}
-                />
+                <button key={i} onClick={() => setStep(i)}
+                  className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-cream/40 w-2' : 'bg-cream/15 w-2'}`}/>
               ))}
             </div>
           </div>
@@ -1236,118 +1142,125 @@ function Wizard({ state, update }) {
 }
 
 /* ============================================================
-   BREAKEVEN — Section 3: the verdict
+   VERDICT — Section 3
    ============================================================ */
-function BreakevenSection({ state, update, result }) {
+function VerdictSection({ state, update, result }) {
   const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
   const fiveYrDelta = result.fiveYrDelta;
   const threeYrDelta = result.threeYrDelta;
-  const verdict = !hasInput ? 'pending' :
-    fiveYrDelta > 200000 ? 'worth-it' :
-    fiveYrDelta > 0 ? 'marginal' :
-    'not-worth-it';
 
   const familyLabel =
     state.familySituation === 'single' ? 'single' :
     state.familySituation === 'mfj-no-kids' ? 'married, no kids' :
     `married + ${state.kids} kid${state.kids === 1 ? '' : 's'}`;
 
-  const provLabel = PROVINCIAL_2026[state.province].label;
-  const stateLabel = STATE_2026[state.state].label;
   const inputSummary = hasInput
-    ? `(${fmtCAD(state.salaryCAD)} ${provLabel} → $${state.salaryUSD.toLocaleString('en-US')} ${stateLabel}, ${familyLabel})`
-    : '(answer the wizard above to populate)';
+    ? `based on your inputs · ${fmtCAD(state.salaryCAD)} ${PROVINCIAL_2026[state.province].short} → $${state.salaryUSD.toLocaleString('en-US')} ${STATE_2026[state.state].short} · ${familyLabel}`
+    : 'based on your inputs · run the wizard above';
+
+  let verdictTitle = 'Plan survives — barely.';
+  let verdictBody = 'Worth it if you stay 4+ years and resist lifestyle drift.';
+  let verdictColor = 'lime';
+  if (!hasInput) {
+    verdictTitle = 'Verdict pending.';
+    verdictBody = 'Answer five quick questions above to see whether the plan holds up.';
+    verdictColor = 'cream';
+  } else if (fiveYrDelta < 0) {
+    verdictTitle = 'Plan breaks down.';
+    verdictBody = 'On these inputs, the move costs you money over 5 years. Negotiate higher or stay.';
+    verdictColor = 'pink';
+  } else if (fiveYrDelta > 400000) {
+    verdictTitle = 'Plan crushes it.';
+    verdictBody = 'Strong delta — even with lifestyle drift, the move pays off comfortably.';
+    verdictColor = 'lime';
+  }
+
+  const verdictClass =
+    verdictColor === 'lime' ? 'panel-lime' :
+    verdictColor === 'pink' ? 'panel-pink' :
+    'panel-cream';
 
   return (
-    <section id="verdict" className="border-b border-paper-line bg-paper-deep/25">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
-        <aside className="md:col-span-3">
-          <div className="label mb-3">Section three · the verdict</div>
-          <div className="display text-3xl font-medium leading-tight">
-            Does the plan<br/>survive the math?
-          </div>
-          <div className="hand text-xl text-ink-soft mt-4">
-            stay 3 years? 5? come<br/>home with what?
-          </div>
-        </aside>
+    <section id="verdict" className="border-t border-cream/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
 
-        <div className="md:col-span-9">
-          <div className="flex items-baseline gap-4 mb-3 flex-wrap">
-            <span className="label">Based on your inputs</span>
-            <span className="hand text-xl text-ink-faint">{inputSummary}</span>
-          </div>
-
-          {hasInput ? (
-            <h3 className="display font-medium text-[clamp(2.25rem,5.4vw,4.5rem)] leading-[1.0] tracking-tight max-w-4xl">
-              Stay <span className="circled text-terracotta">five years</span>, you come home<br/>
-              roughly{' '}
-              <span className={`underline-hand ${fiveYrDelta >= 0 ? 'text-forest' : 'text-terracotta-deep'}`}>
-                {fmtCAD(Math.abs(fiveYrDelta))}
-              </span>
-              {' '}{fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
-            </h3>
-          ) : (
-            <h3 className="display font-medium text-[clamp(2rem,4.6vw,3.75rem)] leading-[1.05] tracking-tight max-w-3xl text-ink-soft italic">
-              Answer the five questions <span className="not-italic underline-hand text-ink">above</span> and your verdict appears here.
-            </h3>
-          )}
-
-          {hasInput && (
-            <p className="text-lg text-ink-soft mt-6 max-w-2xl leading-relaxed">
-              That assumes you save the entire after-tax delta — no lifestyle inflation, no SF rent eating the raise.
-              In practice, expect 50–70% of that. Below is the year-by-year so you can see exactly when the move starts paying off.
-            </p>
-          )}
-
-          <div className="grid md:grid-cols-12 gap-8 items-start mt-10">
-            <div className="md:col-span-4 space-y-6">
-              <SidebarStat
-                kicker="Pays for itself in"
-                value={result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : (hasInput ? 'Never' : '—')}
-                detail={result.breakeven
-                  ? 'when cumulative US take-home overtakes staying'
-                  : hasInput ? 'US take-home never catches Canada within 5 years' : 'awaiting your inputs above'}
-                tone="terracotta"
-              />
-              <SidebarStat
-                kicker="3-year nest egg"
-                value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
-                detail="cash in pocket if you come home after 3 years"
-                tone={threeYrDelta >= 0 ? 'forest' : 'terracotta'}
-              />
-              <SidebarStat
-                kicker="5-year nest egg"
-                value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
-                detail="if you stick it out the full detour"
-                tone={fiveYrDelta >= 0 ? 'forest' : 'terracotta'}
-              />
-              <SidebarStat
-                kicker="One-time exit cost"
-                value={fmtCAD(state.movingCostsCAD)}
-                detail="moving + immigration + departure tax + setup"
-                editable
-                onEdit={(v) => update({ movingCostsCAD: v })}
-                editValue={state.movingCostsCAD}
-              />
+        <div className="grid md:grid-cols-12 gap-10 mb-14">
+          <div className="md:col-span-7">
+            <div className="flex items-center gap-3 mb-5 flex-wrap">
+              <span className="sticker sticker-lime">Section 03</span>
+              <span className="grotesk text-cream/60 text-sm">{inputSummary}</span>
             </div>
+            {hasInput ? (
+              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+                Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
+                <span className={fiveYrDelta >= 0 ? 'text-lime' : 'text-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
+                {fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
+              </h3>
+            ) : (
+              <h3 className="display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.02] text-cream/70 tracking-tight italic">
+                Answer the wizard above, and your verdict shows up here.
+              </h3>
+            )}
+            {hasInput && (
+              <p className="grotesk text-base md:text-lg text-cream/70 mt-6 max-w-2xl leading-relaxed">
+                That assumes you save the entire after-tax delta. No lifestyle inflation, no SF rent eating the raise.
+                In reality, expect 50–70% of that. Here's the year-by-year so you can see when the move actually pays off.
+              </p>
+            )}
+          </div>
 
-            <div className="md:col-span-8">
-              <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput} />
-              <div className="flex flex-wrap items-center gap-6 mt-5 text-sm">
-                <LegendDot color="#2F4A2C" label="Stay in Canada" />
-                <LegendDot color="#B84A1F" label="Move to US (after moving costs)" dashed />
-                <LegendDot color="#8A3214" label="Breakeven" filled />
-              </div>
+          <div className="md:col-span-5 flex md:justify-end items-start">
+            <div className={`floating-tag ${verdictClass} p-6 md:p-7 max-w-xs`}>
+              <div className="grotesk font-bold text-xs tracking-widest uppercase mb-3 opacity-70">Verdict</div>
+              <div className="display text-2xl md:text-3xl font-bold leading-tight">{verdictTitle}</div>
+              <div className="grotesk text-sm mt-3 opacity-80">{verdictBody}</div>
             </div>
           </div>
+        </div>
 
-          <div className="mt-14 pt-8 border-t border-paper-line">
-            <div className="label mb-4">Three things this number is hiding</div>
-            <div className="grid sm:grid-cols-3 gap-6">
-              <RealityCheck n="i." text="Cost of living. SF rent is 2.4× Toronto — the raise gets eaten before it hits savings." />
-              <RealityCheck n="ii." text="Lifestyle drift. Most people spend 30–50% of any raise. Plan for it." />
-              <RealityCheck n="iii." text="Re-entry cost. Coming home means a CAD mortgage on USD savings — FX risk is real." />
+        <div className="grid md:grid-cols-4 gap-4 md:gap-5 mb-14">
+          <StatBlock kicker="Pays for itself in"
+            value={result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : (hasInput ? 'Never' : '—')}
+            detail={result.breakeven ? 'when cumulative US take-home overtakes staying' : (hasInput ? "US doesn't catch CA in 5 yrs" : 'awaiting your inputs')}
+            color="cobalt"/>
+          <StatBlock kicker="3-year nest egg"
+            value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
+            detail="if you come home after 3 years"
+            color="cream"/>
+          <StatBlock kicker="5-year nest egg"
+            value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
+            detail="if you stick the full detour"
+            color="lime"/>
+          <StatBlock kicker="Exit cost"
+            value={fmtCAD(state.movingCostsCAD)}
+            detail="moving + immigration + departure tax"
+            color="pink"
+            editable
+            onEdit={(v) => update({ movingCostsCAD: v })}
+            editValue={state.movingCostsCAD}/>
+        </div>
+
+        <div className="panel p-6 md:p-10">
+          <div className="flex items-baseline justify-between mb-6 flex-wrap gap-3">
+            <h4 className="grotesk font-bold text-cream text-xl">Cumulative take-home, 5 years</h4>
+            <div className="flex items-center gap-5 text-sm flex-wrap">
+              <LegendDot color="#D4FF3A" label="Stay in Canada"/>
+              <LegendDot color="#FF3D7F" label="Move to US"/>
+              <LegendDot color="#FFF6E5" label="Breakeven" filled/>
             </div>
+          </div>
+          <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput}/>
+        </div>
+
+        <div className="mt-14">
+          <div className="flex items-center gap-3 mb-6 flex-wrap">
+            <span className="sticker sticker-pink">⚠ Reality check</span>
+            <span className="grotesk text-cream/60 text-sm">three things this number is hiding</span>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-5">
+            <RealityCheck n="01" headline="Cost of living" body="SF rent is 2.4× Toronto. The raise gets eaten before it hits savings."/>
+            <RealityCheck n="02" headline="Lifestyle drift" body="Most people spend 30–50% of any raise. Plan for it or it plans for you."/>
+            <RealityCheck n="03" headline="Re-entry FX risk" body="Coming home means a CAD mortgage on USD savings. Currency moves against you."/>
           </div>
         </div>
       </div>
@@ -1355,97 +1268,80 @@ function BreakevenSection({ state, update, result }) {
   );
 }
 
-function RealityCheck({ n, text }) {
-  return (
-    <div>
-      <div className="display italic text-xl text-terracotta mb-1">{n}</div>
-      <div className="text-[15px] text-ink-soft leading-snug">{text}</div>
-    </div>
-  );
-}
-
-function SidebarStat({ kicker, value, detail, tone = 'ink', editable, onEdit, editValue }) {
+function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }) {
   const [editing, setEditing] = useState(false);
-  const toneClass =
-    tone === 'forest' ? 'text-forest' :
-    tone === 'terracotta' ? 'text-terracotta' :
-    'text-ink';
+  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
   return (
-    <div>
-      <div className="flex items-baseline justify-between mb-2">
-        <span className="label">{kicker}</span>
+    <div className={`${cls} p-6 md:p-7`}>
+      <div className="flex items-baseline justify-between mb-4">
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-70">{kicker}</span>
         {editable && !editing && (
-          <button onClick={() => setEditing(true)} className="hand text-base text-ink-faint hover:text-terracotta">
-            tap to edit
+          <button onClick={() => setEditing(true)} className="grotesk text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
+            edit
           </button>
         )}
       </div>
       {editing ? (
         <div className="flex items-baseline gap-2">
-          <span className="num text-xl text-ink-faint">$</span>
+          <span className="num text-2xl opacity-60">$</span>
           <input
             type="number"
             autoFocus
-            className="input-line max-w-[180px]"
+            className="bg-transparent border-b-2 outline-none stat-num text-[34px] md:text-[42px] leading-none w-full"
+            style={{ borderColor: 'currentColor' }}
             value={editValue || 0}
-            onChange={(e) => onEdit(parseInt(e.target.value) || 0)}
+            onChange={e => onEdit(parseInt(e.target.value) || 0)}
             onBlur={() => setEditing(false)}
-            onKeyDown={(e) => { if (e.key === 'Enter') setEditing(false); }}
+            onKeyDown={e => { if (e.key === 'Enter') setEditing(false); }}
           />
         </div>
       ) : (
-        <div className="flex items-baseline gap-3">
-          <div className={`stat-num text-[32px] md:text-[36px] font-medium leading-none ${toneClass}`}>{value}</div>
-        </div>
+        <div className="stat-num text-[34px] md:text-[42px] leading-none mb-3">{value}</div>
       )}
-      <p className="text-xs text-ink-faint mt-3 leading-relaxed">{detail}</p>
-      <div className="rule-hand mt-5 opacity-30"></div>
+      <div className="grotesk text-xs leading-snug opacity-75 mt-3">{detail}</div>
     </div>
   );
 }
 
-function LegendDot({ color, label, dashed, filled }) {
+function RealityCheck({ n, headline, body }) {
+  return (
+    <div className="panel p-6">
+      <div className="grotesk font-bold text-pink text-sm tracking-widest mb-3">{n}</div>
+      <div className="display text-xl font-bold text-cream mb-2">{headline}</div>
+      <div className="grotesk text-sm text-cream/70 leading-relaxed">{body}</div>
+    </div>
+  );
+}
+
+function LegendDot({ color, label, filled }) {
   return (
     <div className="flex items-center gap-2">
-      {filled ? (
-        <span className="inline-block w-3 h-3 rounded-full" style={{background: color}}/>
-      ) : (
-        <svg width="22" height="6">
-          <line x1="0" y1="3" x2="22" y2="3" stroke={color} strokeWidth="2.5" strokeDasharray={dashed ? '4 3' : ''}/>
-        </svg>
-      )}
-      <span className="text-ink-soft">{label}</span>
+      {filled
+        ? <span className="inline-block w-3 h-3 rounded-full" style={{background: color}}/>
+        : <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={color} strokeWidth="3" strokeLinecap="round"/></svg>}
+      <span className="grotesk text-cream/70">{label}</span>
     </div>
   );
 }
 
+/* ============================================================
+   CHART
+   ============================================================ */
 function BreakevenChart({ pts, breakeven, years, hasInput }) {
-  const w = 800, h = 420;
-  const padL = 70, padT = 24, padR = 30, padB = 60;
-  const plotW = w - padL - padR;
-  const plotH = h - padT - padB;
+  const w = 880, h = 380;
+  const padL = 70, padT = 24, padR = 30, padB = 50;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
 
   const allVals = pts.flatMap(p => [p.ca, p.us]);
   let yMin = Math.min(0, ...allVals);
   let yMax = Math.max(...allVals);
   if (!hasInput) { yMin = -50000; yMax = 800000; }
   const yRange = (yMax - yMin) || 1;
-  const xScale = y => padL + (y / years) * plotW;
-  const yScale = v => padT + plotH - ((v - yMin) / yRange) * plotH;
+  const xS = y => padL + (y / years) * plotW;
+  const yS = v => padT + plotH - ((v - yMin) / yRange) * plotH;
 
-  const jitter = (i, seed) => Math.sin(i * 12.9898 + seed) * 1.4;
-
-  const caPath = pts.map((p, i) => {
-    const x = xScale(p.year) + jitter(i, 1);
-    const y = yScale(p.ca) + jitter(i, 2);
-    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }).join(' ');
-
-  const usPath = pts.map((p, i) => {
-    const x = xScale(p.year) + jitter(i, 3);
-    const y = yScale(p.us) + jitter(i, 4);
-    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
-  }).join(' ');
+  const caPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xS(p.year)} ${yS(p.ca)}`).join(' ');
+  const usPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xS(p.year)} ${yS(p.us)}`).join(' ');
 
   const tickStep = yRange > 1500000 ? 500000 : yRange > 600000 ? 200000 : yRange > 200000 ? 100000 : 50000;
   const yTicks = [];
@@ -1460,122 +1356,100 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
   };
 
   return (
-    <div className="relative">
-      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
-        <rect x={padL} y={padT} width={plotW} height={plotH} fill="#E5DBC2" opacity="0.35"/>
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+      {yTicks.map(v => (
+        <g key={v}>
+          <line x1={padL} y1={yS(v)} x2={padL + plotW} y2={yS(v)}
+            stroke="#FFF6E5" strokeWidth="1" opacity={v === 0 ? 0.45 : 0.08}
+            strokeDasharray={v === 0 ? '' : '2 4'}/>
+          <text x={padL - 10} y={yS(v) + 4} textAnchor="end" fontSize="11"
+            fill="#FFF6E5" opacity="0.5" fontFamily="Geist Mono">{fmtTick(v)}</text>
+        </g>
+      ))}
+      {pts.map(p => (
+        <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11"
+          fill="#FFF6E5" opacity="0.5" fontFamily="Space Grotesk">Y{p.year}</text>
+      ))}
 
-        {yTicks.map(v => (
-          <g key={v}>
-            <line x1={padL} y1={yScale(v)} x2={padL + plotW} y2={yScale(v)}
-              stroke="#22180F" strokeWidth="0.5" opacity={v === 0 ? 0.6 : 0.12} strokeDasharray={v === 0 ? '' : '2 3'}/>
-            <text x={padL - 10} y={yScale(v) + 4} textAnchor="end" fontSize="11"
-              fill="#9C8A6E" fontFamily="Geist Mono">{fmtTick(v)}</text>
-          </g>
-        ))}
-
-        {pts.map(p => (
-          <g key={p.year}>
-            <line x1={xScale(p.year)} y1={padT + plotH} x2={xScale(p.year)} y2={padT + plotH + 5}
-              stroke="#22180F" strokeWidth="1" opacity="0.4"/>
-            <text x={xScale(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11"
-              fill="#9C8A6E" fontFamily="Geist">Year {p.year}</text>
-          </g>
-        ))}
-
-        {hasInput && (
-          <>
-            <path
-              d={`${caPath} L ${xScale(years)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`}
-              fill="#2F4A2C" fillOpacity="0.04"
-            />
-            <path
-              d={`${usPath} L ${xScale(years)} ${yScale(0)} L ${xScale(0)} ${yScale(0)} Z`}
-              fill="#B84A1F" fillOpacity="0.05"
-            />
-            <path d={caPath} fill="none" stroke="#2F4A2C" strokeWidth="2.6"
-              strokeLinejoin="round" strokeLinecap="round"/>
-            <path d={usPath} fill="none" stroke="#B84A1F" strokeWidth="2.6"
-              strokeLinejoin="round" strokeLinecap="round"/>
-            {pts.map(p => (
-              <g key={'d'+p.year}>
-                <circle cx={xScale(p.year)} cy={yScale(p.ca)} r="3.5" fill="#2F4A2C"/>
-                <circle cx={xScale(p.year)} cy={yScale(p.us)} r="3.5" fill="#B84A1F"/>
-              </g>
-            ))}
-          </>
-        )}
-
-        {!hasInput && (
-          <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
-            fontSize="20" fill="#9C8A6E" fontFamily="Caveat">
-            your year-by-year shows up here once you fill in the wizard
-          </text>
-        )}
-
-        {breakeven && (
-          <g>
-            <line x1={xScale(breakeven.year)} y1={padT}
-              x2={xScale(breakeven.year)} y2={padT + plotH}
-              stroke="#8A3214" strokeWidth="1" strokeDasharray="3 4" opacity="0.55"/>
-            <circle cx={xScale(breakeven.year)} cy={yScale(breakeven.value)} r="7"
-              fill="#8A3214" stroke="#F0E8D6" strokeWidth="2.5"/>
-
-            <g transform={`translate(${xScale(breakeven.year) + 18}, ${yScale(breakeven.value) - 56})`}>
-              <path d="M 0 50 Q -8 30, 4 14 L -2 8 M 4 14 L 8 22"
-                fill="none" stroke="#B84A1F" strokeWidth="2" strokeLinecap="round"/>
-              <text x="14" y="0" fontSize="22" fill="#B84A1F" fontFamily="Caveat" fontWeight="600">
-                you break even here ↓
-              </text>
-              <text x="14" y="22" fontSize="18" fill="#5C4A36" fontFamily="Caveat">
-                Year {breakeven.year.toFixed(1)} — about {Math.round(breakeven.year * 12)} months in
-              </text>
+      {hasInput && (
+        <>
+          <path d={`${caPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#D4FF3A" fillOpacity="0.08"/>
+          <path d={`${usPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#FF3D7F" fillOpacity="0.10"/>
+          <path d={caPath} fill="none" stroke="#D4FF3A" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d={usPath} fill="none" stroke="#FF3D7F" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+          {pts.map(p => (
+            <g key={'d'+p.year}>
+              <circle cx={xS(p.year)} cy={yS(p.ca)} r="4.5" fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2"/>
+              <circle cx={xS(p.year)} cy={yS(p.us)} r="4.5" fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2"/>
             </g>
-          </g>
-        )}
+          ))}
+        </>
+      )}
 
-        {hasInput && (
-          <g>
-            <text x={xScale(years) - 6} y={yScale(pts[years].ca) - 12} textAnchor="end"
-              fontSize="13" fill="#2F4A2C" fontFamily="Geist" fontWeight="600">
-              Stay in Canada
-            </text>
-            <text x={xScale(years) - 6} y={yScale(pts[years].us) - 12} textAnchor="end"
-              fontSize="13" fill="#B84A1F" fontFamily="Geist" fontWeight="600">
-              Move to US
+      {!hasInput && (
+        <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
+          fontSize="18" fill="#FFF6E5" opacity="0.4" fontFamily="Space Grotesk">
+          your year-by-year shows up here once you fill in the wizard
+        </text>
+      )}
+
+      {breakeven && (
+        <g>
+          <line x1={xS(breakeven.year)} y1={padT} x2={xS(breakeven.year)} y2={padT + plotH}
+            stroke="#FFF6E5" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.7"/>
+          <circle cx={xS(breakeven.year)} cy={yS(breakeven.value)} r="9" fill="#FFF6E5" stroke="#0E0B2C" strokeWidth="3"/>
+          <g transform={`translate(${xS(breakeven.year) + 16}, ${yS(breakeven.value) - 30})`}>
+            <rect x="0" y="-18" width="148" height="26" rx="13" fill="#FFF6E5"/>
+            <text x="74" y="-1" textAnchor="middle" fontSize="11" fill="#0E0B2C"
+              fontFamily="Space Grotesk" fontWeight="700" letterSpacing="0.1em">
+              BREAKEVEN · YR {breakeven.year.toFixed(1)}
             </text>
           </g>
-        )}
-      </svg>
-    </div>
+        </g>
+      )}
+
+      {hasInput && (
+        <>
+          <text x={xS(years) - 6} y={yS(pts[years].ca) - 14} textAnchor="end"
+            fontSize="13" fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
+            Stay in Canada
+          </text>
+          <text x={xS(years) - 6} y={yS(pts[years].us) - 14} textAnchor="end"
+            fontSize="13" fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
+            Move to US
+          </text>
+        </>
+      )}
+    </svg>
   );
 }
 
 /* ============================================================
-   CHANGELOG VIEW — separate page
+   CHANGELOG VIEW
    ============================================================ */
 function ChangelogView() {
   return (
     <>
-      <section className="border-b border-paper-line">
-        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
-          <div className="label mb-3">What's shipped</div>
-          <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-12">Changelog</h2>
+      <section className="border-t border-cream/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="sticker sticker-lime mb-5">What's shipped</div>
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-cream tracking-tight mb-12">
+            Changelog
+          </h2>
           <div className="space-y-12">
             {CHANGELOG.map((v, i) => (
-              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-paper-line pt-8">
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream/10 pt-8">
                 <div className="md:col-span-3">
-                  <div className="num text-2xl font-medium tracking-tight">v{v.version}</div>
-                  <div className="label mt-2">{v.date}</div>
-                  <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider bg-forest text-paper rounded-full">
-                    Shipped
-                  </div>
+                  <div className="num text-2xl font-medium tracking-tight text-cream">v{v.version}</div>
+                  <div className="label text-cream/50 mt-2">{v.date}</div>
+                  <div className="inline-block mt-3"><span className="sticker sticker-lime">Shipped</span></div>
                 </div>
                 <div className="md:col-span-9">
-                  <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
-                  <ul className="space-y-2 text-[15px] text-ink-soft leading-relaxed">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-cream">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-cream/70 leading-relaxed">
                     {v.items.map((item, j) => (
                       <li key={j} className="flex gap-3">
-                        <span className="text-terracotta mt-1 select-none">·</span>
+                        <span className="text-lime mt-1 select-none">·</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -1587,26 +1461,26 @@ function ChangelogView() {
         </div>
       </section>
 
-      <section className="border-b border-paper-line bg-paper-deep/25">
-        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-20 md:py-28">
-          <div className="label mb-3">What's coming</div>
-          <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-12">Roadmap</h2>
+      <section className="border-t border-cream/10 bg-night-deep/40">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="sticker sticker-pink mb-5">What's coming</div>
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-cream tracking-tight mb-12">
+            Roadmap
+          </h2>
           <div className="space-y-12">
             {ROADMAP.map((v, i) => (
-              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-paper-line pt-8">
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream/10 pt-8">
                 <div className="md:col-span-3">
-                  <div className="num text-2xl font-medium tracking-tight text-ink-soft">v{v.version}</div>
-                  <div className="label mt-2">{v.horizon}</div>
-                  <div className="inline-block mt-3 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider border border-ink-faint text-ink-faint rounded-full">
-                    Planned
-                  </div>
+                  <div className="num text-2xl font-medium tracking-tight text-cream/70">v{v.version}</div>
+                  <div className="label text-cream/50 mt-2">{v.horizon}</div>
+                  <div className="inline-block mt-3"><span className="sticker sticker-outline">Planned</span></div>
                 </div>
                 <div className="md:col-span-9">
-                  <div className="display text-xl md:text-2xl font-medium mb-4">{v.title}</div>
-                  <ul className="space-y-2 text-[15px] text-ink-soft leading-relaxed">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-cream">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-cream/70 leading-relaxed">
                     {v.items.map((item, j) => (
                       <li key={j} className="flex gap-3">
-                        <span className="text-ink-faint mt-1 select-none">·</span>
+                        <span className="text-pink mt-1 select-none">·</span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -1627,36 +1501,34 @@ function ChangelogView() {
 function Footer() {
   const latest = CHANGELOG[0];
   return (
-    <footer className="border-t border-paper-line">
-      <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-14 grid md:grid-cols-12 gap-10">
+    <footer className="border-t border-cream/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-14 grid md:grid-cols-12 gap-10">
         <div className="md:col-span-5">
-          <div className="display text-2xl font-medium tracking-tight">
-            North<span className="text-terracotta">×</span>South
-          </div>
-          <p className="hand text-xl text-ink-soft mt-2 max-w-sm leading-tight">
+          <div className="grotesk font-bold text-2xl text-cream">North<span className="text-lime">×</span>South</div>
+          <p className="grotesk text-cream/60 mt-3 max-w-sm leading-relaxed">
             Built by Canadians who moved south, for Canadians thinking about it.
           </p>
         </div>
-        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-ink-soft">
+        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-cream/70">
           <div>
-            <div className="label mb-3">The math</div>
-            <ul className="space-y-2">
+            <div className="label text-cream/40 mb-3">The math</div>
+            <ul className="space-y-2 grotesk">
               <li>2026 brackets · CRA + IRS</li>
               <li>4 provinces · 8 states</li>
               <li>FICA, CPP, EI, Medicare</li>
             </ul>
           </div>
           <div>
-            <div className="label mb-3">Notes</div>
-            <ul className="space-y-2">
+            <div className="label text-cream/40 mb-3">Disclaimers</div>
+            <ul className="space-y-2 grotesk">
               <li>Not financial advice</li>
-              <li>See a cross-border accountant</li>
-              <li>Consult an immigration lawyer</li>
+              <li>See a cross-border CPA</li>
+              <li>Talk to an immigration lawyer</li>
             </ul>
           </div>
           <div>
-            <div className="label mb-3">Source</div>
-            <ul className="space-y-2">
+            <div className="label text-cream/40 mb-3">About</div>
+            <ul className="space-y-2 grotesk">
               <li>Open source</li>
               <li>v{latest.version} · April 2026</li>
               <li>Made with care</li>
@@ -1664,12 +1536,10 @@ function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-t border-paper-line">
-        <div className="max-w-[1240px] mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="hand text-lg text-ink-faint">
-            "If you take it, write me back when you've signed the lease."
-          </div>
-          <div className="num text-xs text-ink-faint">© 2026 · A working draft</div>
+      <div className="border-t border-cream/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="grotesk text-cream/40 text-sm">© 2026 · North×South</div>
+          <div className="grotesk text-cream/40 text-xs">Calculator runs entirely in your browser</div>
         </div>
       </div>
     </footer>
