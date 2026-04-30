@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0E0B2C" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#F5EBD3" />
+  <meta name="color-scheme" content="light" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="North×South" />
   <meta name="format-detection" content="telephone=no" />
 
@@ -85,7 +85,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    html, body { background: #0E0B2C; color: #FFF6E5; }
+    html, body { background: #F5EBD3; color: #0E0B2C; }
     body { font-family: 'Geist', system-ui, sans-serif; }
     .display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01' 1; }
     .grotesk { font-family: 'Space Grotesk', sans-serif; }
@@ -107,19 +107,19 @@
       font-weight: 700;
     }
 
-    /* Gradient mesh background */
+    /* Gradient mesh background — softer for light mode */
     body::before {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background:
-        radial-gradient(ellipse 60% 40% at 15% 12%, rgba(255, 61, 127, 0.30) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 85% 25%, rgba(57, 86, 255, 0.28) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 50% at 50% 95%, rgba(212, 255, 58, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 90% 75%, rgba(185, 168, 255, 0.18) 0%, transparent 60%);
+        radial-gradient(ellipse 60% 40% at 15% 12%, rgba(255, 61, 127, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 85% 25%, rgba(57, 86, 255, 0.16) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 50% at 50% 95%, rgba(212, 255, 58, 0.20) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 75%, rgba(185, 168, 255, 0.14) 0%, transparent 60%);
     }
     body::after {
       content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      opacity: 0.5;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0 0.17 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
     }
     main, header, footer { position: relative; z-index: 1; }
 
@@ -139,7 +139,8 @@
     .sticker-pink { background: #FF3D7F; color: #FFF6E5; }
     .sticker-cobalt { background: #3956FF; color: #FFF6E5; }
     .sticker-cream { background: #FFF6E5; color: #0E0B2C; }
-    .sticker-outline { border: 2px solid #FFF6E5; color: #FFF6E5; box-shadow: none; }
+    .sticker-night { background: #0E0B2C; color: #FFF6E5; }
+    .sticker-outline { border: 2px solid #0E0B2C; color: #0E0B2C; box-shadow: none; }
 
     /* Highlight bar behind text */
     .hl-lime, .hl-pink, .hl-cobalt {
@@ -172,8 +173,8 @@
 
     /* Card / block */
     .panel {
-      background: rgba(255, 246, 229, 0.04);
-      border: 1px solid rgba(255, 246, 229, 0.12);
+      background: rgba(14, 11, 44, 0.04);
+      border: 1px solid rgba(14, 11, 44, 0.14);
       backdrop-filter: blur(8px);
       border-radius: 24px;
     }
@@ -181,35 +182,36 @@
     .panel-pink { background: #FF3D7F; color: #FFF6E5; border-radius: 28px; }
     .panel-cobalt { background: #3956FF; color: #FFF6E5; border-radius: 28px; }
     .panel-cream { background: #FFF6E5; color: #0E0B2C; border-radius: 28px; }
+    .panel-night { background: #0E0B2C; color: #FFF6E5; border-radius: 28px; }
 
     /* Inputs */
     .input-line {
       background: transparent; border: none;
-      border-bottom: 2px solid #FFF6E5;
+      border-bottom: 2px solid #0E0B2C;
       padding: 6px 2px 8px;
       font-family: 'Geist Mono', monospace;
-      font-size: 24px; font-weight: 500; color: #FFF6E5;
+      font-size: 24px; font-weight: 500; color: #0E0B2C;
       width: 100%; outline: none; transition: border-color 150ms;
     }
-    .input-line:focus { border-bottom-color: #D4FF3A; }
-    .input-line::placeholder { color: rgba(255, 246, 229, 0.35); }
+    .input-line:focus { border-bottom-color: #FF3D7F; }
+    .input-line::placeholder { color: rgba(14, 11, 44, 0.35); }
 
     .pill {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 11px 18px;
       min-height: 44px;
-      border: 1.5px solid rgba(255, 246, 229, 0.4);
+      border: 1.5px solid rgba(14, 11, 44, 0.4);
       border-radius: 999px;
       font-family: 'Space Grotesk', sans-serif;
       font-size: 14px; font-weight: 500;
       cursor: pointer; user-select: none;
       transition: all 150ms;
-      background: transparent; color: #FFF6E5;
+      background: transparent; color: #0E0B2C;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-    .pill:hover { background: rgba(212, 255, 58, 0.12); border-color: #D4FF3A; }
-    .pill.active { background: #D4FF3A; color: #0E0B2C; border-color: #D4FF3A; }
+    .pill:hover { background: rgba(212, 255, 58, 0.35); border-color: #0E0B2C; }
+    .pill.active { background: #0E0B2C; color: #FFF6E5; border-color: #0E0B2C; }
 
     .btn-primary {
       background: #D4FF3A; color: #0E0B2C;
@@ -225,21 +227,21 @@
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-    .btn-primary:hover { background: #FFF6E5; box-shadow: 0 6px 0 #B9A8FF; transform: translateY(-1px); }
+    .btn-primary:hover { background: #0E0B2C; color: #D4FF3A; box-shadow: 0 6px 0 #B9A8FF; transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #A8D420; }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
     .btn-ghost {
-      background: transparent; color: #FFF6E5;
+      background: transparent; color: #0E0B2C;
       padding: 14px 24px;
-      border: 1.5px solid rgba(255, 246, 229, 0.4);
+      border: 1.5px solid rgba(14, 11, 44, 0.4);
       border-radius: 999px;
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 600; font-size: 13px;
       letter-spacing: 0.1em; text-transform: uppercase;
       transition: all 150ms;
     }
-    .btn-ghost:hover { border-color: #D4FF3A; color: #D4FF3A; }
+    .btn-ghost:hover { border-color: #0E0B2C; background: #0E0B2C; color: #D4FF3A; }
 
     /* Floating tag */
     .floating-tag {
@@ -457,6 +459,22 @@ const CHILDCARE_STATE_DEFAULT = {
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '3.2.0',
+    date: '2026-04-30',
+    title: 'Switch to light mode + Canadian/US flags in header',
+    items: [
+      'Body background flipped to warm cream (#F5EBD3) with softer gradient mesh and lighter noise overlay',
+      'All body text flipped from cream to night (#0E0B2C); meta theme-color and color-scheme updated to light',
+      'Added 🇨🇦 and 🇺🇸 flag emojis flanking the North×South wordmark in the header (and footer)',
+      'New panel-night and sticker-night variants — used for Departure tax card, 3-yr nest egg stat block, and "⚠ The trouble" sticker so the dark surfaces still pop on light bg',
+      'Pill borders, input underlines, btn-ghost, and glass .panel translucency all retuned for light surface',
+      'Pill active state flipped to night-on-cream (was lime-on-night) for stronger selection contrast',
+      'Chart axis labels, breakeven crosshair, and breakeven pill switched to night fills so they read on light bg',
+      'Nav hover swapped to pink (was lime — lime hover was barely visible on cream)',
+      'Sticker-outline border updated to night so it shows up on light bg'
+    ]
+  },
   {
     version: '3.1.2',
     date: '2026-04-30',
@@ -892,26 +910,30 @@ function App() {
    ============================================================ */
 function Header({ navigate, scrollToSection, scrollToWizard, view }) {
   return (
-    <header className="border-b border-cream/10">
+    <header className="border-b border-night/10">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-6">
         <button onClick={() => navigate('main')} className="flex items-center gap-3 text-left">
-          <div className="w-10 h-10 rounded-full bg-lime grid place-items-center">
+          <div className="w-10 h-10 rounded-full bg-lime grid place-items-center shrink-0">
             <span className="display text-night text-xl font-bold leading-none">N×S</span>
           </div>
           <div>
-            <div className="grotesk font-bold text-cream text-lg leading-none">North<span className="text-lime">×</span>South</div>
-            <div className="label text-cream/50 mt-1">Cross-border honesty audit</div>
+            <div className="grotesk font-bold text-night text-lg leading-none flex items-center gap-1.5">
+              <span aria-hidden="true">🇨🇦</span>
+              <span>North<span className="text-pink">×</span>South</span>
+              <span aria-hidden="true">🇺🇸</span>
+            </div>
+            <div className="label text-night/50 mt-1">Cross-border honesty audit</div>
           </div>
         </button>
         <nav className="flex items-center gap-3 md:gap-5">
           {view === 'main' && (
             <>
-              <button onClick={() => scrollToSection('thesis')} className="label text-cream/70 hover:text-lime transition-colors hidden sm:inline">The plan</button>
-              <button onClick={() => scrollToSection('hidden')} className="label text-cream/70 hover:text-lime transition-colors hidden md:inline">Hidden costs</button>
-              <button onClick={() => scrollToSection('wizard')} className="label text-cream/70 hover:text-lime transition-colors hidden md:inline">Run it</button>
+              <button onClick={() => scrollToSection('thesis')} className="label text-night/70 hover:text-pink transition-colors hidden sm:inline">The plan</button>
+              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Hidden costs</button>
+              <button onClick={() => scrollToSection('wizard')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Run it</button>
             </>
           )}
-          <button onClick={() => navigate('changelog')} className={`label transition-colors hidden sm:inline ${view === 'changelog' ? 'text-lime' : 'text-cream/70 hover:text-lime'}`}>
+          <button onClick={() => navigate('changelog')} className={`label transition-colors hidden sm:inline ${view === 'changelog' ? 'text-pink' : 'text-night/70 hover:text-pink'}`}>
             Changelog
           </button>
           <button onClick={scrollToWizard} className="btn-primary">Start ↓</button>
@@ -964,11 +986,11 @@ function Hero({ scrollToWizard }) {
 
         <div className="flex items-center gap-3 mb-10 md:mb-14 flex-wrap">
           <span className="sticker sticker-lime">Premise</span>
-          <span className="grotesk text-cream/70 text-sm md:text-base">— the math you don't see on the offer letter</span>
+          <span className="grotesk text-night/70 text-sm md:text-base">— the math you don't see on the offer letter</span>
         </div>
 
         <div className="relative">
-          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[1.02] tracking-tight text-cream max-w-[14ch] pb-2">
+          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[1.02] tracking-tight text-night max-w-[14ch] pb-2">
             Most Canadians moving south have <span className="hl-lime">the same plan</span>.
           </h2>
           <div className="hidden lg:block absolute right-0 top-8 floating-tag-r">
@@ -990,14 +1012,14 @@ function Hero({ scrollToWizard }) {
         <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
             <div className="flex items-center gap-3 mb-5 flex-wrap">
-              <span className="sticker sticker-cream">⚠ The trouble</span>
-              <span className="grotesk text-cream/60 text-sm">with the plan, that is</span>
+              <span className="sticker sticker-night">⚠ The trouble</span>
+              <span className="grotesk text-night/60 text-sm">with the plan, that is</span>
             </div>
-            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-cream pb-2">
-              The detour <span className="strike-pink text-cream/60">always</span> ends with you ahead.
+            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-night pb-2">
+              The detour <span className="strike-pink text-night/60">always</span> ends with you ahead.
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
-            <p className="grotesk text-lg md:text-xl text-cream/80 mt-7 max-w-2xl leading-relaxed">
+            <p className="grotesk text-lg md:text-xl text-night/80 mt-7 max-w-2xl leading-relaxed">
               Higher salary, higher cost of living. Healthcare premiums you've never paid.
               Childcare priced like a second mortgage. A TFSA the IRS will tax.
               And a goodbye bill from CRA on your way out.
@@ -1018,7 +1040,7 @@ function Hero({ scrollToWizard }) {
           <button onClick={scrollToWizard} className="btn-primary self-start">
             See if your plan survives the math ↓
           </button>
-          <div className="grotesk text-cream/70 text-base md:text-lg max-w-md">
+          <div className="grotesk text-night/70 text-base md:text-lg max-w-md">
             5 questions · 3 minutes · your numbers, not a stranger's
           </div>
         </div>
@@ -1044,8 +1066,8 @@ function FailMode({ n, kicker, line }) {
     <div className="panel p-5 md:p-6 grid grid-cols-[36px_1fr] gap-4">
       <div className="display italic text-2xl text-pink leading-none pt-1">{n}.</div>
       <div>
-        <div className="grotesk font-bold text-cream text-base mb-1">{kicker}</div>
-        <div className="text-sm text-cream/70 leading-snug">{line}</div>
+        <div className="grotesk font-bold text-night text-base mb-1">{kicker}</div>
+        <div className="text-sm text-night/70 leading-snug">{line}</div>
       </div>
     </div>
   );
@@ -1068,15 +1090,15 @@ function HiddenCosts({ result, state }) {
     : 'CA vs ON delta';
 
   return (
-    <section id="hidden" className="border-t border-cream/10">
+    <section id="hidden" className="border-t border-night/10">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
         <aside className="md:col-span-4">
           <div className="sticky top-10">
             <div className="sticker sticker-cobalt mb-5">Section 01</div>
-            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-cream tracking-tight pb-1">
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
               The four numbers<br/>that <span className="hl-pink">flip the plan</span>
             </h3>
-            <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
+            <p className="grotesk text-night/70 mt-6 text-base md:text-lg leading-relaxed">
               None of these appear on the offer letter. All of them show up in your bank account.
             </p>
           </div>
@@ -1092,14 +1114,14 @@ function HiddenCosts({ result, state }) {
           <CostCard n="iii" color="lime" title="The TFSA trap" tag="one-time"
             num="$3–8k" label="accountant + tax"
             body="IRS doesn't recognize the shelter. ETFs trigger PFIC reporting (Form 8621). Liquidate before you go."/>
-          <CostCard n="iv" color="cream" title="Departure tax" tag="one-time"
+          <CostCard n="iv" color="night" title="Departure tax" tag="one-time"
             num="varies" label="depends on portfolio"
             body="CRA deems disposition the day you sever residency. You owe capital gains on paper gains. RRSPs exempt."/>
         </div>
 
         <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
           <span className="sticker sticker-lime">Next ↓</span>
-          <span className="grotesk text-cream/70 text-base md:text-lg">
+          <span className="grotesk text-night/70 text-base md:text-lg">
             Plug in your numbers. Section 03 reveals what's actually left.
           </span>
         </div>
@@ -1109,7 +1131,12 @@ function HiddenCosts({ result, state }) {
 }
 
 function CostCard({ n, color, title, tag, num, label, body }) {
-  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
+  const cls =
+    color === 'lime' ? 'panel-lime' :
+    color === 'pink' ? 'panel-pink' :
+    color === 'cobalt' ? 'panel-cobalt' :
+    color === 'night' ? 'panel-night' :
+    'panel-cream';
   return (
     <div className={`${cls} p-7 md:p-8 relative overflow-hidden flex flex-col`}>
       <div className="flex items-baseline justify-between mb-6">
@@ -1158,16 +1185,16 @@ function Wizard({ state, update, scrollToSection }) {
   };
 
   return (
-    <section id="wizard" className="border-t border-cream/10 bg-night-deep/40">
+    <section id="wizard" className="border-t border-night/10 bg-cream/50">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
         <div className="grid md:grid-cols-12 gap-10">
           <aside className="md:col-span-4">
             <div className="sticky top-10">
               <div className="sticker sticker-pink mb-5">Section 02</div>
-              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-cream tracking-tight pb-1">
+              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
                 Your turn —<br/>five quick <span className="hl-cobalt">questions</span>
               </h3>
-              <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
+              <p className="grotesk text-night/70 mt-6 text-base md:text-lg leading-relaxed">
                 Your inputs power the verdict in section 03. Nothing leaves your browser.
               </p>
             </div>
@@ -1177,22 +1204,22 @@ function Wizard({ state, update, scrollToSection }) {
             <div className="panel p-8 md:p-10">
               <div className="flex items-center justify-between mb-8">
                 <span className="label text-lime">{cur.kicker}</span>
-                <span className="num text-xs text-cream/50">{step + 1} / {steps.length}</span>
+                <span className="num text-xs text-night/50">{step + 1} / {steps.length}</span>
               </div>
-              <div className="h-[4px] bg-cream/10 rounded-full mb-10 overflow-hidden">
+              <div className="h-[4px] bg-night/10 rounded-full mb-10 overflow-hidden">
                 <div className="h-full bg-lime rounded-full transition-all duration-500" style={{width: pct + '%'}}/>
               </div>
 
               <div className="min-h-[300px]">
-                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.0] mb-3 text-cream tracking-tight">
+                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.0] mb-3 text-night tracking-tight">
                   {cur.q}
                 </h4>
-                <p className="grotesk text-base md:text-lg text-cream/60 mb-10">{cur.sub}</p>
+                <p className="grotesk text-base md:text-lg text-night/60 mb-10">{cur.sub}</p>
 
                 {step === 0 && (
                   <div className="max-w-md">
                     <div className="flex items-baseline gap-2">
-                      <span className="num text-2xl text-cream/40">$</span>
+                      <span className="num text-2xl text-night/40">$</span>
                       <input
                         autoFocus
                         type="number"
@@ -1211,7 +1238,7 @@ function Wizard({ state, update, scrollToSection }) {
                 {step === 1 && (
                   <div className="max-w-md">
                     <div className="flex items-baseline gap-2">
-                      <span className="num text-2xl text-cream/40">$</span>
+                      <span className="num text-2xl text-night/40">$</span>
                       <input
                         autoFocus
                         type="number"
@@ -1263,7 +1290,7 @@ function Wizard({ state, update, scrollToSection }) {
                     </div>
                     {state.familySituation === 'mfj-with-kids' && (
                       <div className="flex items-baseline gap-4">
-                        <span className="label text-cream/60">Number of kids</span>
+                        <span className="label text-night/60">Number of kids</span>
                         <input type="number" min="1" className="input-line max-w-[120px]"
                           value={state.kids || 1}
                           onChange={e => update({ kids: parseInt(e.target.value) || 1 })}/>
@@ -1273,9 +1300,9 @@ function Wizard({ state, update, scrollToSection }) {
                 )}
               </div>
 
-              <div className="mt-12 flex items-center justify-between gap-4 pt-7 border-t border-cream/10">
+              <div className="mt-12 flex items-center justify-between gap-4 pt-7 border-t border-night/10">
                 <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}
-                  className="label text-cream/60 hover:text-cream disabled:opacity-30">
+                  className="label text-night/60 hover:text-night disabled:opacity-30">
                   ← Back
                 </button>
                 <button onClick={handleNext} className="btn-primary">
@@ -1287,7 +1314,7 @@ function Wizard({ state, update, scrollToSection }) {
             <div className="mt-8 flex justify-center gap-2">
               {steps.map((_, i) => (
                 <button key={i} onClick={() => setStep(i)}
-                  className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-cream/40 w-2' : 'bg-cream/15 w-2'}`}/>
+                  className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-night/40 w-2' : 'bg-night/15 w-2'}`}/>
               ))}
             </div>
           </div>
@@ -1337,28 +1364,28 @@ function VerdictSection({ state, update, result }) {
     'panel-cream';
 
   return (
-    <section id="verdict" className="border-t border-cream/10">
+    <section id="verdict" className="border-t border-night/10">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
 
         <div className="grid md:grid-cols-12 gap-10 mb-14">
           <div className="md:col-span-7">
             <div className="flex items-center gap-3 mb-5 flex-wrap">
               <span className="sticker sticker-lime">Section 03</span>
-              <span className="grotesk text-cream/60 text-sm">{inputSummary}</span>
+              <span className="grotesk text-night/60 text-sm">{inputSummary}</span>
             </div>
             {hasInput ? (
-              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-cream tracking-tight pb-2">
+              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
                 Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
                 <span className={fiveYrDelta >= 0 ? 'text-lime' : 'text-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
                 {fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
               </h3>
             ) : (
-              <h3 className="display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.02] text-cream/70 tracking-tight italic">
+              <h3 className="display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.02] text-night/70 tracking-tight italic">
                 Answer the wizard above, and your verdict shows up here.
               </h3>
             )}
             {hasInput && (
-              <p className="grotesk text-base md:text-lg text-cream/70 mt-6 max-w-2xl leading-relaxed">
+              <p className="grotesk text-base md:text-lg text-night/70 mt-6 max-w-2xl leading-relaxed">
                 That assumes you save the entire after-tax delta. No lifestyle inflation, no SF rent eating the raise.
                 In reality, expect 50–70% of that. Here's the year-by-year so you can see when the move actually pays off.
               </p>
@@ -1382,7 +1409,7 @@ function VerdictSection({ state, update, result }) {
           <StatBlock kicker="3-year nest egg"
             value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
             detail="if you come home after 3 years"
-            color="cream"/>
+            color="night"/>
           <StatBlock kicker="5-year nest egg"
             value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
             detail="if you stick the full detour"
@@ -1398,11 +1425,11 @@ function VerdictSection({ state, update, result }) {
 
         <div className="panel p-6 md:p-10">
           <div className="flex items-baseline justify-between mb-6 flex-wrap gap-3">
-            <h4 className="grotesk font-bold text-cream text-xl">Cumulative take-home, 5 years</h4>
+            <h4 className="grotesk font-bold text-night text-xl">Cumulative take-home, 5 years</h4>
             <div className="flex items-center gap-5 text-sm flex-wrap">
               <LegendDot color="#D4FF3A" label="Stay in Canada"/>
               <LegendDot color="#FF3D7F" label="Move to US"/>
-              <LegendDot color="#FFF6E5" label="Breakeven" filled/>
+              <LegendDot color="#0E0B2C" label="Breakeven" filled/>
             </div>
           </div>
           <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput}/>
@@ -1411,7 +1438,7 @@ function VerdictSection({ state, update, result }) {
         <div className="mt-14">
           <div className="flex items-center gap-3 mb-6 flex-wrap">
             <span className="sticker sticker-pink">⚠ Reality check</span>
-            <span className="grotesk text-cream/60 text-sm">three things this number is hiding</span>
+            <span className="grotesk text-night/60 text-sm">three things this number is hiding</span>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             <RealityCheck n="01" headline="Cost of living" body="SF rent is 2.4× Toronto. The raise gets eaten before it hits savings."/>
@@ -1426,7 +1453,12 @@ function VerdictSection({ state, update, result }) {
 
 function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }) {
   const [editing, setEditing] = useState(false);
-  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
+  const cls =
+    color === 'lime' ? 'panel-lime' :
+    color === 'pink' ? 'panel-pink' :
+    color === 'cobalt' ? 'panel-cobalt' :
+    color === 'night' ? 'panel-night' :
+    'panel-cream';
   return (
     <div className={`${cls} p-6 md:p-7`}>
       <div className="flex items-baseline justify-between mb-4">
@@ -1463,8 +1495,8 @@ function RealityCheck({ n, headline, body }) {
   return (
     <div className="panel p-6">
       <div className="grotesk font-bold text-pink text-sm tracking-widest mb-3">{n}</div>
-      <div className="display text-xl font-bold text-cream mb-2">{headline}</div>
-      <div className="grotesk text-sm text-cream/70 leading-relaxed">{body}</div>
+      <div className="display text-xl font-bold text-night mb-2">{headline}</div>
+      <div className="grotesk text-sm text-night/70 leading-relaxed">{body}</div>
     </div>
   );
 }
@@ -1475,7 +1507,7 @@ function LegendDot({ color, label, filled }) {
       {filled
         ? <span className="inline-block w-3 h-3 rounded-full" style={{background: color}}/>
         : <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={color} strokeWidth="3" strokeLinecap="round"/></svg>}
-      <span className="grotesk text-cream/70">{label}</span>
+      <span className="grotesk text-night/70">{label}</span>
     </div>
   );
 }
@@ -1516,15 +1548,15 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
       {yTicks.map(v => (
         <g key={v}>
           <line x1={padL} y1={yS(v)} x2={padL + plotW} y2={yS(v)}
-            stroke="#FFF6E5" strokeWidth="1" opacity={v === 0 ? 0.45 : 0.08}
+            stroke="#0E0B2C" strokeWidth="1" opacity={v === 0 ? 0.55 : 0.12}
             strokeDasharray={v === 0 ? '' : '2 4'}/>
           <text x={padL - 10} y={yS(v) + 4} textAnchor="end" fontSize="11"
-            fill="#FFF6E5" opacity="0.5" fontFamily="Geist Mono">{fmtTick(v)}</text>
+            fill="#0E0B2C" opacity="0.55" fontFamily="Geist Mono">{fmtTick(v)}</text>
         </g>
       ))}
       {pts.map(p => (
         <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11"
-          fill="#FFF6E5" opacity="0.5" fontFamily="Space Grotesk">Y{p.year}</text>
+          fill="#0E0B2C" opacity="0.55" fontFamily="Space Grotesk">Y{p.year}</text>
       ))}
 
       {hasInput && (
@@ -1535,8 +1567,8 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
           <path d={usPath} fill="none" stroke="#FF3D7F" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
           {pts.map(p => (
             <g key={'d'+p.year}>
-              <circle cx={xS(p.year)} cy={yS(p.ca)} r="4.5" fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2"/>
-              <circle cx={xS(p.year)} cy={yS(p.us)} r="4.5" fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2"/>
+              <circle cx={xS(p.year)} cy={yS(p.ca)} r="4.5" fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2.2"/>
+              <circle cx={xS(p.year)} cy={yS(p.us)} r="4.5" fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2.2"/>
             </g>
           ))}
         </>
@@ -1544,7 +1576,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
 
       {!hasInput && (
         <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
-          fontSize="18" fill="#FFF6E5" opacity="0.4" fontFamily="Space Grotesk">
+          fontSize="18" fill="#0E0B2C" opacity="0.4" fontFamily="Space Grotesk">
           your year-by-year shows up here once you fill in the wizard
         </text>
       )}
@@ -1552,11 +1584,11 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
       {breakeven && (
         <g>
           <line x1={xS(breakeven.year)} y1={padT} x2={xS(breakeven.year)} y2={padT + plotH}
-            stroke="#FFF6E5" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.7"/>
-          <circle cx={xS(breakeven.year)} cy={yS(breakeven.value)} r="9" fill="#FFF6E5" stroke="#0E0B2C" strokeWidth="3"/>
+            stroke="#0E0B2C" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.55"/>
+          <circle cx={xS(breakeven.year)} cy={yS(breakeven.value)} r="9" fill="#0E0B2C" stroke="#F5EBD3" strokeWidth="3"/>
           <g transform={`translate(${xS(breakeven.year) + 16}, ${yS(breakeven.value) - 30})`}>
-            <rect x="0" y="-18" width="148" height="26" rx="13" fill="#FFF6E5"/>
-            <text x="74" y="-1" textAnchor="middle" fontSize="11" fill="#0E0B2C"
+            <rect x="0" y="-18" width="148" height="26" rx="13" fill="#0E0B2C"/>
+            <text x="74" y="-1" textAnchor="middle" fontSize="11" fill="#FFF6E5"
               fontFamily="Space Grotesk" fontWeight="700" letterSpacing="0.1em">
               BREAKEVEN · YR {breakeven.year.toFixed(1)}
             </text>
@@ -1586,23 +1618,23 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
 function ChangelogView() {
   return (
     <>
-      <section className="border-t border-cream/10">
+      <section className="border-t border-night/10">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
           <div className="sticker sticker-lime mb-5">What's shipped</div>
-          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-cream tracking-tight mb-12">
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-night tracking-tight mb-12">
             Changelog
           </h2>
           <div className="space-y-12">
             {CHANGELOG.map((v, i) => (
-              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream/10 pt-8">
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-night/10 pt-8">
                 <div className="md:col-span-3">
-                  <div className="num text-2xl font-medium tracking-tight text-cream">v{v.version}</div>
-                  <div className="label text-cream/50 mt-2">{v.date}</div>
+                  <div className="num text-2xl font-medium tracking-tight text-night">v{v.version}</div>
+                  <div className="label text-night/50 mt-2">{v.date}</div>
                   <div className="inline-block mt-3"><span className="sticker sticker-lime">Shipped</span></div>
                 </div>
                 <div className="md:col-span-9">
-                  <div className="display text-xl md:text-2xl font-bold mb-4 text-cream">{v.title}</div>
-                  <ul className="space-y-2 grotesk text-[15px] text-cream/70 leading-relaxed">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-night">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-night/70 leading-relaxed">
                     {v.items.map((item, j) => (
                       <li key={j} className="flex gap-3">
                         <span className="text-lime mt-1 select-none">·</span>
@@ -1617,23 +1649,23 @@ function ChangelogView() {
         </div>
       </section>
 
-      <section className="border-t border-cream/10 bg-night-deep/40">
+      <section className="border-t border-night/10 bg-cream/50">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
           <div className="sticker sticker-pink mb-5">What's coming</div>
-          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-cream tracking-tight mb-12">
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-night tracking-tight mb-12">
             Roadmap
           </h2>
           <div className="space-y-12">
             {ROADMAP.map((v, i) => (
-              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-cream/10 pt-8">
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-night/10 pt-8">
                 <div className="md:col-span-3">
-                  <div className="num text-2xl font-medium tracking-tight text-cream/70">v{v.version}</div>
-                  <div className="label text-cream/50 mt-2">{v.horizon}</div>
+                  <div className="num text-2xl font-medium tracking-tight text-night/70">v{v.version}</div>
+                  <div className="label text-night/50 mt-2">{v.horizon}</div>
                   <div className="inline-block mt-3"><span className="sticker sticker-outline">Planned</span></div>
                 </div>
                 <div className="md:col-span-9">
-                  <div className="display text-xl md:text-2xl font-bold mb-4 text-cream">{v.title}</div>
-                  <ul className="space-y-2 grotesk text-[15px] text-cream/70 leading-relaxed">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-night">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-night/70 leading-relaxed">
                     {v.items.map((item, j) => (
                       <li key={j} className="flex gap-3">
                         <span className="text-pink mt-1 select-none">·</span>
@@ -1657,17 +1689,21 @@ function ChangelogView() {
 function Footer() {
   const latest = CHANGELOG[0];
   return (
-    <footer className="border-t border-cream/10">
+    <footer className="border-t border-night/10">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-14 grid md:grid-cols-12 gap-10">
         <div className="md:col-span-5">
-          <div className="grotesk font-bold text-2xl text-cream">North<span className="text-lime">×</span>South</div>
-          <p className="grotesk text-cream/60 mt-3 max-w-sm leading-relaxed">
+          <div className="grotesk font-bold text-2xl text-night flex items-center gap-2">
+            <span aria-hidden="true">🇨🇦</span>
+            <span>North<span className="text-pink">×</span>South</span>
+            <span aria-hidden="true">🇺🇸</span>
+          </div>
+          <p className="grotesk text-night/60 mt-3 max-w-sm leading-relaxed">
             Built by Canadians who moved south, for Canadians thinking about it.
           </p>
         </div>
-        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-cream/70">
+        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-night/70">
           <div>
-            <div className="label text-cream/40 mb-3">The math</div>
+            <div className="label text-night/40 mb-3">The math</div>
             <ul className="space-y-2 grotesk">
               <li>2026 brackets · CRA + IRS</li>
               <li>4 provinces · 8 states</li>
@@ -1675,7 +1711,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="label text-cream/40 mb-3">Disclaimers</div>
+            <div className="label text-night/40 mb-3">Disclaimers</div>
             <ul className="space-y-2 grotesk">
               <li>Not financial advice</li>
               <li>See a cross-border CPA</li>
@@ -1683,7 +1719,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <div className="label text-cream/40 mb-3">About</div>
+            <div className="label text-night/40 mb-3">About</div>
             <ul className="space-y-2 grotesk">
               <li>Open source</li>
               <li>v{latest.version} · April 2026</li>
@@ -1692,10 +1728,10 @@ function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-t border-cream/10">
+      <div className="border-t border-night/10">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-4">
-          <div className="grotesk text-cream/40 text-sm">© 2026 · North×South</div>
-          <div className="grotesk text-cream/40 text-xs">Calculator runs entirely in your browser</div>
+          <div className="grotesk text-night/40 text-sm">© 2026 · North×South</div>
+          <div className="grotesk text-night/40 text-xs">Calculator runs entirely in your browser</div>
         </div>
       </div>
     </footer>
