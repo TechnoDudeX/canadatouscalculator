@@ -288,12 +288,6 @@
       .sticker { font-size: 11px; padding: 5px 12px; }
     }
 
-    /* Below-fold rendering optimization */
-    section[id="hidden"], section[id="wizard"], section[id="verdict"] {
-      content-visibility: auto;
-      contain-intrinsic-size: 1px 1200px;
-    }
-
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -458,6 +452,16 @@ const CHILDCARE_STATE_DEFAULT = {
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '3.1.1',
+    date: '2026-04-30',
+    title: 'Fix homepage scrolling to Section 1 again',
+    items: [
+      'Removed content-visibility: auto from offscreen sections — its placeholder size was causing scroll-anchoring to nudge the page',
+      'history.scrollRestoration set to manual so the browser stops restoring stale scroll positions on reload/back-forward',
+      'On every fresh load (no #changelog hash), explicitly scroll to (0, 0) before React paints the rest'
+    ]
+  },
   {
     version: '3.1.0',
     date: '2026-04-30',
@@ -765,10 +769,15 @@ function App() {
   const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
 
   useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
     const initialHash = window.location.hash.slice(1);
-    if (initialHash && initialHash !== 'changelog') {
-      window.history.replaceState(null, '', window.location.pathname);
-      window.scrollTo({ top: 0, behavior: 'instant' });
+    if (initialHash !== 'changelog') {
+      if (initialHash) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+      window.scrollTo(0, 0);
     }
     const onHash = () => {
       setView(window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
