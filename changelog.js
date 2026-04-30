@@ -9,6 +9,17 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.3',
+    date: '2026-04-30',
+    title: 'Move full disclaimer (estimates, FX rate, AI privacy note) from verdict to footer',
+    items: [
+      'Verdict section now leads straight from "Section 03 / based on your inputs..." into the headline — no more dense disclaimer paragraph above the dollar figure',
+      'Full disclaimer relocated to a dedicated row in the footer between the 3-column grid and the copyright bar — same content, including the inline-editable FxRateEdit',
+      '"AI explanation below" copy updated to "AI explanation in the verdict section" since the disclaimer is no longer above it',
+      'Footer now takes state + update props so FxRateEdit can read/write the FX rate from the footer location'
+    ]
+  },
+  {
     version: '4.1.2',
     date: '2026-04-30',
     title: 'AI explanation tightened — 3-5 sentences, not 3-4 paragraphs',

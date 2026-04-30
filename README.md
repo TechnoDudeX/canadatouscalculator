@@ -61,7 +61,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.2.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.3.
 
 ## Tests
 
