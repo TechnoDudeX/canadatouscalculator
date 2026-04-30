@@ -1,6 +1,6 @@
 # North×South
 
-A cross-border honesty audit for Canadians weighing a US job offer. Reveals what's actually left after state tax, healthcare, childcare, departure tax, and the TFSA trap.
+A cross-border honesty audit for Canadians weighing a US job offer. Models the household — primary salary + spouse work-auth, housing on both sides, cost of living, departure tax, and what the employer is actually putting on the table — not just the salary delta.
 
 Live: https://canadatouscalculator.netlify.app/
 
@@ -10,11 +10,13 @@ A single-page calculator that compares a current Canadian compensation package a
 
 - US federal + state income tax
 - Healthcare premiums and out-of-pocket exposure
-- Childcare costs by metro
-- Canadian departure tax on unrealized gains
-- Loss of TFSA tax shelter for US tax residents
-- Moving and relocation overhead
-- 5-year breakeven projection
+- Childcare costs by state
+- **Spouse work-authorization** — TN/H1B/O1 trailing spouses can't legally work, so dual-income households take an immediate income shock
+- **Housing** on both sides — own vs. rent, sell vs. keep, monthly carrying cost, US security deposit
+- **Cost of living** premium vs. Toronto baseline
+- **Canadian departure tax** estimator (unrealized gains × 50% × marginal rate)
+- **The offer side** — sign-on bonus and relocation coverage net against exit costs
+- 5-year household breakeven projection
 
 ## Stack
 
@@ -44,7 +46,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v3.4.0.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.0.0.
 
 ## Tests
 

@@ -138,6 +138,44 @@ const CHILDCARE_STATE_DEFAULT = {
   MA: 24000, IL: 19000, CO: 20000
 };
 
+/* Visa work-authorization for the trailing spouse. The cross-border honesty
+   is that "work auth" is a giant mess; these are realistic *defaults*, not
+   legal advice. UI lets the user override.
+
+   - TN: TD spouse — explicitly may not work in the US.
+   - H1B: H4 spouse may apply for an EAD only after the H1B holder hits I-140
+     approval. Default false; user overrides if they have the EAD.
+   - L1: L2 spouse has automatic work auth (post-2022 USCIS rule).
+   - O1: O3 spouse may not work.
+   - GC: principal is a green-card holder; spouse holds GC too and works freely. */
+const VISA_SPOUSE_WORK = {
+  TN:  { canWorkDefault: false, label: 'TN (Canadian professional)', spouseLabel: 'TD' },
+  L1:  { canWorkDefault: true,  label: 'L-1 (intra-company transfer)', spouseLabel: 'L-2' },
+  H1B: { canWorkDefault: false, label: 'H-1B (specialty occupation)', spouseLabel: 'H-4' },
+  O1:  { canWorkDefault: false, label: 'O-1 (extraordinary ability)', spouseLabel: 'O-3' },
+  GC:  { canWorkDefault: true,  label: 'Green card / dual intent', spouseLabel: 'Spouse GC' }
+};
+
+/* Default monthly rent in CAD, ballpark for a 2BR in the major metro of each
+   province. User-editable. Reality varies wildly. */
+const CA_RENT_DEFAULT_MONTHLY_CAD = { ON: 2800, BC: 3000, AB: 1900, QC: 1800 };
+
+/* Default monthly housing in USD per state. Anchored to the dominant tech metro
+   (CA→Bay Area, NY→NYC, WA→Seattle, TX→Austin, FL→Miami, MA→Boston, IL→Chicago,
+   CO→Denver). Wildly state-internal variance — user-editable. */
+const US_HOUSING_DEFAULT_MONTHLY_USD = {
+  CA: 4200, NY: 3800, WA: 3000, TX: 2100, FL: 2600,
+  MA: 3400, IL: 2400, CO: 2700
+};
+
+/* Cost-of-living multiplier vs. Toronto baseline, EXCLUDING housing, healthcare,
+   and childcare (those are modeled explicitly). Covers groceries, transport,
+   dining out, entertainment. Rough Numbeo-style ratios. User-editable. */
+const US_COL_MULTIPLIER_DEFAULT = {
+  CA: 1.35, NY: 1.35, WA: 1.20, TX: 1.05, FL: 1.10,
+  MA: 1.20, IL: 1.10, CO: 1.10
+};
+
 /* ========================================================================
    PURE FUNCTIONS
    ======================================================================== */
@@ -272,6 +310,124 @@ function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 
   return { pts, breakeven };
 }
 
+/* ========================================================================
+   v4.0.0 ADDITIONS — household-level model
+
+   These wrap calculateCanada/calculateUS with the realities the original
+   single-earner take-home model ignored: spouse work-auth + income shock,
+   housing carrying costs on both sides, cost-of-living delta, and the full
+   exit-cost stack (departure tax + realtor + offer credits).
+   ======================================================================== */
+
+/* Lookup helper: given a visa code from VISA_SPOUSE_WORK, can the spouse
+   legally work? Returns false for unknown codes (safer default). */
+function spouseCanWorkInUS(visaType) {
+  return VISA_SPOUSE_WORK[visaType]?.canWorkDefault ?? false;
+}
+
+/* Combined federal + provincial marginal rate at the income level provided.
+   Used for departure-tax estimation (capital gains × 50% inclusion × this).
+   Includes Ontario surtax tier 2 if the user is in ON above the threshold.
+   Quebec abatement reduces the federal slice. */
+function getMarginalRateCanada(income, province) {
+  if (!income || income <= 0) return 0;
+  const fed = CA_FEDERAL_2026.find(b => income <= b.upTo)?.rate ?? CA_FEDERAL_2026[CA_FEDERAL_2026.length - 1].rate;
+  const prov = PROVINCIAL_2026[province];
+  const provRate = prov.brackets.find(b => income <= b.upTo)?.rate ?? prov.brackets[prov.brackets.length - 1].rate;
+  let fedEffective = fed;
+  if (prov.federalAbatement) fedEffective = fed * (1 - prov.federalAbatement);
+  let combined = fedEffective + provRate;
+  if (province === 'ON' && income > 220000) combined += provRate * 0.36; // tier-2 surtax approximation
+  return combined;
+}
+
+/* Monthly carrying cost in CAD for the household's Canadian shelter.
+   - rent: just the monthly rent
+   - own + sell: 0 (the home is liquidated — exit costs are one-time)
+   - own + keep: rough mortgage payment proxy (5%/12 of balance, principal
+     ignored) + $500/mo for property tax + maintenance. Hand-wavy on purpose;
+     the user can override the rent field if they want a precise number. */
+function caHousingMonthlyCAD({ caHousing, caRentMonthlyCAD, caMortgageBalanceCAD, caHomeDecision }) {
+  if (caHousing === 'rent') return Math.max(0, caRentMonthlyCAD || 0);
+  if (caHousing === 'own' && caHomeDecision === 'sell') return 0;
+  if (caHousing === 'own' && caHomeDecision === 'keep') {
+    const mortgage = (caMortgageBalanceCAD || 0) * 0.05 / 12;
+    return mortgage + 500;
+  }
+  return 0;
+}
+
+/* Annual extra spend in CAD on the US side from cost-of-living above Canadian
+   baseline, EXCLUDING housing/healthcare/childcare which are modeled directly.
+   Heuristic: ~30% of CAD take-home is "discretionary lifestyle spend"
+   (groceries, transport, dining, entertainment); US side multiplies that.
+   Returns 0 if multiplier <= 1 (US is cheaper or equal — rare but possible). */
+function estimateColExtraAnnualCAD({ multiplier, salaryCAD }) {
+  if (!salaryCAD || salaryCAD <= 0) return 0;
+  if (!multiplier || multiplier <= 1) return 0;
+  const baseline = salaryCAD * 0.30;
+  return baseline * (multiplier - 1);
+}
+
+/* All one-time costs of leaving Canada, netted against employer credits.
+   Returns { gross, credits, net } where net is what hits year 0 of the
+   breakeven projection.
+
+   Components:
+   - movingCostsCAD: physical move + immigration legal etc (user input)
+   - realtor + legal fee on home sale (5.5% of value if selling)
+   - departure tax: deemed disposition × 50% inclusion × marginal rate
+   - US security deposit: 2 months of US rent (if monthly housing > 0)
+   Credits:
+   - signOnBonusUSD + relocationCoverageUSD (employer side) */
+function estimateExitCostsCAD({
+  caHousing, caHomeValueCAD, caHomeDecision,
+  unrealizedGainsCAD, marginalRateCA,
+  signOnBonusUSD, relocationCoverageUSD,
+  movingCostsCAD, usMonthlyHousingUSD, fxRate
+}) {
+  let gross = movingCostsCAD || 0;
+  if (caHousing === 'own' && caHomeDecision === 'sell') {
+    gross += (caHomeValueCAD || 0) * 0.055;
+  }
+  const departureTaxCAD = (unrealizedGainsCAD || 0) * 0.5 * (marginalRateCA || 0);
+  gross += departureTaxCAD;
+  const securityDepositUSD = (usMonthlyHousingUSD || 0) * 2;
+  gross += securityDepositUSD / (fxRate || 0.73);
+  const creditsUSD = (signOnBonusUSD || 0) + (relocationCoverageUSD || 0);
+  const credits = creditsUSD / (fxRate || 0.73);
+  const net = Math.max(0, gross - credits);
+  return { gross, credits, net, departureTaxCAD };
+}
+
+/* Household-level breakeven: same shape as buildBreakeven, but operates on
+   pre-aggregated household annual cash-flow numbers and supports an arbitrary
+   one-time net cost in year 0 (instead of just movingCosts). */
+function buildHouseholdBreakeven({ caHouseholdAnnualCAD, usHouseholdAnnualCAD, oneTimeNetCostCAD, years = 5 }) {
+  const pts = [];
+  for (let y = 0; y <= years; y++) {
+    pts.push({
+      year: y,
+      ca: caHouseholdAnnualCAD * y,
+      us: y === 0 ? -oneTimeNetCostCAD : usHouseholdAnnualCAD * y - oneTimeNetCostCAD
+    });
+  }
+  let breakeven = null;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i].us - pts[i].ca;
+    const b = pts[i + 1].us - pts[i + 1].ca;
+    if (a < 0 && b >= 0) {
+      const t = -a / (b - a);
+      breakeven = {
+        year: pts[i].year + t,
+        value: pts[i].ca + t * (pts[i + 1].ca - pts[i].ca)
+      };
+      break;
+    }
+  }
+  return { pts, breakeven };
+}
+
 /* Node export shim — only fires under CommonJS (vitest, Node).
    In the browser this branch is dead and the declarations above are
    visible as globals to the inline JSX <script> block in index.html. */
@@ -280,8 +436,12 @@ if (typeof module !== 'undefined' && module.exports) {
     CA_FEDERAL_2026, CA_BPA_2026, PROVINCIAL_2026, CPP_2026, EI_2026,
     US_FEDERAL_2026, US_STD_DED_2026, CTC_2026, FICA_2026, STATE_2026,
     HEALTHCARE_2026, CHILDCARE_PROV, CHILDCARE_STATE_DEFAULT,
+    VISA_SPOUSE_WORK, CA_RENT_DEFAULT_MONTHLY_CAD,
+    US_HOUSING_DEFAULT_MONTHLY_USD, US_COL_MULTIPLIER_DEFAULT,
     applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
     calcCPP, calcEI, calculateCanada,
-    calcStateTax, calculateUS, estimateHealthcareCost, buildBreakeven
+    calcStateTax, calculateUS, estimateHealthcareCost, buildBreakeven,
+    spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD,
+    estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven
   };
 }

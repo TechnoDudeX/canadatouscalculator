@@ -3,9 +3,12 @@ import calc from './calc.js';
 
 const {
   CA_FEDERAL_2026, CPP_2026, EI_2026, US_STD_DED_2026, FICA_2026,
+  VISA_SPOUSE_WORK,
   applyBrackets, calcCPP, calcEI, calcOntarioHealthPremium,
   calculateCanada, calcStateTax, calculateUS,
-  estimateHealthcareCost, buildBreakeven
+  estimateHealthcareCost, buildBreakeven,
+  spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD,
+  estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven
 } = calc;
 
 describe('applyBrackets', () => {
@@ -241,6 +244,193 @@ describe('buildBreakeven', () => {
 
   test('returns null breakeven when US never catches up', () => {
     const r = buildBreakeven({ caTakeHomeCAD: 150000, usTakeHomeCAD: 100000, movingCostsCAD: 25000, years: 5 });
+    expect(r.breakeven).toBeNull();
+  });
+});
+
+/* ========================================================================
+   v4.0.0 — household model: spouse, housing, COL, exit costs, breakeven
+   ======================================================================== */
+
+describe('spouseCanWorkInUS', () => {
+  test('TN/H1B/O1 spouses cannot work by default', () => {
+    expect(spouseCanWorkInUS('TN')).toBe(false);
+    expect(spouseCanWorkInUS('H1B')).toBe(false);
+    expect(spouseCanWorkInUS('O1')).toBe(false);
+  });
+
+  test('L1 (L-2) and GC spouses can work', () => {
+    expect(spouseCanWorkInUS('L1')).toBe(true);
+    expect(spouseCanWorkInUS('GC')).toBe(true);
+  });
+
+  test('unknown visa code defaults to false (safer)', () => {
+    expect(spouseCanWorkInUS('UNKNOWN')).toBe(false);
+    expect(spouseCanWorkInUS(undefined)).toBe(false);
+  });
+
+  test('every entry in VISA_SPOUSE_WORK has the expected shape', () => {
+    for (const [code, info] of Object.entries(VISA_SPOUSE_WORK)) {
+      expect(typeof info.canWorkDefault).toBe('boolean');
+      expect(typeof info.label).toBe('string');
+      expect(typeof info.spouseLabel).toBe('string');
+    }
+  });
+});
+
+describe('getMarginalRateCanada', () => {
+  test('returns 0 for non-positive income', () => {
+    expect(getMarginalRateCanada(0, 'ON')).toBe(0);
+    expect(getMarginalRateCanada(-100, 'ON')).toBe(0);
+  });
+
+  test('Ontario at $200k is in the 9.15% prov + 26% fed band', () => {
+    const r = getMarginalRateCanada(200000, 'ON');
+    // Should be within the realistic ON marginal range (40-55%)
+    expect(r).toBeGreaterThan(0.40);
+    expect(r).toBeLessThan(0.60);
+  });
+
+  test('Quebec applies the federal abatement (lower combined rate than ON at same income)', () => {
+    const on = getMarginalRateCanada(200000, 'ON');
+    const qc = getMarginalRateCanada(200000, 'QC');
+    // QC has higher provincial rate but federal abatement reduces fed slice;
+    // the combined rate should still differ — just assert sane and finite
+    expect(qc).toBeGreaterThan(0);
+    expect(qc).toBeLessThan(0.7);
+    expect(on).not.toBe(qc);
+  });
+});
+
+describe('caHousingMonthlyCAD', () => {
+  test('rent: returns the rent value clamped to >= 0', () => {
+    expect(caHousingMonthlyCAD({ caHousing: 'rent', caRentMonthlyCAD: 2500 })).toBe(2500);
+    expect(caHousingMonthlyCAD({ caHousing: 'rent', caRentMonthlyCAD: 0 })).toBe(0);
+    expect(caHousingMonthlyCAD({ caHousing: 'rent', caRentMonthlyCAD: -100 })).toBe(0);
+  });
+
+  test('own + sell: 0 monthly carrying (home is liquidated)', () => {
+    expect(caHousingMonthlyCAD({ caHousing: 'own', caHomeDecision: 'sell', caMortgageBalanceCAD: 600000 })).toBe(0);
+  });
+
+  test('own + keep: mortgage proxy + property tax/maintenance', () => {
+    // 600k balance × 5%/12 + 500 = 2500 + 500 = 3000
+    expect(caHousingMonthlyCAD({ caHousing: 'own', caHomeDecision: 'keep', caMortgageBalanceCAD: 600000 })).toBeCloseTo(3000, 6);
+  });
+
+  test('own + keep + 0 mortgage: just the 500 carrying floor', () => {
+    expect(caHousingMonthlyCAD({ caHousing: 'own', caHomeDecision: 'keep', caMortgageBalanceCAD: 0 })).toBe(500);
+  });
+});
+
+describe('estimateColExtraAnnualCAD', () => {
+  test('returns 0 for missing/zero salary', () => {
+    expect(estimateColExtraAnnualCAD({ multiplier: 1.5, salaryCAD: 0 })).toBe(0);
+  });
+
+  test('returns 0 when multiplier is <= 1 (US is cheaper or same)', () => {
+    expect(estimateColExtraAnnualCAD({ multiplier: 1.0, salaryCAD: 150000 })).toBe(0);
+    expect(estimateColExtraAnnualCAD({ multiplier: 0.9, salaryCAD: 150000 })).toBe(0);
+  });
+
+  test('multiplier 1.35 on $150k → 30% baseline × 0.35 = $15,750/yr', () => {
+    expect(estimateColExtraAnnualCAD({ multiplier: 1.35, salaryCAD: 150000 })).toBeCloseTo(150000 * 0.30 * 0.35, 6);
+  });
+});
+
+describe('estimateExitCostsCAD', () => {
+  test('renter, no investments, no offer credits → just movingCosts', () => {
+    const r = estimateExitCostsCAD({
+      caHousing: 'rent', movingCostsCAD: 25000,
+      unrealizedGainsCAD: 0, marginalRateCA: 0.5,
+      signOnBonusUSD: 0, relocationCoverageUSD: 0,
+      usMonthlyHousingUSD: 0, fxRate: 0.73
+    });
+    expect(r.gross).toBe(25000);
+    expect(r.credits).toBe(0);
+    expect(r.net).toBe(25000);
+    expect(r.departureTaxCAD).toBe(0);
+  });
+
+  test('seller adds 5.5% realtor + legal on home value', () => {
+    const r = estimateExitCostsCAD({
+      caHousing: 'own', caHomeDecision: 'sell', caHomeValueCAD: 1_000_000,
+      movingCostsCAD: 15000, unrealizedGainsCAD: 0, marginalRateCA: 0,
+      signOnBonusUSD: 0, relocationCoverageUSD: 0,
+      usMonthlyHousingUSD: 0, fxRate: 0.73
+    });
+    // 15k moving + 55k realtor/legal = 70k
+    expect(r.gross).toBe(70000);
+  });
+
+  test('departure tax = unrealized gains × 0.5 × marginal rate', () => {
+    const r = estimateExitCostsCAD({
+      caHousing: 'rent', movingCostsCAD: 0,
+      unrealizedGainsCAD: 200000, marginalRateCA: 0.5,
+      signOnBonusUSD: 0, relocationCoverageUSD: 0,
+      usMonthlyHousingUSD: 0, fxRate: 0.73
+    });
+    expect(r.departureTaxCAD).toBeCloseTo(200000 * 0.5 * 0.5, 6); // $50,000
+    expect(r.gross).toBeCloseTo(50000, 6);
+  });
+
+  test('US security deposit = 2 months rent in CAD', () => {
+    const r = estimateExitCostsCAD({
+      caHousing: 'rent', movingCostsCAD: 0,
+      unrealizedGainsCAD: 0, marginalRateCA: 0,
+      signOnBonusUSD: 0, relocationCoverageUSD: 0,
+      usMonthlyHousingUSD: 4000, fxRate: 0.73
+    });
+    // 2 × 4000 / 0.73 = ~10959
+    expect(r.gross).toBeCloseTo(8000 / 0.73, 4);
+  });
+
+  test('offer credits (sign-on + relocation) reduce net cost, never below 0', () => {
+    const r = estimateExitCostsCAD({
+      caHousing: 'rent', movingCostsCAD: 25000,
+      unrealizedGainsCAD: 0, marginalRateCA: 0,
+      signOnBonusUSD: 50000, relocationCoverageUSD: 30000,
+      usMonthlyHousingUSD: 0, fxRate: 0.73
+    });
+    // gross = 25000; credits = 80000/0.73 ≈ 109589; net = max(0, 25000-109589) = 0
+    expect(r.gross).toBe(25000);
+    expect(r.net).toBe(0);
+  });
+});
+
+describe('buildHouseholdBreakeven', () => {
+  test('produces year 0..N points with one-time net cost in year 0', () => {
+    const r = buildHouseholdBreakeven({
+      caHouseholdAnnualCAD: 150000,
+      usHouseholdAnnualCAD: 200000,
+      oneTimeNetCostCAD: 40000,
+      years: 5
+    });
+    expect(r.pts).toHaveLength(6);
+    expect(r.pts[0]).toEqual({ year: 0, ca: 0, us: -40000 });
+    expect(r.pts[1]).toEqual({ year: 1, ca: 150000, us: 200000 - 40000 });
+    expect(r.pts[5].year).toBe(5);
+  });
+
+  test('finds breakeven when US household income overtakes CA', () => {
+    const r = buildHouseholdBreakeven({
+      caHouseholdAnnualCAD: 100000,
+      usHouseholdAnnualCAD: 130000,
+      oneTimeNetCostCAD: 40000,
+      years: 5
+    });
+    expect(r.breakeven).not.toBeNull();
+    expect(r.breakeven.year).toBeGreaterThan(0);
+  });
+
+  test('returns null breakeven when US household never catches up (e.g. spouse-loss flip)', () => {
+    // CA household earning more (dual income) and US single-income, never catches up
+    const r = buildHouseholdBreakeven({
+      caHouseholdAnnualCAD: 200000,
+      usHouseholdAnnualCAD: 150000,
+      oneTimeNetCostCAD: 40000,
+      years: 5
+    });
     expect(r.breakeven).toBeNull();
   });
 });

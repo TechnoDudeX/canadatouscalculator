@@ -9,6 +9,26 @@
 
 const CHANGELOG = [
   {
+    version: '4.0.0',
+    date: '2026-04-30',
+    title: 'Household model — spouse work-auth, housing, COL, departure tax, offer credits',
+    items: [
+      'Spouse work-authorization is now first-class. Visa pills (TN/L1/H1B/O1/GC) drive whether the trailing spouse can legally work in the US — TD, H4, O3 default to "cannot work" and zero out spouse contribution to US household income. L2 and GC spouses default to working. User can override per-scenario.',
+      'Spouse income is its own input — running calculateCanada({spouseIncomeCAD, province}) gives an honest "income shock" line item: how much CAD take-home evaporates if the trailing spouse cannot work.',
+      'Canadian housing modeled both ways. Rent: monthly carrying cost. Own: choose to sell (5.5% realtor + legal goes to one-time exit cost) or keep paying it (mortgage proxy + maintenance becomes ongoing carry). Province-keyed default rents.',
+      'US monthly housing input with state-keyed defaults (CA 4200, NY 3800, WA 3000, TX 2100, FL 2600, MA 3400, IL 2400, CO 2700). 2 months in as security deposit (one-time exit cost).',
+      'Cost-of-living multiplier vs. Toronto baseline (state-keyed default 1.05–1.35×). Models groceries/transport/dining — housing/healthcare/childcare are explicit.',
+      'Departure tax estimator. Unrealized capital gains × 50% inclusion × user\'s combined fed+prov marginal rate (Ontario surtax tier-2 included). RRSP/TFSA exemptions noted in copy.',
+      'Offer-side credits — sign-on bonus + relocation coverage (USD) net against gross exit costs. If credits exceed costs, net is floored at 0 (no negative exit cost).',
+      'Wizard refactored from 5 single-field steps to 5 multi-field steps: (1) salaries + locations, (2) family + spouse + visa, (3) Canadian housing, (4) US housing + COL, (5) the exit + the offer.',
+      'Verdict gains a HOUSEHOLD AUDIT panel: 6 line items showing where the household money actually goes — spouse shock, housing delta, COL premium, healthcare, childcare delta, departure tax. Each shows a one-line explanation of the math.',
+      '"Net exit cost" StatBlock is now auto-computed from the model (moving + realtor + departure tax + security deposit, minus employer credits) instead of a single editable field.',
+      'Disclaimer updated to flag the new approximations: spouse-parity assumption when work-auth allows, single-state COL multiplier (not metro-specific).',
+      'New calc.js exports: VISA_SPOUSE_WORK, CA_RENT_DEFAULT_MONTHLY_CAD, US_HOUSING_DEFAULT_MONTHLY_USD, US_COL_MULTIPLIER_DEFAULT, spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD, estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven.',
+      '22 new tests added (61 total): visa lookup, marginal-rate combinator, housing math under each rent/own/sell/keep branch, COL multiplier edge cases, exit costs with offer credits, household breakeven with one-time net costs.'
+    ]
+  },
+  {
     version: '3.4.0',
     date: '2026-04-30',
     title: 'Verdict disclaimer + editable FX, Tailwind CDN→CLI, externalized CHANGELOG, pinned tests',
@@ -199,13 +219,16 @@ const CHANGELOG = [
 
 const ROADMAP = [
   {
-    version: '3.5.0', horizon: 'Next', title: 'Verified brackets + small fixes',
+    version: '4.1.0', horizon: 'Next', title: 'Verified brackets + small fixes',
     items: [
       'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers (currently flagged in the verdict disclaimer)',
       'Canada Employment Amount credit (~$200 understatement currently)',
       'AMT comparison check on US side',
       'Live FX rate fetch (user-editable input added in v3.4.0; still hardcoded default of 0.73)',
-      'Remaining provinces: MB, SK, NS, NB, NL, PE'
+      'Remaining provinces: MB, SK, NS, NB, NL, PE',
+      'Metro-keyed (not state-keyed) COL multiplier and housing — SF vs. Sacramento are wildly different at the same state code',
+      'Separate spouseSalaryUSD input so we stop assuming spouse-parity when their US offer is actually different',
+      'TFSA wind-down PFIC liability projection (currently noted in copy, not modeled)'
     ]
   },
   {

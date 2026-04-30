@@ -99,8 +99,33 @@ const INITIAL_STATE = {
   filingStatus: 'single',
   kids: 0,
   familySituation: 'single',
+
+  // v4.0.0 — spouse work-auth + income shock
+  spouseIncomeCAD: 0,
+  visaType: 'TN',
+  spouseCanWorkOverride: null, // null = use visa default
+
+  // v4.0.0 — Canadian housing
+  caHousing: 'rent',           // 'rent' | 'own'
+  caRentMonthlyCAD: 0,
+  caHomeValueCAD: 0,
+  caMortgageBalanceCAD: 0,
+  caHomeDecision: 'sell',      // 'sell' | 'keep'
+
+  // v4.0.0 — US housing + cost-of-living. 0 = "use the state-keyed
+  // default", set in the result useMemo. Real edits become >0 (or in
+  // the multiplier's case, a non-zero float).
+  usMonthlyHousingUSD: 0,
+  usCOLmultiplier: 0,
+
+  // v4.0.0 — investments + offer credits
+  unrealizedGainsCAD: 0,
+  signOnBonusUSD: 0,
+  relocationCoverageUSD: 0,
+
   fxRate: 0.73,
-  movingCostsCAD: 25000
+  movingCostsCAD: 15000        // physical move + immigration legal only;
+                               // realtor/departure-tax now modeled separately
 };
 
 function App() {
@@ -152,6 +177,7 @@ function App() {
   };
 
   const result = useMemo(() => {
+    /* Primary worker take-home */
     const ca = calculateCanada({ income: state.salaryCAD, province: state.province });
     const us = calculateUS({
       income: state.salaryUSD,
@@ -159,24 +185,102 @@ function App() {
       filingStatus: state.filingStatus,
       kids: state.kids
     });
+
+    /* Spouse income shock — the single biggest "honesty" delta. If the trailing
+       spouse can't legally work in the US (TN/H1B/O1 default), every dollar
+       they earned in Canada vanishes from the household budget. */
+    const spouseCa = state.spouseIncomeCAD > 0
+      ? calculateCanada({ income: state.spouseIncomeCAD, province: state.province })
+      : { gross: 0, takeHome: 0 };
+    const spouseCanWork = state.spouseCanWorkOverride !== null
+      ? state.spouseCanWorkOverride
+      : spouseCanWorkInUS(state.visaType);
+    /* Naive: if spouse can work, assume parity with their CA take-home (we don't
+       collect a separate USD spouse offer). Conservative — most spouses take a
+       paycut in the new market. User can override the visa toggle if needed. */
+    const spouseUsAnnualCAD = spouseCanWork && state.spouseIncomeCAD > 0
+      ? spouseCa.takeHome
+      : 0;
+    const spouseAnnualLossCAD = spouseCa.takeHome - spouseUsAnnualCAD;
+
+    /* Healthcare + childcare (existing) */
     const usHealthcare = state.salaryUSD > 0 ? estimateHealthcareCost(state.filingStatus, state.kids) : 0;
     const usChildcare = state.kids * (CHILDCARE_STATE_DEFAULT[state.state] || 22000);
     const caChildcare = state.kids * (CHILDCARE_PROV[state.province] || 3000);
 
-    const caTakeHomeCAD = ca.takeHome - caChildcare;
-    const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare;
+    /* Housing — both sides. Inputs left blank fall back to province/state
+       defaults so the verdict still renders something useful. */
+    const caRentEffective = state.caRentMonthlyCAD || CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 0;
+    const usHousingMonthlyEffectiveUSD = state.usMonthlyHousingUSD || US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 0;
+    const colMultiplierEffective = state.usCOLmultiplier || US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+
+    const caHousingMonthly = caHousingMonthlyCAD({
+      caHousing: state.caHousing,
+      caRentMonthlyCAD: caRentEffective,
+      caMortgageBalanceCAD: state.caMortgageBalanceCAD,
+      caHomeDecision: state.caHomeDecision
+    });
+    const caHousingAnnualCAD = caHousingMonthly * 12;
+    const usHousingAnnualUSD = usHousingMonthlyEffectiveUSD * 12;
+    const usHousingAnnualCAD = usHousingAnnualUSD / (state.fxRate || 0.73);
+    const housingDeltaAnnualCAD = usHousingAnnualCAD - caHousingAnnualCAD;
+
+    /* Cost-of-living delta (ex-housing/childcare/healthcare) */
+    const colExtraAnnualCAD = estimateColExtraAnnualCAD({
+      multiplier: colMultiplierEffective,
+      salaryCAD: state.salaryCAD
+    });
+
+    /* Departure marginal rate + full one-time exit costs */
+    const marginalRateCA = getMarginalRateCanada(state.salaryCAD, state.province);
+    const exitCosts = estimateExitCostsCAD({
+      caHousing: state.caHousing,
+      caHomeValueCAD: state.caHomeValueCAD,
+      caHomeDecision: state.caHomeDecision,
+      unrealizedGainsCAD: state.unrealizedGainsCAD,
+      marginalRateCA,
+      signOnBonusUSD: state.signOnBonusUSD,
+      relocationCoverageUSD: state.relocationCoverageUSD,
+      movingCostsCAD: state.movingCostsCAD,
+      usMonthlyHousingUSD: usHousingMonthlyEffectiveUSD,
+      fxRate: state.fxRate
+    });
+
+    /* Household annual cash flow on each side, all in CAD.
+       CA: primary + spouse take-home, minus CA childcare and CA housing.
+       US: primary US take-home (after healthcare/childcare/housing) converted
+           to CAD, plus spouse US contribution, minus the COL premium. */
+    const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare - usHousingAnnualUSD;
     const usTakeHomeCAD = state.salaryUSD > 0 ? usTakeHomeUSD / state.fxRate : 0;
+    const caTakeHomeCAD = ca.takeHome - caChildcare - caHousingAnnualCAD;
+    const caHouseholdAnnualCAD = caTakeHomeCAD + spouseCa.takeHome;
+    const usHouseholdAnnualCAD = usTakeHomeCAD + spouseUsAnnualCAD - colExtraAnnualCAD;
 
-    const netDeltaCAD = usTakeHomeCAD - caTakeHomeCAD;
+    const netDeltaCAD = usHouseholdAnnualCAD - caHouseholdAnnualCAD;
 
-    const { pts, breakeven } = buildBreakeven({
-      caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD: state.movingCostsCAD, years: 5
+    const { pts, breakeven } = buildHouseholdBreakeven({
+      caHouseholdAnnualCAD,
+      usHouseholdAnnualCAD,
+      oneTimeNetCostCAD: exitCosts.net,
+      years: 5
     });
     const fiveYrDelta = pts[5].us - pts[5].ca;
     const threeYrDelta = pts[3].us - pts[3].ca;
 
     return {
-      caTakeHomeCAD, usTakeHomeCAD, usHealthcare, usChildcare, caChildcare,
+      // primary
+      caTakeHomeCAD, usTakeHomeCAD,
+      usHealthcare, usChildcare, caChildcare,
+      // spouse
+      spouseCanWork, spouseUsAnnualCAD, spouseAnnualLossCAD,
+      spouseCaTakeHome: spouseCa.takeHome,
+      // housing + COL
+      caHousingAnnualCAD, usHousingAnnualCAD, housingDeltaAnnualCAD, colExtraAnnualCAD,
+      caHousingMonthly, usHousingMonthlyUSD: usHousingMonthlyEffectiveUSD, colMultiplier: colMultiplierEffective,
+      // exit
+      marginalRateCA, exitCosts,
+      // aggregate
+      caHouseholdAnnualCAD, usHouseholdAnnualCAD,
       netDeltaCAD, pts, breakeven, fiveYrDelta, threeYrDelta
     };
   }, [state]);
@@ -457,37 +561,60 @@ function CostCard({ n, color, title, tag, num, label, body }) {
 }
 
 /* ============================================================
-   WIZARD
+   WIZARD — v4.0.0 multi-field steps
    ============================================================ */
+function MoneyInput({ symbol = '$', currency, value, onChange, placeholder, autoFocus, onEnter }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="num text-2xl text-night/40">{symbol}</span>
+      <input
+        autoFocus={autoFocus}
+        type="number"
+        inputMode="numeric"
+        className="input-line"
+        placeholder={placeholder}
+        value={value || ''}
+        onChange={e => onChange(parseInt(e.target.value) || 0)}
+        onKeyDown={e => { if (e.key === 'Enter' && onEnter) onEnter(); }}
+        onFocus={e => e.target.select()}
+      />
+      <span className="num text-sm text-night/60">{currency}</span>
+    </div>
+  );
+}
+
 function Wizard({ state, update, scrollToSection }) {
   const [step, setStep] = useState(0);
   const steps = [
-    { kicker: 'Q1 / 5', q: "What's your salary now?", sub: 'Annual base, in Canadian dollars.' },
-    { kicker: 'Q2 / 5', q: "What's the US offer?", sub: 'Annual base, in US dollars.' },
-    { kicker: 'Q3 / 5', q: 'Where in Canada?', sub: 'Province changes the tax math.' },
-    { kicker: 'Q4 / 5', q: 'Where in the US?', sub: 'State matters more than you think.' },
-    { kicker: 'Q5 / 5', q: 'Family situation?', sub: 'Affects healthcare, childcare, filing status.' },
+    { kicker: 'Step 1 / 5', q: 'Where you stand',     sub: 'Current Canadian salary, the US offer, and where each is.' },
+    { kicker: 'Step 2 / 5', q: 'Family + spouse',     sub: "Family situation, spouse income, visa type. The TN/TD work-auth gap is where most household budgets break." },
+    { kicker: 'Step 3 / 5', q: 'Home in Canada',      sub: 'Own or rent — and if you own, sell or keep it.' },
+    { kicker: 'Step 4 / 5', q: 'Home + life in the US', sub: 'Monthly housing and a rough cost-of-living adjustment vs. Toronto baseline.' },
+    { kicker: 'Step 5 / 5', q: 'The exit + the offer', sub: 'Unrealized capital gains for departure tax, plus what the employer is putting on the table.' },
   ];
   const cur = steps[step];
   const pct = ((step + 1) / steps.length) * 100;
 
   const setFamily = (situation) => {
-    if (situation === 'single') update({ familySituation: 'single', filingStatus: 'single', kids: 0 });
+    if (situation === 'single') update({ familySituation: 'single', filingStatus: 'single', kids: 0, spouseIncomeCAD: 0 });
     else if (situation === 'mfj-no-kids') update({ familySituation: 'mfj-no-kids', filingStatus: 'mfj', kids: 0 });
     else update({ familySituation: 'mfj-with-kids', filingStatus: 'mfj', kids: state.kids || 1 });
   };
 
-  const handleEnter = (e) => {
-    if (e.key === 'Enter') setStep(Math.min(steps.length - 1, step + 1));
+  const handleNext = () => {
+    if (step === steps.length - 1) scrollToSection('verdict');
+    else setStep(step + 1);
   };
 
-  const handleNext = () => {
-    if (step === steps.length - 1) {
-      scrollToSection('verdict');
-    } else {
-      setStep(step + 1);
-    }
-  };
+  const isMarried = state.familySituation === 'mfj-no-kids' || state.familySituation === 'mfj-with-kids';
+  const visaInfo = VISA_SPOUSE_WORK[state.visaType];
+  const spouseCanWork = state.spouseCanWorkOverride !== null
+    ? state.spouseCanWorkOverride
+    : (visaInfo?.canWorkDefault ?? false);
+
+  const usHousingPlaceholder = US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 2500;
+  const colPlaceholder = US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+  const caRentPlaceholder = CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 2500;
 
   return (
     <section id="wizard" className="border-t border-night/10 bg-cream/50">
@@ -497,10 +624,10 @@ function Wizard({ state, update, scrollToSection }) {
             <div className="sticky top-10">
               <div className="sticker sticker-pink mb-5">Section 02</div>
               <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
-                Your turn —<br/>five quick <span className="hl-cobalt">questions</span>
+                Your turn —<br/>five real <span className="hl-cobalt">questions</span>
               </h3>
               <p className="grotesk text-night/70 mt-6 text-base md:text-lg leading-relaxed">
-                Your inputs power the verdict in section 03. Nothing leaves your browser.
+                Each step bundles related inputs. Spouse work-auth, housing, departure tax, and what the employer is paying for — all power the verdict in section 03. Nothing leaves your browser.
               </p>
             </div>
           </aside>
@@ -515,77 +642,56 @@ function Wizard({ state, update, scrollToSection }) {
                 <div className="h-full bg-lime rounded-full transition-all duration-500" style={{width: pct + '%'}}/>
               </div>
 
-              <div className="min-h-[300px]">
-                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.0] mb-3 text-night tracking-tight">
+              <div className="min-h-[360px]">
+                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.05] mb-3 text-night tracking-tight pb-1">
                   {cur.q}
                 </h4>
-                <p className="grotesk text-base md:text-lg text-night/60 mb-10">{cur.sub}</p>
+                <p className="grotesk text-base md:text-lg text-night/60 mb-10 leading-relaxed">{cur.sub}</p>
 
                 {step === 0 && (
-                  <div className="max-w-md">
-                    <div className="flex items-baseline gap-2">
-                      <span className="num text-2xl text-night/40">$</span>
-                      <input
-                        autoFocus
-                        type="number"
-                        inputMode="numeric"
-                        className="input-line"
-                        placeholder="165,000"
-                        value={state.salaryCAD || ''}
-                        onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
-                        onKeyDown={handleEnter}
-                        onFocus={e => e.target.select()}
+                  <div className="space-y-8 max-w-xl">
+                    <div>
+                      <div className="label text-night/60 mb-3">Current salary</div>
+                      <MoneyInput
+                        autoFocus currency="CAD" placeholder="165,000"
+                        value={state.salaryCAD}
+                        onChange={v => update({ salaryCAD: v })}
                       />
-                      <span className="num text-sm text-night/60">CAD</span>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
+                          <button key={k} className={`pill ${state.province === k ? 'active' : ''}`}
+                            onClick={() => update({ province: k })}>
+                            {v.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">US offer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="245,000"
+                        value={state.salaryUSD}
+                        onChange={v => update({ salaryUSD: v })}
+                      />
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {Object.entries(STATE_2026).map(([k, v]) => (
+                          <button key={k} className={`pill ${state.state === k ? 'active' : ''}`}
+                            onClick={() => update({ state: k })}>
+                            {v.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
+
                 {step === 1 && (
-                  <div className="max-w-md">
-                    <div className="flex items-baseline gap-2">
-                      <span className="num text-2xl text-night/40">$</span>
-                      <input
-                        autoFocus
-                        type="number"
-                        inputMode="numeric"
-                        className="input-line"
-                        placeholder="245,000"
-                        value={state.salaryUSD || ''}
-                        onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
-                        onKeyDown={handleEnter}
-                        onFocus={e => e.target.select()}
-                      />
-                      <span className="num text-sm text-night/60">USD</span>
-                    </div>
-                  </div>
-                )}
-                {step === 2 && (
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
-                      <button key={k} className={`pill ${state.province === k ? 'active' : ''}`}
-                        onClick={() => update({ province: k })}>
-                        {v.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {step === 3 && (
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(STATE_2026).map(([k, v]) => (
-                      <button key={k} className={`pill ${state.state === k ? 'active' : ''}`}
-                        onClick={() => update({ state: k })}>
-                        {v.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {step === 4 && (
-                  <div className="space-y-6 max-w-xl">
+                  <div className="space-y-8 max-w-xl">
                     <div className="flex flex-wrap gap-2">
                       {[
-                        { id: 'single', label: 'Single' },
-                        { id: 'mfj-no-kids', label: 'Married, no kids' },
-                        { id: 'mfj-with-kids', label: 'Married, with kids' }
+                        { id: 'single',          label: 'Single' },
+                        { id: 'mfj-no-kids',     label: 'Married, no kids' },
+                        { id: 'mfj-with-kids',   label: 'Married, with kids' }
                       ].map(s => (
                         <button key={s.id} className={`pill ${state.familySituation === s.id ? 'active' : ''}`}
                           onClick={() => setFamily(s.id)}>
@@ -593,14 +699,188 @@ function Wizard({ state, update, scrollToSection }) {
                         </button>
                       ))}
                     </div>
+
                     {state.familySituation === 'mfj-with-kids' && (
-                      <div className="flex items-baseline gap-4">
-                        <span className="label text-night/60">Number of kids</span>
-                        <input type="number" min="1" className="input-line max-w-[120px]"
+                      <div>
+                        <div className="label text-night/60 mb-3">Number of kids</div>
+                        <input type="number" min="1" className="input-line max-w-[140px]"
                           value={state.kids || 1}
                           onChange={e => update({ kids: parseInt(e.target.value) || 1 })}/>
                       </div>
                     )}
+
+                    {isMarried && (
+                      <>
+                        <div>
+                          <div className="label text-night/60 mb-3">Spouse's current Canadian salary</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="0 if not working"
+                            value={state.spouseIncomeCAD}
+                            onChange={v => update({ spouseIncomeCAD: v })}
+                          />
+                          <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                            If your spouse can't work in the US, this is the household income shock.
+                          </p>
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">Your visa path</div>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(VISA_SPOUSE_WORK).map(([k, v]) => (
+                              <button key={k}
+                                className={`pill ${state.visaType === k ? 'active' : ''}`}
+                                onClick={() => update({ visaType: k, spouseCanWorkOverride: null })}>
+                                {v.label}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="grotesk text-xs text-night/60 mt-3 leading-relaxed">
+                            Default: spouse {spouseCanWork ? <span className="font-semibold text-night">can work</span> : <span className="font-semibold text-pink">cannot work</span>} on a {visaInfo?.spouseLabel}.{' '}
+                            {state.spouseIncomeCAD > 0 && (
+                              <button
+                                onClick={() => update({ spouseCanWorkOverride: !spouseCanWork })}
+                                className="underline decoration-dotted underline-offset-2 hover:decoration-solid">
+                                Override
+                              </button>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div className="flex flex-wrap gap-2">
+                      <button className={`pill ${state.caHousing === 'rent' ? 'active' : ''}`}
+                        onClick={() => update({ caHousing: 'rent' })}>I rent</button>
+                      <button className={`pill ${state.caHousing === 'own' ? 'active' : ''}`}
+                        onClick={() => update({ caHousing: 'own' })}>I own</button>
+                    </div>
+
+                    {state.caHousing === 'rent' && (
+                      <div>
+                        <div className="label text-night/60 mb-3">Monthly rent</div>
+                        <MoneyInput
+                          currency="CAD/mo" placeholder={String(caRentPlaceholder)}
+                          value={state.caRentMonthlyCAD}
+                          onChange={v => update({ caRentMonthlyCAD: v })}
+                        />
+                        <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                          Default for {PROVINCIAL_2026[state.province].short}: ${caRentPlaceholder.toLocaleString('en-CA')}/mo. Leave blank to use it.
+                        </p>
+                      </div>
+                    )}
+
+                    {state.caHousing === 'own' && (
+                      <>
+                        <div>
+                          <div className="label text-night/60 mb-3">Estimated home value</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="950,000"
+                            value={state.caHomeValueCAD}
+                            onChange={v => update({ caHomeValueCAD: v })}
+                          />
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">Mortgage balance remaining</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="650,000"
+                            value={state.caMortgageBalanceCAD}
+                            onChange={v => update({ caMortgageBalanceCAD: v })}
+                          />
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">When you move</div>
+                          <div className="flex flex-wrap gap-2">
+                            <button className={`pill ${state.caHomeDecision === 'sell' ? 'active' : ''}`}
+                              onClick={() => update({ caHomeDecision: 'sell' })}>Sell it</button>
+                            <button className={`pill ${state.caHomeDecision === 'keep' ? 'active' : ''}`}
+                              onClick={() => update({ caHomeDecision: 'keep' })}>Keep paying it</button>
+                          </div>
+                          <p className="grotesk text-xs text-night/50 mt-3 leading-relaxed">
+                            Sell adds ~5.5% (realtor + legal) to exit costs but kills the carrying cost. Keep means the mortgage continues — modeled as ~5%/12 of balance + $500/mo (taxes + maintenance), ignoring rental income.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div>
+                      <div className="label text-night/60 mb-3">US monthly housing</div>
+                      <MoneyInput
+                        currency="USD/mo" placeholder={String(usHousingPlaceholder)}
+                        value={state.usMonthlyHousingUSD}
+                        onChange={v => update({ usMonthlyHousingUSD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Default for {STATE_2026[state.state].short}: ${usHousingPlaceholder.toLocaleString('en-US')}/mo. Leave blank to use it. Two months go in as a security deposit (one-time exit cost).
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Cost-of-living multiplier vs. Toronto</div>
+                      <div className="flex items-baseline gap-3 max-w-xs">
+                        <input
+                          type="number" step="0.05" min="0.5" max="3" className="input-line"
+                          placeholder={String(colPlaceholder)}
+                          value={state.usCOLmultiplier || ''}
+                          onChange={e => update({ usCOLmultiplier: parseFloat(e.target.value) || 0 })}
+                        />
+                        <span className="num text-sm text-night/60">×</span>
+                      </div>
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Default for {STATE_2026[state.state].short}: <span className="num font-semibold text-night/70">{colPlaceholder}×</span>. Covers groceries, transport, dining out (housing/healthcare/childcare are modeled separately). Leave blank to use the default.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {step === 4 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div>
+                      <div className="label text-night/60 mb-3">Unrealized capital gains (non-registered + crypto + RSUs)</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="0"
+                        value={state.unrealizedGainsCAD}
+                        onChange={v => update({ unrealizedGainsCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        CRA deems disposition the day you sever residency. Tax = gains × 50% × your marginal rate. RRSPs and TFSAs are exempt from deemed disposition (TFSA loses tax-shelter status separately — that's the "TFSA trap").
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Sign-on bonus from US employer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="0"
+                        value={state.signOnBonusUSD}
+                        onChange={v => update({ signOnBonusUSD: v })}
+                      />
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Relocation coverage from US employer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="0"
+                        value={state.relocationCoverageUSD}
+                        onChange={v => update({ relocationCoverageUSD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Sign-on + relocation are credited against exit costs. If they exceed costs, the leftover doesn't get added back (it's already in your salary number).
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Out-of-pocket move + immigration legal</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="15,000"
+                        value={state.movingCostsCAD}
+                        onChange={v => update({ movingCostsCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Movers, flights, lawyer, TN/H1B filing, school deposits, car shipping, etc. Departure tax + realtor fees are computed separately.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -642,8 +922,13 @@ function VerdictSection({ state, update, result }) {
     state.familySituation === 'mfj-no-kids' ? 'married, no kids' :
     `married + ${state.kids} kid${state.kids === 1 ? '' : 's'}`;
 
+  const visaSpouseLine =
+    hasInput && (state.familySituation === 'mfj-no-kids' || state.familySituation === 'mfj-with-kids') && state.spouseIncomeCAD > 0
+      ? ` · spouse ${result.spouseCanWork ? 'works' : 'cannot work'} on ${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel || state.visaType}`
+      : '';
+
   const inputSummary = hasInput
-    ? `based on your inputs · ${fmtCAD(state.salaryCAD)} ${PROVINCIAL_2026[state.province].short} → $${state.salaryUSD.toLocaleString('en-US')} ${STATE_2026[state.state].short} · ${familyLabel}`
+    ? `based on your inputs · ${fmtCAD(state.salaryCAD)} ${PROVINCIAL_2026[state.province].short} → $${state.salaryUSD.toLocaleString('en-US')} ${STATE_2026[state.state].short} · ${familyLabel}${visaSpouseLine}`
     : 'based on your inputs · run the wizard above';
 
   let verdictTitle = 'Plan survives — barely.';
@@ -651,7 +936,7 @@ function VerdictSection({ state, update, result }) {
   let verdictColor = 'lime';
   if (!hasInput) {
     verdictTitle = 'Verdict pending.';
-    verdictBody = 'Answer five quick questions above to see whether the plan holds up.';
+    verdictBody = 'Answer the five-step wizard above to see whether the plan holds up.';
     verdictColor = 'cream';
   } else if (fiveYrDelta < 0) {
     verdictTitle = 'Plan breaks down.';
@@ -679,7 +964,7 @@ function VerdictSection({ state, update, result }) {
               <span className="grotesk text-night/60 text-sm">{inputSummary}</span>
             </div>
             <p className="grotesk text-xs text-night/50 mb-5 max-w-2xl leading-relaxed">
-              <span className="font-semibold">Estimates only</span> · 2026 brackets (BC, QC, CA, NY currently approximated — final published numbers landing in v3.5.0) · <span className="font-semibold">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
+              <span className="font-semibold">Estimates only</span> · 2026 brackets (BC, QC, CA, NY currently approximated) · spouse parity assumed when work-auth allows · COL multiplier is a single state-level figure, not metro-specific · <span className="font-semibold">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
               {' '}Assumes $1 USD = <FxRateEdit fx={state.fxRate} onChange={(v) => update({ fxRate: v })}/> CAD <span className="text-night/35">(click to edit)</span>.
             </p>
             {hasInput ? (
@@ -723,14 +1008,70 @@ function VerdictSection({ state, update, result }) {
             value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
             detail="if you stick the full detour"
             color="lime"/>
-          <StatBlock kicker="Exit cost"
-            value={fmtCAD(state.movingCostsCAD)}
-            detail="moving + immigration + departure tax"
-            color="pink"
-            editable
-            onEdit={(v) => update({ movingCostsCAD: v })}
-            editValue={state.movingCostsCAD}/>
+          <StatBlock kicker="Net exit cost"
+            value={hasInput ? fmtCAD(result.exitCosts.net) : '—'}
+            detail={hasInput
+              ? (result.exitCosts.credits > 0
+                  ? `${fmtCAD(result.exitCosts.gross)} gross − ${fmtCAD(result.exitCosts.credits)} employer credits`
+                  : 'moving + realtor + departure tax + deposit')
+              : 'computed from your inputs'}
+            color="pink"/>
         </div>
+
+        {hasInput && (
+          <div className="panel p-6 md:p-10 mb-14">
+            <div className="flex items-center gap-3 mb-6 flex-wrap">
+              <span className="sticker sticker-cobalt">Household audit</span>
+              <span className="grotesk text-night/60 text-sm">where the household money actually goes — annual, in CAD</span>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <LineItem
+                label="Spouse income shock"
+                value={result.spouseAnnualLossCAD > 0 ? fmtSigned(-result.spouseAnnualLossCAD, fmtCAD) : (state.spouseIncomeCAD > 0 ? '$0' : '—')}
+                detail={state.spouseIncomeCAD > 0
+                  ? (result.spouseCanWork
+                      ? `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} can work — assumed parity with CA take-home`
+                      : `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} cannot legally work — full CA take-home gone per year`)
+                  : 'no spouse income entered'}
+                tone={result.spouseAnnualLossCAD > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Housing delta"
+                value={fmtSigned(-result.housingDeltaAnnualCAD, fmtCAD)}
+                detail={`US ${fmtUSD(result.usHousingMonthlyUSD)}/mo (${STATE_2026[state.state].short}) vs CA ${fmtCAD(result.caHousingMonthly)}/mo`}
+                tone={result.housingDeltaAnnualCAD > 0 ? 'pink' : 'lime'}
+              />
+              <LineItem
+                label="Cost of living premium"
+                value={fmtSigned(-result.colExtraAnnualCAD, fmtCAD)}
+                detail={`${result.colMultiplier}× Toronto baseline · ex-housing/healthcare/childcare`}
+                tone={result.colExtraAnnualCAD > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Healthcare premium"
+                value={state.salaryUSD > 0 ? fmtSigned(-result.usHealthcare, fmtUSD) : '—'}
+                detail={state.kids > 0 ? 'family premium + out-of-pocket' : 'premium + out-of-pocket'}
+                tone="pink"
+              />
+              <LineItem
+                label="Childcare delta"
+                value={state.kids > 0 ? fmtSigned(result.caChildcare - (result.usChildcare / state.fxRate), fmtCAD) : '—'}
+                detail={state.kids > 0
+                  ? `${state.kids} kid${state.kids === 1 ? '' : 's'} · CA ${fmtCAD(result.caChildcare)}/yr vs US ${fmtUSD(result.usChildcare)}/yr`
+                  : 'no kids in scenario'}
+                tone={state.kids > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Departure tax (one-time)"
+                value={state.unrealizedGainsCAD > 0 ? fmtCAD(result.exitCosts.departureTaxCAD) : '$0'}
+                detail={state.unrealizedGainsCAD > 0
+                  ? `${fmtCAD(state.unrealizedGainsCAD)} unrealized × 50% × ${(result.marginalRateCA * 100).toFixed(1)}% marginal`
+                  : 'no unrealized gains entered'}
+                tone={result.exitCosts.departureTaxCAD > 0 ? 'pink' : 'neutral'}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="panel p-6 md:p-10">
           <div className="flex items-baseline justify-between mb-6 flex-wrap gap-3">
@@ -829,6 +1170,20 @@ function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }
         <div className="stat-num text-[34px] md:text-[42px] leading-none mb-3">{value}</div>
       )}
       <div className="grotesk text-xs leading-snug opacity-75 mt-3">{detail}</div>
+    </div>
+  );
+}
+
+function LineItem({ label, value, detail, tone }) {
+  const valueColor =
+    tone === 'pink' ? 'text-pink-deep' :
+    tone === 'lime' ? 'text-lime-deep' :
+    'text-night';
+  return (
+    <div className="border-l-2 border-night/15 pl-4 py-1">
+      <div className="grotesk font-bold text-xs uppercase tracking-widest text-night/55 mb-2">{label}</div>
+      <div className={`stat-num text-2xl md:text-[28px] leading-none ${valueColor}`}>{value}</div>
+      <div className="grotesk text-xs text-night/60 leading-snug mt-2">{detail}</div>
     </div>
   );
 }
