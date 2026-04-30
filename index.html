@@ -361,6 +361,18 @@ const CHILDCARE_STATE_DEFAULT = {
 
 const CHANGELOG = [
   {
+    version: '1.3.1',
+    date: '2026-04-30',
+    title: 'Clean URL on landing — no more default-number pollution',
+    items: [
+      'Removed URL state syncing — landing page no longer redirects to ?cad=145000&usd=215000&...',
+      'Salary inputs now start blank in the wizard instead of pre-filled with sample numbers',
+      'Hero answer panel shows "Answer the questions below to see your number ↓" until salaries are entered',
+      'Removed the "Share your scenario" / Copy share link section from the footer',
+      'Internal defaults kept for non-input fields (province, FX rate, moving costs) so calculations still work'
+    ]
+  },
+  {
     version: '1.3.0',
     date: '2026-04-30',
     title: 'Header nav, dedicated Changelog tab, and SEO content section',
@@ -700,31 +712,18 @@ const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
 const fmtPct = (n) => (n * 100).toFixed(1) + '%';
 const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
 
-function readURL() {
-  const p = new URLSearchParams(window.location.search);
-  return {
-    salaryCAD: parseInt(p.get('cad')) || 145000,
-    salaryUSD: parseInt(p.get('usd')) || 215000,
-    province: p.get('from') || 'ON',
-    state: p.get('to') || 'CA',
-    filingStatus: p.get('fs') || 'single',
-    kids: parseInt(p.get('kids')) || 0,
-    visaType: p.get('visa') || 'TN',
-    fxRate: parseFloat(p.get('fx')) || 0.73,
-    nyc: p.get('nyc') === '1',
-    movingCostsCAD: parseInt(p.get('mc')) || 25000
-  };
-}
-function writeURL(s) {
-  const p = new URLSearchParams();
-  p.set('cad', s.salaryCAD); p.set('usd', s.salaryUSD);
-  p.set('from', s.province); p.set('to', s.state);
-  p.set('fs', s.filingStatus); p.set('kids', s.kids);
-  p.set('visa', s.visaType); p.set('fx', s.fxRate);
-  p.set('mc', s.movingCostsCAD);
-  if (s.nyc) p.set('nyc', '1');
-  window.history.replaceState({}, '', '?' + p.toString());
-}
+const INITIAL_STATE = {
+  salaryCAD: 0,
+  salaryUSD: 0,
+  province: 'ON',
+  state: 'CA',
+  filingStatus: 'single',
+  kids: 0,
+  visaType: 'TN',
+  fxRate: 0.73,
+  nyc: false,
+  movingCostsCAD: 25000
+};
 
 function niceStep(rough) {
   if (rough <= 0) return 1;
@@ -765,12 +764,9 @@ function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 
    ======================================================================== */
 
 function App() {
-  const [state, setState] = useState(readURL);
-  const [copied, setCopied] = useState(false);
-  const [wizardDone, setWizardDone] = useState(() => !!window.location.search);
+  const [state, setState] = useState(INITIAL_STATE);
+  const [wizardDone, setWizardDone] = useState(false);
   const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
-
-  useEffect(() => { writeURL(state); }, [state]);
 
   useEffect(() => {
     const onHash = () => {
@@ -833,12 +829,6 @@ function App() {
     };
   }, [state]);
 
-  const copyShare = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, []);
-
   const warnings = useMemo(() => buildWarnings(state), [state]);
 
   if (view === 'changelog') {
@@ -847,7 +837,7 @@ function App() {
         <Header view={view} wizardDone={wizardDone} navigate={navigate} startWizard={startWizard} />
         <Changelog />
         <Roadmap />
-        <Footer copyShare={copyShare} copied={copied} />
+        <Footer />
       </main>
     );
   }
@@ -869,7 +859,7 @@ function App() {
         </>
       )}
       <SeoContent startWizard={startWizard} />
-      <Footer copyShare={copyShare} copied={copied} />
+      <Footer />
     </main>
   );
 }
@@ -907,6 +897,7 @@ function Header({ view, wizardDone, navigate, startWizard }) {
 
 function Hero({ result, state, wizardDone }) {
   const positive = result.netDeltaCAD >= 0;
+  const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
   return (
     <section className="border-b border-cream-line">
       <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-12 gap-8">
@@ -920,13 +911,24 @@ function Hero({ result, state, wizardDone }) {
           </p>
         </div>
         <aside className="md:col-span-5 md:border-l md:border-cream-line md:pl-8 flex flex-col justify-end">
-          <div className="label mb-3">{wizardDone ? 'Your answer' : 'Your answer · live as you answer below'}</div>
-          <div className={`stat-num text-6xl md:text-7xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
-            {fmtSigned(result.netDeltaCAD, fmtCAD)}
-          </div>
-          <div className="text-sm text-ink-soft mt-3">
-            net annual delta in Canadian dollars, after tax, healthcare, and childcare
-          </div>
+          {hasInput ? (
+            <>
+              <div className="label mb-3">{wizardDone ? 'Your answer' : 'Your answer · live as you answer below'}</div>
+              <div className={`stat-num text-6xl md:text-7xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
+                {fmtSigned(result.netDeltaCAD, fmtCAD)}
+              </div>
+              <div className="text-sm text-ink-soft mt-3">
+                net annual delta in Canadian dollars, after tax, healthcare, and childcare
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="label mb-3">Your answer</div>
+              <div className="display text-3xl md:text-4xl text-ink-faint leading-tight">
+                Answer the questions below to see your number ↓
+              </div>
+            </>
+          )}
         </aside>
       </div>
     </section>
@@ -1401,30 +1403,19 @@ function Roadmap() {
   );
 }
 
-function Footer({ copyShare, copied }) {
+function Footer() {
   return (
     <footer className="max-w-6xl mx-auto px-6 py-16">
       <div className="rule-thick mb-8" />
-      <div className="grid md:grid-cols-2 gap-8 items-start">
-        <div>
-          <div className="display text-3xl font-medium mb-4">Share your scenario</div>
-          <p className="text-sm text-ink-soft max-w-md leading-relaxed mb-6">
-            The URL captures every input. Send it to your group chat, paste it on Reddit, hand it to your accountant.
-          </p>
-          <button className="cta" onClick={copyShare}>
-            {copied ? 'Link copied' : 'Copy share link'}
-          </button>
-        </div>
-        <div className="text-xs text-ink-faint leading-relaxed md:text-right">
-          <p className="mb-3">
-            This tool uses 2026 published tax brackets from CRA, IRS, and provincial/state revenue agencies.
-            Healthcare and childcare costs are estimates from KFF and provincial subsidy programs.
-          </p>
-          <p className="mb-3">
-            Not tax advice. Not legal advice. Especially not advice on departure tax, TFSA wind-down, RRSP deemed-disposition timing, or visa strategy. For real moves, get a cross-border accountant.
-          </p>
-          <p>Built in Ajax. Made for the group chat.</p>
-        </div>
+      <div className="text-xs text-ink-faint leading-relaxed max-w-3xl">
+        <p className="mb-3">
+          This tool uses 2026 published tax brackets from CRA, IRS, and provincial/state revenue agencies.
+          Healthcare and childcare costs are estimates from KFF and provincial subsidy programs.
+        </p>
+        <p className="mb-3">
+          Not tax advice. Not legal advice. Especially not advice on departure tax, TFSA wind-down, RRSP deemed-disposition timing, or visa strategy. For real moves, get a cross-border accountant.
+        </p>
+        <p>Built in Ajax. Made for the group chat.</p>
       </div>
     </footer>
   );
