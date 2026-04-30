@@ -668,6 +668,7 @@ function writeURL(s) {
 function App() {
   const [state, setState] = useState(readURL);
   const [copied, setCopied] = useState(false);
+  const [mode, setMode] = useState(() => window.location.search ? 'results' : 'wizard');
 
   useEffect(() => { writeURL(state); }, [state]);
 
@@ -711,9 +712,18 @@ function App() {
 
   const warnings = useMemo(() => buildWarnings(state), [state]);
 
+  if (mode === 'wizard') {
+    return (
+      <main className="min-h-screen pb-32">
+        <Header />
+        <Wizard state={state} update={update} onComplete={() => setMode('results')} />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen pb-32">
-      <Header />
+      <Header onRestart={() => setMode('wizard')} />
       <Hero result={result} state={state} />
       <Inputs state={state} update={update} />
       <Result result={result} state={state} />
@@ -727,7 +737,7 @@ function App() {
   );
 }
 
-function Header() {
+function Header({ onRestart }) {
   return (
     <header className="border-b border-cream-line">
       <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -735,7 +745,14 @@ function Header() {
           <span className="display text-xl font-medium">North×South</span>
           <span className="label">a cross-border ledger</span>
         </div>
-        <div className="label hidden md:block">Tax Year 2026</div>
+        <div className="flex items-center gap-6">
+          {onRestart && (
+            <button onClick={onRestart} className="label hover:text-ink transition-colors">
+              Restart wizard
+            </button>
+          )}
+          <div className="label hidden md:block">Tax Year 2026</div>
+        </div>
       </div>
     </header>
   );
@@ -1168,6 +1185,260 @@ function Footer({ copyShare, copied }) {
         </div>
       </div>
     </footer>
+  );
+}
+
+/* ========================================================================
+   WIZARD — screen-by-screen guided flow
+   ======================================================================== */
+
+function Wizard({ state, update, onComplete }) {
+  const [stepIdx, setStepIdx] = useState(0);
+
+  const allSteps = ['welcome','salaryCAD','province','salaryUSD','state','nyc','filingStatus','kids','visaType','review'];
+  const visibleSteps = allSteps.filter(s => s !== 'nyc' || state.state === 'NY');
+  const safeIdx = Math.min(stepIdx, visibleSteps.length - 1);
+  const current = visibleSteps[safeIdx];
+  const total = visibleSteps.length;
+
+  const next = () => safeIdx < total - 1 ? setStepIdx(safeIdx + 1) : onComplete();
+  const back = () => setStepIdx(Math.max(0, safeIdx - 1));
+
+  const choose = (field, value) => {
+    update({ [field]: value });
+    setTimeout(() => setStepIdx(i => Math.min(i + 1, allSteps.length - 1)), 180);
+  };
+
+  return (
+    <section>
+      <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
+        {/* Progress */}
+        <div className="flex items-center gap-4 mb-16">
+          <div className="label whitespace-nowrap">Step {safeIdx + 1} of {total}</div>
+          <div className="flex-1 h-px bg-cream-line relative">
+            <div className="absolute inset-y-0 left-0 bg-ink transition-all duration-300" style={{ width: `${((safeIdx + 1) / total) * 100}%` }} />
+          </div>
+        </div>
+
+        {current === 'welcome' && (
+          <WizardScreen
+            title={<>Should you take<br/>the US offer?</>}
+            subtitle="Eight quick questions. You'll see the real take-home, the hidden costs nobody calculates, and what the difference compounds to in ten years."
+            onNext={next}
+            ctaLabel="Begin"
+            hideBack
+          />
+        )}
+
+        {current === 'salaryCAD' && (
+          <NumberScreen
+            title="How much do you earn now?"
+            subtitle="Annual base salary in Canadian dollars, before tax."
+            value={state.salaryCAD}
+            onChange={(v) => update({ salaryCAD: v })}
+            prefix="$" suffix="CAD"
+            onNext={next} onBack={back}
+          />
+        )}
+
+        {current === 'province' && (
+          <ChoiceScreen
+            title="Where in Canada?"
+            subtitle="The province you currently file taxes in."
+            value={state.province}
+            options={Object.entries(PROVINCIAL_2026).map(([k, v]) => ({ value: k, label: v.label }))}
+            onChoose={(v) => choose('province', v)}
+            onBack={back}
+            columns={2}
+          />
+        )}
+
+        {current === 'salaryUSD' && (
+          <NumberScreen
+            title="What's the offer?"
+            subtitle="Base salary in USD. Leave bonus and RSUs out for now — those land in v2."
+            value={state.salaryUSD}
+            onChange={(v) => update({ salaryUSD: v })}
+            prefix="$" suffix="USD"
+            onNext={next} onBack={back}
+          />
+        )}
+
+        {current === 'state' && (
+          <ChoiceScreen
+            title="Going where?"
+            subtitle="Which US state. State tax swing alone can move the answer by tens of thousands — Texas and Florida have none, California tops out near 13%."
+            value={state.state}
+            options={Object.entries(STATE_2026).map(([k, v]) => ({ value: k, label: v.label }))}
+            onChoose={(v) => choose('state', v)}
+            onBack={back}
+            columns={2}
+          />
+        )}
+
+        {current === 'nyc' && (
+          <ChoiceScreen
+            title="Living in NYC proper?"
+            subtitle="New York City charges its own personal income tax on top of the state. The five boroughs count, the suburbs do not."
+            value={state.nyc ? 'yes' : 'no'}
+            options={[
+              { value: 'no', label: 'No, outside the city' },
+              { value: 'yes', label: 'Yes, in NYC' }
+            ]}
+            onChoose={(v) => choose('nyc', v === 'yes')}
+            onBack={back}
+          />
+        )}
+
+        {current === 'filingStatus' && (
+          <ChoiceScreen
+            title="Filing status?"
+            subtitle="Married filing jointly matters in the US — wider brackets, doubled standard deduction. Common-law and married are treated the same on Canadian returns."
+            value={state.filingStatus}
+            options={[
+              { value: 'single', label: 'Single' },
+              { value: 'mfj', label: 'Married, filing jointly' }
+            ]}
+            onChoose={(v) => choose('filingStatus', v)}
+            onBack={back}
+          />
+        )}
+
+        {current === 'kids' && (
+          <ChoiceScreen
+            title="Kids under 13?"
+            subtitle="Childcare is the line item that flips this calculation for families. Toronto's $10/day under CWELCC versus $20–30k a year per kid in most US metros."
+            value={state.kids}
+            options={[
+              { value: 0, label: 'None' },
+              { value: 1, label: '1' },
+              { value: 2, label: '2' },
+              { value: 3, label: '3 or more' }
+            ]}
+            onChoose={(v) => choose('kids', v)}
+            onBack={back}
+            columns={2}
+          />
+        )}
+
+        {current === 'visaType' && (
+          <ChoiceScreen
+            title="Which visa?"
+            subtitle="TN is the easy path for Canadian professionals but doesn't lead to a green card. H1B does, but it's lottery-based and has strict spouse rules."
+            value={state.visaType}
+            options={[
+              { value: 'TN', label: 'TN — Canadian professional' },
+              { value: 'H1B', label: 'H1B' },
+              { value: 'GC', label: 'Already a green card holder' }
+            ]}
+            onChoose={(v) => choose('visaType', v)}
+            onBack={back}
+          />
+        )}
+
+        {current === 'review' && (
+          <ReviewScreen state={state} onNext={onComplete} onBack={back} />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function WizardScreen({ title, subtitle, onNext, ctaLabel = 'Continue', onBack, hideBack }) {
+  return (
+    <div>
+      <h1 className="display text-5xl md:text-7xl font-medium leading-[0.95] tracking-tight mb-8">{title}</h1>
+      {subtitle && <p className="text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
+      <div className="flex items-center gap-6">
+        <button className="cta" onClick={onNext}>{ctaLabel}</button>
+        {!hideBack && <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>}
+      </div>
+    </div>
+  );
+}
+
+function NumberScreen({ title, subtitle, value, onChange, prefix, suffix, onNext, onBack }) {
+  const handleKey = (e) => { if (e.key === 'Enter') onNext(); };
+  return (
+    <div>
+      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">{title}</h2>
+      {subtitle && <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
+      <div className="flex items-baseline gap-3 mb-12 max-w-md">
+        {prefix && <span className="num text-3xl md:text-4xl text-ink-faint">{prefix}</span>}
+        <input
+          type="number"
+          autoFocus
+          className="input-field"
+          style={{ fontSize: '2.25rem', fontWeight: 500 }}
+          value={value || ''}
+          onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+          onFocus={(e) => e.target.select()}
+          onKeyDown={handleKey}
+        />
+        {suffix && <span className="num text-lg md:text-xl text-ink-faint">{suffix}</span>}
+      </div>
+      <div className="flex items-center gap-6">
+        <button className="cta" onClick={onNext}>Continue</button>
+        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
+      </div>
+    </div>
+  );
+}
+
+function ChoiceScreen({ title, subtitle, value, options, onChoose, onBack, columns = 1 }) {
+  const colClass = columns === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1';
+  return (
+    <div>
+      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">{title}</h2>
+      {subtitle && <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-12">{subtitle}</p>}
+      <div className={`grid ${colClass} gap-3 max-w-2xl mb-12`}>
+        {options.map((opt) => {
+          const selected = value === opt.value;
+          return (
+            <button
+              key={String(opt.value)}
+              onClick={() => onChoose(opt.value)}
+              className={`text-left px-5 py-4 border transition-all ${selected ? 'border-ink bg-ink text-cream' : 'border-cream-line hover:border-ink hover:bg-cream-deep'}`}
+            >
+              <span className="font-medium">{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div>
+        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
+      </div>
+    </div>
+  );
+}
+
+function ReviewScreen({ state, onNext, onBack }) {
+  const Row = ({ label, value }) => (
+    <div className="flex justify-between items-baseline py-3 border-b border-cream-line last:border-b-0">
+      <span className="label">{label}</span>
+      <span className="num font-medium text-right">{value}</span>
+    </div>
+  );
+  return (
+    <div>
+      <h2 className="display text-4xl md:text-6xl font-medium leading-tight tracking-tight mb-6">Ready to see the math?</h2>
+      <p className="text-base md:text-lg text-ink-soft max-w-xl leading-relaxed mb-10">
+        Here's what you've told us. You can change any of this on the next screen.
+      </p>
+      <div className="border border-cream-line p-6 mb-10 max-w-xl">
+        <Row label="Current salary" value={`${fmtCAD(state.salaryCAD)} CAD`} />
+        <Row label="Province" value={PROVINCIAL_2026[state.province].label} />
+        <Row label="Offer" value={`${fmtUSD(state.salaryUSD)} USD`} />
+        <Row label="State" value={STATE_2026[state.state].label + (state.state === 'NY' && state.nyc ? ' (NYC)' : '')} />
+        <Row label="Filing" value={state.filingStatus === 'single' ? 'Single' : 'Married, joint'} />
+        <Row label="Kids" value={state.kids === 0 ? 'None' : state.kids === 3 ? '3 or more' : String(state.kids)} />
+        <Row label="Visa" value={state.visaType === 'GC' ? 'Green Card' : state.visaType} />
+      </div>
+      <div className="flex items-center gap-6">
+        <button className="cta" onClick={onNext}>Show me the number</button>
+        <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
+      </div>
+    </div>
   );
 }
 
