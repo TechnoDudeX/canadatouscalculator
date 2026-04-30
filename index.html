@@ -460,6 +460,17 @@ const CHILDCARE_STATE_DEFAULT = {
 
 const CHANGELOG = [
   {
+    version: '3.2.1',
+    date: '2026-04-30',
+    title: 'Fix lime text-on-cream readability regressions from light-mode flip',
+    items: [
+      'Hero closing line: lime body text → night with hl-lime highlight on key phrase',
+      'Verdict headline dollar amount: text-lime/text-pink → hl-lime/hl-pink bars (matches "five years" pattern)',
+      'Wizard kicker (Q1/5) and CAD/USD input labels: text-lime → muted night',
+      'Changelog bullet separators: text-lime → muted night'
+    ]
+  },
+  {
     version: '3.2.0',
     date: '2026-04-30',
     title: 'Switch to light mode + Canadian/US flags in header',
@@ -1024,8 +1035,8 @@ function Hero({ scrollToWizard }) {
               Childcare priced like a second mortgage. A TFSA the IRS will tax.
               And a goodbye bill from CRA on your way out.
             </p>
-            <p className="grotesk text-lg md:text-xl text-lime mt-5 max-w-2xl leading-relaxed font-semibold">
-              The gap between the offer and the outcome is where this calculator lives.
+            <p className="grotesk text-lg md:text-xl text-night mt-5 max-w-2xl leading-relaxed font-semibold">
+              The gap between the offer and the outcome is where <span className="hl-lime">this calculator lives</span>.
             </p>
           </div>
 
@@ -1203,7 +1214,7 @@ function Wizard({ state, update, scrollToSection }) {
           <div className="md:col-span-8">
             <div className="panel p-8 md:p-10">
               <div className="flex items-center justify-between mb-8">
-                <span className="label text-lime">{cur.kicker}</span>
+                <span className="label text-night/70">{cur.kicker}</span>
                 <span className="num text-xs text-night/50">{step + 1} / {steps.length}</span>
               </div>
               <div className="h-[4px] bg-night/10 rounded-full mb-10 overflow-hidden">
@@ -1231,7 +1242,7 @@ function Wizard({ state, update, scrollToSection }) {
                         onKeyDown={handleEnter}
                         onFocus={e => e.target.select()}
                       />
-                      <span className="num text-sm text-lime">CAD</span>
+                      <span className="num text-sm text-night/60">CAD</span>
                     </div>
                   </div>
                 )}
@@ -1250,7 +1261,7 @@ function Wizard({ state, update, scrollToSection }) {
                         onKeyDown={handleEnter}
                         onFocus={e => e.target.select()}
                       />
-                      <span className="num text-sm text-lime">USD</span>
+                      <span className="num text-sm text-night/60">USD</span>
                     </div>
                   </div>
                 )}
@@ -1376,7 +1387,7 @@ function VerdictSection({ state, update, result }) {
             {hasInput ? (
               <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
                 Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
-                <span className={fiveYrDelta >= 0 ? 'text-lime' : 'text-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
+                <span className={fiveYrDelta >= 0 ? 'hl-lime' : 'hl-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
                 {fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
               </h3>
             ) : (
@@ -1637,7 +1648,7 @@ function ChangelogView() {
                   <ul className="space-y-2 grotesk text-[15px] text-night/70 leading-relaxed">
                     {v.items.map((item, j) => (
                       <li key={j} className="flex gap-3">
-                        <span className="text-lime mt-1 select-none">·</span>
+                        <span className="text-night/40 mt-1 select-none">·</span>
                         <span>{item}</span>
                       </li>
                     ))}
