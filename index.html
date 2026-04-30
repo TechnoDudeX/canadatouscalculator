@@ -414,14 +414,12 @@ function Hero({ scrollToWizard }) {
             sub={<>Down payment, portfolio, a story to tell.</>}/>
         </div>
 
-        <Marquee />
+        <div className="mt-14 md:mt-20 -mx-6 md:-mx-10">
+          <Marquee />
+        </div>
 
         <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
-            <div className="flex items-center gap-3 mb-5 flex-wrap">
-              <span className="sticker sticker-night">⚠ The trouble</span>
-              <span className="grotesk text-night/60 text-sm">with the plan, that is</span>
-            </div>
             <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-night pb-2">
               The detour <span className="strike-pink text-night/60">always</span> ends with you ahead.
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>

@@ -9,6 +9,15 @@
 
 const CHANGELOG = [
   {
+    version: '4.2.2',
+    date: '2026-04-30',
+    title: 'Remove "The trouble" sticker + subtext; add spacing around marquee',
+    items: [
+      'Removed "⚠ The trouble" sticker and "with the plan, that is" subtext from hero section',
+      'Added top/bottom margin around the marquee banner so it breathes between the step cards and the body copy'
+    ]
+  },
+  {
     version: '4.2.1',
     date: '2026-04-30',
     title: 'Premise section removed, marquee relocated, header + hero copy updated for AI',
