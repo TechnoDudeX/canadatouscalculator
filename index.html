@@ -383,6 +383,17 @@ const CHILDCARE_STATE_DEFAULT = {
 
 const CHANGELOG = [
   {
+    version: '2.0.1',
+    date: '2026-04-30',
+    title: 'Fix homepage auto-scrolling to Section 1',
+    items: [
+      'Header nav links (The plan / Hidden costs / Run the math) no longer mutate the URL hash',
+      'Stale section hashes (e.g. #hidden) are stripped on page load and scroll position resets to top',
+      'Anchor scroll now goes through JS so the URL stays clean and navigation does not surprise the user',
+      'Changelog hash routing still works — only section anchors are de-hash-ified'
+    ]
+  },
+  {
     version: '2.0.0',
     date: '2026-04-30',
     title: 'Full visual redesign — North×South letter to a friend',
@@ -686,12 +697,21 @@ function App() {
   const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
 
   useEffect(() => {
+    const initialHash = window.location.hash.slice(1);
+    if (initialHash && initialHash !== 'changelog') {
+      window.history.replaceState(null, '', window.location.pathname);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
     const onHash = () => {
       setView(window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const update = (patch) => setState(s => ({ ...s, ...patch }));
 
@@ -751,7 +771,7 @@ function App() {
   if (view === 'changelog') {
     return (
       <main className="min-h-screen">
-        <Header scrollToWizard={scrollToWizard} navigate={navigate} view={view} />
+        <Header scrollToWizard={scrollToWizard} scrollToSection={scrollToSection} navigate={navigate} view={view} />
         <ChangelogView />
         <Footer />
       </main>
@@ -760,7 +780,7 @@ function App() {
 
   return (
     <main className="min-h-screen">
-      <Header scrollToWizard={scrollToWizard} navigate={navigate} view={view} />
+      <Header scrollToWizard={scrollToWizard} scrollToSection={scrollToSection} navigate={navigate} view={view} />
       <Hero scrollToWizard={scrollToWizard} />
       <TheLetter result={result} state={state} />
       <Wizard state={state} update={update} />
@@ -773,7 +793,7 @@ function App() {
 /* ============================================================
    HEADER
    ============================================================ */
-function Header({ scrollToWizard, navigate, view }) {
+function Header({ scrollToWizard, scrollToSection, navigate, view }) {
   return (
     <header className="border-b border-paper-line">
       <div className="max-w-[1240px] mx-auto px-6 md:px-10 pt-6 pb-5">
@@ -789,9 +809,9 @@ function Header({ scrollToWizard, navigate, view }) {
           <nav className="flex items-center gap-5 md:gap-8 pt-2">
             {view === 'main' && (
               <>
-                <a href="#thesis" className="label hover:text-ink transition-colors">The plan</a>
-                <a href="#hidden" className="label hover:text-ink transition-colors hidden sm:inline">Hidden costs</a>
-                <a href="#wizard" className="label hover:text-ink transition-colors hidden md:inline">Run the math</a>
+                <button onClick={() => scrollToSection('thesis')} className="label hover:text-ink transition-colors">The plan</button>
+                <button onClick={() => scrollToSection('hidden')} className="label hover:text-ink transition-colors hidden sm:inline">Hidden costs</button>
+                <button onClick={() => scrollToSection('wizard')} className="label hover:text-ink transition-colors hidden md:inline">Run the math</button>
               </>
             )}
             <button onClick={() => navigate('changelog')} className={`label transition-colors ${view === 'changelog' ? 'text-ink' : 'hover:text-ink'}`}>
