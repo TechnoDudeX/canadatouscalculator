@@ -2,13 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0E0B2C" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="North×South" />
+  <meta name="format-detection" content="telephone=no" />
+
   <title>North×South — Should you take the US offer? A cross-border honesty audit</title>
   <meta name="description" content="A calculator that reveals the hidden cost of moving from Canada to the US: state tax, healthcare, childcare, departure tax, TFSA traps. See if the 3–5 year detour actually pays off." />
 
+  <link rel="canonical" href="https://canadatouscalculator.netlify.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="North×South — Should you take the US offer?" />
+  <meta property="og:description" content="A cross-border honesty audit. Reveals what's left after state tax, healthcare, childcare, departure tax, and the TFSA trap." />
+  <meta property="og:url" content="https://canadatouscalculator.netlify.app/" />
+  <meta property="og:site_name" content="North×South" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="North×South — Should you take the US offer?" />
+  <meta name="twitter:description" content="A cross-border honesty audit for Canadians weighing a US job offer." />
+
+  <!-- Favicon (inline SVG: lime N×S on night background) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E0B2C'/%3E%3Ctext x='32' y='44' font-size='26' font-family='Georgia,serif' font-weight='700' fill='%23D4FF3A' text-anchor='middle'%3EN%C3%97S%3C/text%3E%3C/svg%3E" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "North×South",
+    "description": "A calculator that reveals the hidden cost of moving from Canada to the US: state tax, healthcare, childcare, departure tax, TFSA traps.",
+    "url": "https://canadatouscalculator.netlify.app/",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Trimmed weights — only what's actually used (Fraunces 700/800, Space Grotesk 400/500/600/700, Geist 400/500, Geist Mono 400/500) -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -152,14 +191,17 @@
 
     .pill {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 18px;
+      padding: 11px 18px;
+      min-height: 44px;
       border: 1.5px solid rgba(255, 246, 229, 0.4);
       border-radius: 999px;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 13px; font-weight: 500;
+      font-size: 14px; font-weight: 500;
       cursor: pointer; user-select: none;
       transition: all 150ms;
       background: transparent; color: #FFF6E5;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .pill:hover { background: rgba(212, 255, 58, 0.12); border-color: #D4FF3A; }
     .pill.active { background: #D4FF3A; color: #0E0B2C; border-color: #D4FF3A; }
@@ -167,6 +209,7 @@
     .btn-primary {
       background: #D4FF3A; color: #0E0B2C;
       padding: 16px 28px;
+      min-height: 48px;
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700; font-size: 13px;
       letter-spacing: 0.12em; text-transform: uppercase;
@@ -174,6 +217,8 @@
       transition: all 150ms;
       box-shadow: 0 6px 0 #A8D420;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     .btn-primary:hover { background: #FFF6E5; box-shadow: 0 6px 0 #B9A8FF; transform: translateY(-1px); }
     .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #A8D420; }
@@ -207,9 +252,68 @@
 
     html { scroll-behavior: smooth; }
     ::selection { background: #D4FF3A; color: #0E0B2C; }
+
+    /* Focus visible — keyboard accessibility */
+    :focus-visible {
+      outline: 2px solid #D4FF3A;
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    .pill:focus-visible, .btn-primary:focus-visible, .btn-ghost:focus-visible {
+      outline-offset: 4px;
+    }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute; left: 8px; top: 8px;
+      background: #D4FF3A; color: #0E0B2C;
+      padding: 10px 14px; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 13px;
+      transform: translateY(-200%);
+      transition: transform 150ms;
+      z-index: 50;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    /* Safe-area insets (iOS notch / home bar) */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      footer { padding-bottom: env(safe-area-inset-bottom); }
+    }
+
+    /* Tighter mobile spacing for huge headlines so the layout stops feeling cramped */
+    @media (max-width: 480px) {
+      .stat-num { letter-spacing: -0.03em; }
+      .panel-lime, .panel-pink, .panel-cobalt, .panel-cream { border-radius: 22px; }
+      .sticker { font-size: 11px; padding: 5px 12px; }
+    }
+
+    /* Below-fold rendering optimization */
+    section[id="hidden"], section[id="wizard"], section[id="verdict"] {
+      content-visibility: auto;
+      contain-intrinsic-size: 1px 1200px;
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .marquee { animation: none !important; }
+      .floating-tag, .floating-tag-r { transform: none !important; }
+    }
   </style>
 </head>
 <body>
+  <noscript>
+    <div style="padding:32px;font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;color:#FFF6E5;">
+      <h1 style="font-size:28px;margin:0 0 12px;">North×South needs JavaScript.</h1>
+      <p style="opacity:0.8;line-height:1.5;">This calculator runs entirely in your browser — no server, no analytics, no tracking. Enable JavaScript and reload to use it.</p>
+    </div>
+  </noscript>
   <div id="root"></div>
 
 <script type="text/babel" data-presets="react">
@@ -354,6 +458,27 @@ const CHILDCARE_STATE_DEFAULT = {
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '3.1.0',
+    date: '2026-04-30',
+    title: 'Web + mobile optimization pass',
+    items: [
+      'SEO: Open Graph + Twitter card meta, JSON-LD WebApplication schema, canonical URL',
+      'Browser chrome: theme-color, color-scheme, apple-mobile-web-app-* meta tags',
+      'Inline SVG favicon (lime N×S on night background) — no external request',
+      'Mobile: viewport-fit=cover with safe-area-inset padding for iOS notch/home bar',
+      'Touch targets: pills bumped to 44px min-height, btn-primary to 48px, font 13px → 14px on pills',
+      '-webkit-tap-highlight-color: transparent on interactive elements (no blue flash on tap)',
+      'touch-action: manipulation to remove the 300ms double-tap delay',
+      'Trimmed Google Fonts: only the weights actually used (Fraunces 700/800, Geist 400/500, Geist Mono 400/500)',
+      'Skip-to-content link for keyboard users',
+      ':focus-visible rings (lime, 2px, 3px offset) on every interactive element',
+      'prefers-reduced-motion: pauses the marquee, disables floating-tag rotation, kills transitions',
+      'content-visibility: auto on below-fold sections — faster initial paint',
+      'noscript fallback message',
+      'Mobile-tightened sticker padding and panel border-radius under 480px'
+    ]
+  },
   {
     version: '3.0.0',
     date: '2026-04-30',
@@ -710,24 +835,30 @@ function App() {
 
   if (view === 'changelog') {
     return (
-      <main className="min-h-screen">
-        <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
-        <ChangelogView />
-        <Footer />
-      </main>
+      <>
+        <a href="#main" className="skip-link">Skip to content</a>
+        <main id="main" className="min-h-screen">
+          <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
+          <ChangelogView />
+          <Footer />
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen">
-      <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
-      <Marquee />
-      <Hero scrollToWizard={scrollToWizard} />
-      <HiddenCosts result={result} state={state} />
-      <Wizard state={state} update={update} scrollToSection={scrollToSection} />
-      <VerdictSection state={state} update={update} result={result} />
-      <Footer />
-    </main>
+    <>
+      <a href="#main" className="skip-link">Skip to content</a>
+      <main id="main" className="min-h-screen">
+        <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
+        <Marquee />
+        <Hero scrollToWizard={scrollToWizard} />
+        <HiddenCosts result={result} state={state} />
+        <Wizard state={state} update={update} scrollToSection={scrollToSection} />
+        <VerdictSection state={state} update={update} result={result} />
+        <Footer />
+      </main>
+    </>
   );
 }
 
