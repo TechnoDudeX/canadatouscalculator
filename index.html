@@ -361,6 +361,20 @@ const CHILDCARE_STATE_DEFAULT = {
 
 const CHANGELOG = [
   {
+    version: '1.2.0',
+    date: '2026-04-30',
+    title: 'Wizard becomes the primary input flow',
+    items: [
+      'Removed the inline calculator panel from the landing page',
+      'Step-by-step wizard now sits below the hero and is the only input path on first visit',
+      'Wizard opens directly on "How much do you earn now?" — no welcome screen',
+      'Hero answer panel updates live as the user answers each wizard question',
+      'Results sections only render after the wizard is complete',
+      'Shared URLs still skip the wizard and load straight to results',
+      '"Restart wizard" link in the header takes users back to the questions'
+    ]
+  },
+  {
     version: '1.1.0',
     date: '2026-04-30',
     title: 'Landing-first flow + 5-year breakeven chart',
@@ -420,7 +434,7 @@ const CHANGELOG = [
 
 const ROADMAP = [
   {
-    version: '1.2.0',
+    version: '1.3.0',
     horizon: 'Next',
     title: 'Verified brackets + small fixes',
     items: [
@@ -739,7 +753,7 @@ function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 
 function App() {
   const [state, setState] = useState(readURL);
   const [copied, setCopied] = useState(false);
-  const [mode, setMode] = useState('results');
+  const [wizardDone, setWizardDone] = useState(() => !!window.location.search);
 
   useEffect(() => { writeURL(state); }, [state]);
 
@@ -783,28 +797,24 @@ function App() {
 
   const warnings = useMemo(() => buildWarnings(state), [state]);
 
-  if (mode === 'wizard') {
-    return (
-      <main className="min-h-screen pb-32">
-        <Header />
-        <Wizard state={state} update={update} onComplete={() => setMode('results')} />
-      </main>
-    );
-  }
-
   return (
     <main className="min-h-screen pb-32">
-      <Header onRestart={() => setMode('wizard')} />
-      <Hero result={result} state={state} onWizard={() => setMode('wizard')} />
-      <Inputs state={state} update={update} />
-      <Result result={result} state={state} />
-      <Breakeven result={result} state={state} update={update} />
-      <Breakdown result={result} state={state} />
-      <Warnings warnings={warnings} />
-      <Projection result={result} />
-      <SoftFactors />
-      <Changelog />
-      <Roadmap />
+      <Header onRestart={wizardDone ? () => setWizardDone(false) : null} />
+      <Hero result={result} state={state} wizardDone={wizardDone} />
+      {!wizardDone ? (
+        <Wizard state={state} update={update} onComplete={() => setWizardDone(true)} />
+      ) : (
+        <>
+          <Result result={result} state={state} />
+          <Breakeven result={result} state={state} update={update} />
+          <Breakdown result={result} state={state} />
+          <Warnings warnings={warnings} />
+          <Projection result={result} />
+          <SoftFactors />
+          <Changelog />
+          <Roadmap />
+        </>
+      )}
       <Footer copyShare={copyShare} copied={copied} />
     </main>
   );
@@ -831,7 +841,7 @@ function Header({ onRestart }) {
   );
 }
 
-function Hero({ result, state, onWizard }) {
+function Hero({ result, state, wizardDone }) {
   const positive = result.netDeltaCAD >= 0;
   return (
     <section className="border-b border-cream-line">
@@ -844,17 +854,9 @@ function Hero({ result, state, onWizard }) {
           <p className="mt-8 text-lg text-ink-soft max-w-xl leading-relaxed">
             Most calculators stop at gross salary or income tax. This one keeps going. Healthcare premiums, childcare, departure tax, the TFSA trap, and the ten-year wealth delta if you invest the difference. Honest math, both directions.
           </p>
-          {onWizard && (
-            <div className="mt-8 flex items-center gap-6">
-              <button onClick={onWizard} className="cta">Walk me through it</button>
-              <a href="#calculator" className="text-sm underline-offset-4 hover:underline text-ink-soft">
-                Or skip ahead to the calculator ↓
-              </a>
-            </div>
-          )}
         </div>
         <aside className="md:col-span-5 md:border-l md:border-cream-line md:pl-8 flex flex-col justify-end">
-          <div className="label mb-3">Your answer, right now</div>
+          <div className="label mb-3">{wizardDone ? 'Your answer' : 'Your answer · live as you answer below'}</div>
           <div className={`stat-num text-6xl md:text-7xl font-medium leading-none ${positive ? 'text-forest' : 'text-vermillion'}`}>
             {fmtSigned(result.netDeltaCAD, fmtCAD)}
           </div>
@@ -1492,7 +1494,7 @@ function Footer({ copyShare, copied }) {
 function Wizard({ state, update, onComplete }) {
   const [stepIdx, setStepIdx] = useState(0);
 
-  const allSteps = ['welcome','salaryCAD','province','salaryUSD','state','nyc','filingStatus','kids','visaType','review'];
+  const allSteps = ['salaryCAD','province','salaryUSD','state','nyc','filingStatus','kids','visaType','review'];
   const visibleSteps = allSteps.filter(s => s !== 'nyc' || state.state === 'NY');
   const safeIdx = Math.min(stepIdx, visibleSteps.length - 1);
   const current = visibleSteps[safeIdx];
@@ -1516,16 +1518,6 @@ function Wizard({ state, update, onComplete }) {
             <div className="absolute inset-y-0 left-0 bg-ink transition-all duration-300" style={{ width: `${((safeIdx + 1) / total) * 100}%` }} />
           </div>
         </div>
-
-        {current === 'welcome' && (
-          <WizardScreen
-            title={<>Should you take<br/>the US offer?</>}
-            subtitle="Eight quick questions. You'll see the real take-home, the hidden costs nobody calculates, and what the difference compounds to in ten years."
-            onNext={next}
-            ctaLabel="Begin"
-            hideBack
-          />
-        )}
 
         {current === 'salaryCAD' && (
           <NumberScreen
