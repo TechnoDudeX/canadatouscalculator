@@ -38,7 +38,7 @@ The "Generate explanation" button in the verdict section calls a Netlify Functio
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Without the env var the function returns a 500 with a clear error message; the calculator itself continues to work. The function defaults to `claude-haiku-4-5` (~$0.005 per call) — swap `MODEL` in `netlify/functions/explain.js` to `claude-sonnet-4-6` (~3× cost) or `claude-opus-4-7` (~5× cost) if you want a richer narrative.
+Without the env var the function returns a 500 with a clear error message; the calculator itself continues to work. The function defaults to `claude-sonnet-4-6` (~$0.015 per call) — swap `MODEL` in `netlify/functions/explain.js` to `claude-haiku-4-5` (~$0.005 per call) if you want sub-cent calls.
 
 ## Local development
 
@@ -61,7 +61,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.0.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.1.
 
 ## Tests
 

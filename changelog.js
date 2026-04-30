@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.1',
+    date: '2026-04-30',
+    title: 'Switch AI default to Sonnet 4.6',
+    items: [
+      'netlify/functions/explain.js: MODEL changed from claude-haiku-4-5 to claude-sonnet-4-6 — better narrative quality at ~$0.015/call vs $0.005',
+      'README updated: Sonnet is the documented default; Haiku noted as the cheaper swap',
+      'Opus is intentionally not used in this project'
+    ]
+  },
+  {
     version: '4.1.0',
     date: '2026-04-30',
     title: 'AI explanation — Claude turns the verdict into a plain-English narrative',

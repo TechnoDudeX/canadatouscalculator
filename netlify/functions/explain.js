@@ -9,14 +9,14 @@
  *   ANTHROPIC_API_KEY — required, set in Netlify env vars.
  *
  * Cost notes:
- *   - claude-haiku-4-5: ~$0.005 per call (default)
- *   - swap MODEL to claude-sonnet-4-6 if you want richer output (~3× cost)
- *   - swap to claude-opus-4-7 for the smartest narrative (~5× cost)
+ *   - claude-sonnet-4-6: ~$0.015 per call (default — best quality/cost balance)
+ *   - claude-haiku-4-5: ~$0.005 per call if you want sub-cent calls
+ *   (Opus is intentionally not used in this project — see feedback memory.)
  */
 
 const Anthropic = require('@anthropic-ai/sdk');
 
-const MODEL = 'claude-haiku-4-5';
+const MODEL = 'claude-sonnet-4-6';
 
 const SYSTEM_PROMPT = `You are the explainer for North×South, a Canada-to-US cross-border compensation calculator built as a joint project by Mazin Kanuga and Copilot Tax.
 
