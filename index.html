@@ -142,9 +142,14 @@
     .sticker-outline { border: 2px solid #FFF6E5; color: #FFF6E5; box-shadow: none; }
 
     /* Highlight bar behind text */
-    .hl-lime { background: linear-gradient(180deg, transparent 55%, #D4FF3A 55%); padding: 0 0.1em; color: #0E0B2C; }
-    .hl-pink { background: linear-gradient(180deg, transparent 55%, #FF3D7F 55%); padding: 0 0.1em; color: #FFF6E5; }
-    .hl-cobalt { background: linear-gradient(180deg, transparent 55%, #3956FF 55%); padding: 0 0.1em; color: #FFF6E5; }
+    .hl-lime, .hl-pink, .hl-cobalt {
+      padding: 0 0.1em;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    .hl-lime { background: linear-gradient(180deg, transparent 60%, #D4FF3A 60%); color: #0E0B2C; }
+    .hl-pink { background: linear-gradient(180deg, transparent 60%, #FF3D7F 60%); color: #FFF6E5; }
+    .hl-cobalt { background: linear-gradient(180deg, transparent 60%, #3956FF 60%); color: #FFF6E5; }
 
     /* Chunky underline */
     .u-lime { box-shadow: inset 0 -0.18em 0 #D4FF3A; padding-bottom: 0.05em; }
@@ -452,6 +457,17 @@ const CHILDCARE_STATE_DEFAULT = {
    ======================================================================== */
 
 const CHANGELOG = [
+  {
+    version: '3.1.2',
+    date: '2026-04-30',
+    title: 'Fix lime-highlight clipping and overlap in big headlines',
+    items: [
+      'box-decoration-break: clone on .hl-lime / .hl-pink / .hl-cobalt — highlights split cleanly across line wraps',
+      'Highlight gradient stops at 60% (was 55%) so the lime bar takes less vertical room',
+      'Loosened tight line-heights: hero 0.92 → 1.02, pivot 0.96 → 1.04, section asides 0.96 → 1.06, verdict 0.96 → 1.05',
+      'Added padding-bottom to highlighted h2/h3 elements so descender + highlight bar are not clipped by section overflow:hidden'
+    ]
+  },
   {
     version: '3.1.1',
     date: '2026-04-30',
@@ -952,7 +968,7 @@ function Hero({ scrollToWizard }) {
         </div>
 
         <div className="relative">
-          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[0.92] tracking-tight text-cream max-w-[14ch]">
+          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[1.02] tracking-tight text-cream max-w-[14ch] pb-2">
             Most Canadians moving south have <span className="hl-lime">the same plan</span>.
           </h2>
           <div className="hidden lg:block absolute right-0 top-8 floating-tag-r">
@@ -977,7 +993,7 @@ function Hero({ scrollToWizard }) {
               <span className="sticker sticker-cream">⚠ The trouble</span>
               <span className="grotesk text-cream/60 text-sm">with the plan, that is</span>
             </div>
-            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[0.96] tracking-tight text-cream">
+            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-cream pb-2">
               The detour <span className="strike-pink text-cream/60">always</span> ends with you ahead.
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
@@ -1057,7 +1073,7 @@ function HiddenCosts({ result, state }) {
         <aside className="md:col-span-4">
           <div className="sticky top-10">
             <div className="sticker sticker-cobalt mb-5">Section 01</div>
-            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-cream tracking-tight pb-1">
               The four numbers<br/>that <span className="hl-pink">flip the plan</span>
             </h3>
             <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
@@ -1148,7 +1164,7 @@ function Wizard({ state, update, scrollToSection }) {
           <aside className="md:col-span-4">
             <div className="sticky top-10">
               <div className="sticker sticker-pink mb-5">Section 02</div>
-              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-cream tracking-tight pb-1">
                 Your turn —<br/>five quick <span className="hl-cobalt">questions</span>
               </h3>
               <p className="grotesk text-cream/70 mt-6 text-base md:text-lg leading-relaxed">
@@ -1331,7 +1347,7 @@ function VerdictSection({ state, update, result }) {
               <span className="grotesk text-cream/60 text-sm">{inputSummary}</span>
             </div>
             {hasInput ? (
-              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[0.96] text-cream tracking-tight">
+              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-cream tracking-tight pb-2">
                 Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
                 <span className={fiveYrDelta >= 0 ? 'text-lime' : 'text-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
                 {fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
