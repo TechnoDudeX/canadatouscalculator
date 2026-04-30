@@ -304,7 +304,6 @@ function App() {
       <a href="#main" className="skip-link">Skip to content</a>
       <main id="main" className="min-h-screen">
         <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
-        <Marquee />
         <Hero scrollToWizard={scrollToWizard} />
         <HiddenCosts result={result} state={state} />
         <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} />
@@ -332,7 +331,7 @@ function Header({ navigate, scrollToSection, scrollToWizard, view }) {
               <span>North<span className="text-pink">×</span>South</span>
               <span aria-hidden="true">🇺🇸</span>
             </div>
-            <div className="label text-night/50 mt-1">Cross-border honesty audit</div>
+            <div className="label text-night/50 mt-1">AI-powered cross-border calculator</div>
           </div>
         </button>
         <nav className="flex items-center gap-3 md:gap-5">
@@ -395,11 +394,6 @@ function Hero({ scrollToWizard }) {
     <section id="thesis" className="relative overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
 
-        <div className="flex items-center gap-3 mb-10 md:mb-14 flex-wrap">
-          <span className="sticker sticker-lime">Premise</span>
-          <span className="grotesk text-night/70 text-sm md:text-base">— the math you don't see on the offer letter</span>
-        </div>
-
         <div className="relative">
           <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[1.02] tracking-tight text-night max-w-[14ch] pb-2">
             Most Canadians moving south have <span className="hl-lime">the same plan</span>.
@@ -420,6 +414,8 @@ function Hero({ scrollToWizard }) {
             sub={<>Down payment, portfolio, a story to tell.</>}/>
         </div>
 
+        <Marquee />
+
         <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
             <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -436,7 +432,7 @@ function Hero({ scrollToWizard }) {
               And a goodbye bill from CRA on your way out.
             </p>
             <p className="grotesk text-lg md:text-xl text-night mt-5 max-w-2xl leading-relaxed font-semibold">
-              The gap between the offer and the outcome is where <span className="hl-lime">this calculator lives</span>.
+              Five questions. Your real numbers. <span className="hl-lime">Claude reads the verdict</span> and tells you what's actually moving the needle.
             </p>
           </div>
 
@@ -449,10 +445,10 @@ function Hero({ scrollToWizard }) {
 
         <div className="mt-20 md:mt-28 flex flex-col md:flex-row md:items-center gap-6">
           <button onClick={scrollToWizard} className="btn-primary self-start">
-            See if your plan survives the math ↓
+            Run the numbers ↓
           </button>
           <div className="grotesk text-night/70 text-base md:text-lg max-w-md">
-            5 questions · 3 minutes · your numbers, not a stranger's
+            5 questions · AI reads your inputs · 3 minutes
           </div>
         </div>
       </div>

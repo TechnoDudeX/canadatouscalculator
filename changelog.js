@@ -9,6 +9,18 @@
 
 const CHANGELOG = [
   {
+    version: '4.2.1',
+    date: '2026-04-30',
+    title: 'Premise section removed, marquee relocated, header + hero copy updated for AI',
+    items: [
+      'Removed "Premise" sticker and subtext from hero section',
+      'Marquee banner moved from between header and hero to between the Step 01/02/03 plan cards and the trouble section',
+      'Header tagline updated to "AI-powered cross-border calculator"',
+      'Hero body copy updated: "Five questions. Your real numbers. Claude reads the verdict and tells you what\'s actually moving the needle."',
+      'CTA button text updated to "Run the numbers ↓" with subtext "5 questions · AI reads your inputs · 3 minutes"'
+    ]
+  },
+  {
     version: '4.2.0',
     date: '2026-04-30',
     title: 'AI auto-fires on wizard completion + chart annotation + UI cleanup',
