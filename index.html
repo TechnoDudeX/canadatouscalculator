@@ -966,6 +966,7 @@ function VerdictSection({ state, update, result }) {
             <p className="grotesk text-xs text-night/50 mb-5 max-w-2xl leading-relaxed">
               <span className="font-semibold">Estimates only</span> · 2026 brackets (BC, QC, CA, NY currently approximated) · spouse parity assumed when work-auth allows · COL multiplier is a single state-level figure, not metro-specific · <span className="font-semibold">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
               {' '}Assumes $1 USD = <FxRateEdit fx={state.fxRate} onChange={(v) => update({ fxRate: v })}/> CAD <span className="text-night/35">(click to edit)</span>.
+              {' '}The numbers all run in your browser; the optional <span className="font-semibold">AI explanation</span> below is the only feature that sends inputs out (to Anthropic's API).
             </p>
             {hasInput ? (
               <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
@@ -1017,6 +1018,8 @@ function VerdictSection({ state, update, result }) {
               : 'computed from your inputs'}
             color="pink"/>
         </div>
+
+        <ExplainPanel state={state} result={result} hasInput={hasInput} />
 
         {hasInput && (
           <div className="panel p-6 md:p-10 mb-14">
@@ -1170,6 +1173,106 @@ function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }
         <div className="stat-num text-[34px] md:text-[42px] leading-none mb-3">{value}</div>
       )}
       <div className="grotesk text-xs leading-snug opacity-75 mt-3">{detail}</div>
+    </div>
+  );
+}
+
+function ExplainPanel({ state, result, hasInput }) {
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [text, setText] = useState('');
+  const [error, setError] = useState(null);
+  const [model, setModel] = useState('');
+  const [throttledUntil, setThrottledUntil] = useState(0);
+
+  if (!hasInput) return null;
+
+  const now = Date.now();
+  const throttledMs = Math.max(0, throttledUntil - now);
+  const throttled = throttledMs > 0;
+
+  const generate = async () => {
+    if (throttled) return;
+    setStatus('loading');
+    setText('');
+    setError(null);
+    try {
+      const res = await fetch('/.netlify/functions/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state, result })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      setText(data.text || '');
+      setModel(data.model || '');
+      setStatus('success');
+      setThrottledUntil(Date.now() + 30_000); // 30s client-side throttle
+    } catch (e) {
+      setError(e.message);
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div className="panel-night p-6 md:p-10 mb-14 text-cream">
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <span className="sticker sticker-lime">AI</span>
+        <span className="grotesk text-cream/70 text-sm">a plain-English read on what's driving your verdict</span>
+      </div>
+
+      {status === 'idle' && (
+        <>
+          <p className="grotesk text-cream/85 text-base md:text-lg leading-relaxed mb-6 max-w-2xl">
+            Generate a 3-4 paragraph narrative from Claude that calls out the biggest line items in your scenario, what to sanity-check, and one specific negotiation lever. ~3–6 seconds.
+          </p>
+          <button onClick={generate} className="btn-primary">Generate explanation →</button>
+          <p className="grotesk text-xs text-cream/50 mt-5 leading-relaxed max-w-2xl">
+            Clicking sends your inputs (no PII — just the wizard fields) to Anthropic's API. The numerical calculator runs entirely in your browser; this is the only feature that doesn't.
+          </p>
+        </>
+      )}
+
+      {status === 'loading' && (
+        <div className="grotesk text-cream/80 flex items-center gap-3">
+          <span className="inline-flex gap-1.5">
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse"/>
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse" style={{animationDelay:'0.15s'}}/>
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse" style={{animationDelay:'0.3s'}}/>
+          </span>
+          <span>Claude is reading your inputs…</span>
+        </div>
+      )}
+
+      {status === 'success' && (
+        <div>
+          <div className="grotesk text-cream text-base md:text-lg leading-relaxed whitespace-pre-wrap max-w-3xl">{text}</div>
+          <div className="mt-7 flex items-center gap-4 flex-wrap">
+            <button
+              onClick={generate}
+              disabled={throttled}
+              className="btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderColor: 'rgba(255,246,229,0.4)', color: '#FFF6E5' }}>
+              {throttled ? `Wait ${Math.ceil(throttledMs / 1000)}s` : 'Regenerate'}
+            </button>
+            <span className="grotesk text-xs text-cream/45">
+              Generated by {model || 'Claude'} · narrative only · numbers are from your wizard inputs
+            </span>
+          </div>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div>
+          <p className="grotesk text-pink mb-4">Couldn't generate explanation: {error}</p>
+          <button onClick={generate} className="btn-ghost"
+            style={{ borderColor: 'rgba(255,246,229,0.4)', color: '#FFF6E5' }}>
+            Try again
+          </button>
+          <p className="grotesk text-xs text-cream/50 mt-4 max-w-xl leading-relaxed">
+            If this keeps failing, the deployment may be missing the <span className="num">ANTHROPIC_API_KEY</span> env var, or the calculator hasn't redeployed since this feature shipped.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

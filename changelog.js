@@ -9,6 +9,22 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.0',
+    date: '2026-04-30',
+    title: 'AI explanation — Claude turns the verdict into a plain-English narrative',
+    items: [
+      'New "Generate explanation" button in the verdict section. Click it and a 3-4 paragraph narrative comes back: one-line verdict, biggest line item driving it, 2-3 quieter items to sanity-check, one specific negotiation lever tied to your numbers',
+      'First backend code in the repo: netlify/functions/explain.js wraps the Anthropic API. Defaults to claude-haiku-4-5 (~$0.005 per call); swap MODEL to claude-sonnet-4-6 (~3×) or claude-opus-4-7 (~5×) for richer output',
+      'System prompt explains the household model to Claude — visa/spouse work-auth, housing both sides, COL, departure tax, employer credits — so the narrative reflects the actual calculator instead of generic cross-border boilerplate',
+      'Prompt caching declared on the system prompt with cache_control: ephemeral — silently kicks in once the prompt grows past Haiku 4.5\'s 4096-token cache minimum',
+      'Typed-error handling: Anthropic.RateLimitError → 429, AuthenticationError → 500 (mis-config), APIError → 502, all surface a user-readable message in the panel',
+      'Client-side throttle: 30s between regenerations, button shows the countdown',
+      'Verdict disclaimer updated: explicitly flags that clicking "Generate explanation" sends inputs to Anthropic\'s API. The numerical calculator continues to run entirely in the browser — this is the only feature that doesn\'t',
+      'netlify.toml updated: functions directory wired up, npm run build:css runs as build command, esbuild bundler for the function',
+      'Requires ANTHROPIC_API_KEY env var on Netlify; without it the function returns a 500 and the panel surfaces a clear "missing env var" message — the rest of the site works unchanged'
+    ]
+  },
+  {
     version: '4.0.1',
     date: '2026-04-30',
     title: 'Partner branding — North×South is now a joint project with Copilot Tax',

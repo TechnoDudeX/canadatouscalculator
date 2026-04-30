@@ -25,7 +25,20 @@ A single-page calculator that compares a current Canadian compensation package a
 - `index.html` + `calc.js` (tax data + pure functions) + `changelog.js` + built `style.css`
 - React 18 + Babel standalone (in-browser JSX)
 - Tailwind via CLI (`npm run build:css` regenerates `style.css` from `src.css` + `tailwind.config.js`)
+- One Netlify Function (`netlify/functions/explain.js`) wrapping Anthropic's API for the optional "Generate explanation" feature
 - Deployed on Netlify (root publish, see `netlify.toml`)
+
+## AI explanation feature (optional)
+
+The "Generate explanation" button in the verdict section calls a Netlify Function that wraps the Anthropic API to produce a 3-4 paragraph plain-English narrative of the user's specific scenario. The numerical calculator is unaffected — it still runs entirely in the browser. The AI feature is opt-in per click.
+
+**To enable on your Netlify deployment**, set the env var:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Without the env var the function returns a 500 with a clear error message; the calculator itself continues to work. The function defaults to `claude-haiku-4-5` (~$0.005 per call) — swap `MODEL` in `netlify/functions/explain.js` to `claude-sonnet-4-6` (~3× cost) or `claude-opus-4-7` (~5× cost) if you want a richer narrative.
 
 ## Local development
 
@@ -48,7 +61,7 @@ Netlify auto-deploys from `main`. Config is in `netlify.toml`:
 
 ## Versioning
 
-Semver tracked via commit messages. See `git log` for the changelog. Current: v4.0.1.
+Semver tracked via commit messages. See `git log` for the changelog. Current: v4.1.0.
 
 ## Tests
 
