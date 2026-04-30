@@ -361,6 +361,20 @@ const CHILDCARE_STATE_DEFAULT = {
 
 const CHANGELOG = [
   {
+    version: '1.3.0',
+    date: '2026-04-30',
+    title: 'Header nav, dedicated Changelog tab, and SEO content section',
+    items: [
+      'New header navigation: Calculator and Changelog as separate tabs (hash-based routing)',
+      'Header CTA "Start ↓" scrolls smoothly to wizard step 1; becomes "Restart" once results are showing',
+      'Changelog and Roadmap moved off the main page into their own dedicated tab — accessible from any state',
+      'New SEO content section below the wizard: ~1,500 words on the Canada-to-US move with sourced stats',
+      'Stat callouts highlight key numbers (1.5x–3x salary multiplier, $9–12k US healthcare, $40–50k childcare swing)',
+      'FAQ section answers TFSA wind-down, RRSP treaty treatment, TN spouse work, FIRPTA, and the 1.5x rule',
+      'Removed the dead inline Inputs and Field components from the codebase'
+    ]
+  },
+  {
     version: '1.2.0',
     date: '2026-04-30',
     title: 'Wizard becomes the primary input flow',
@@ -434,7 +448,7 @@ const CHANGELOG = [
 
 const ROADMAP = [
   {
-    version: '1.3.0',
+    version: '1.4.0',
     horizon: 'Next',
     title: 'Verified brackets + small fixes',
     items: [
@@ -754,8 +768,38 @@ function App() {
   const [state, setState] = useState(readURL);
   const [copied, setCopied] = useState(false);
   const [wizardDone, setWizardDone] = useState(() => !!window.location.search);
+  const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
 
   useEffect(() => { writeURL(state); }, [state]);
+
+  useEffect(() => {
+    const onHash = () => {
+      setView(window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const navigate = (toView) => {
+    if (toView === 'main') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else {
+      window.history.replaceState(null, '', '#' + toView);
+    }
+    setView(toView);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const startWizard = () => {
+    if (view !== 'main') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      setView('main');
+    }
+    if (wizardDone) setWizardDone(false);
+    setTimeout(() => {
+      document.getElementById('wizard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
 
   const update = (patch) => setState(s => ({ ...s, ...patch }));
 
@@ -797,9 +841,20 @@ function App() {
 
   const warnings = useMemo(() => buildWarnings(state), [state]);
 
+  if (view === 'changelog') {
+    return (
+      <main className="min-h-screen pb-32">
+        <Header view={view} wizardDone={wizardDone} navigate={navigate} startWizard={startWizard} />
+        <Changelog />
+        <Roadmap />
+        <Footer copyShare={copyShare} copied={copied} />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen pb-32">
-      <Header onRestart={wizardDone ? () => setWizardDone(false) : null} />
+      <Header view={view} wizardDone={wizardDone} navigate={navigate} startWizard={startWizard} />
       <Hero result={result} state={state} wizardDone={wizardDone} />
       {!wizardDone ? (
         <Wizard state={state} update={update} onComplete={() => setWizardDone(true)} />
@@ -811,31 +866,40 @@ function App() {
           <Warnings warnings={warnings} />
           <Projection result={result} />
           <SoftFactors />
-          <Changelog />
-          <Roadmap />
         </>
       )}
+      <SeoContent startWizard={startWizard} />
       <Footer copyShare={copyShare} copied={copied} />
     </main>
   );
 }
 
-function Header({ onRestart }) {
+function Header({ view, wizardDone, navigate, startWizard }) {
+  const navLink = (toView, label) => (
+    <button
+      onClick={() => navigate(toView)}
+      className={`label transition-colors ${view === toView ? 'text-ink' : 'hover:text-ink'}`}
+    >
+      {label}
+    </button>
+  );
   return (
     <header className="border-b border-cream-line">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="flex items-baseline gap-3">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center gap-6">
+        <button onClick={() => navigate('main')} className="flex items-baseline gap-3 text-left">
           <span className="display text-xl font-medium">North×South</span>
-          <span className="label">a cross-border ledger</span>
-        </div>
-        <div className="flex items-center gap-6">
-          {onRestart && (
-            <button onClick={onRestart} className="label hover:text-ink transition-colors">
-              Restart wizard
-            </button>
-          )}
-          <div className="label hidden md:block">Tax Year 2026</div>
-        </div>
+          <span className="label hidden sm:inline">a cross-border ledger</span>
+        </button>
+        <nav className="flex items-center gap-5 md:gap-7">
+          {navLink('main', 'Calculator')}
+          {navLink('changelog', 'Changelog')}
+          <button
+            onClick={startWizard}
+            className="bg-ink text-cream px-4 py-2 text-xs font-medium uppercase tracking-wider hover:bg-vermillion transition-colors"
+          >
+            {view === 'main' && !wizardDone ? 'Start ↓' : 'Restart'}
+          </button>
+        </nav>
       </div>
     </header>
   );
@@ -866,127 +930,6 @@ function Hero({ result, state, wizardDone }) {
         </aside>
       </div>
     </section>
-  );
-}
-
-function Inputs({ state, update }) {
-  return (
-    <section id="calculator" className="border-b border-cream-line scroll-mt-4">
-      <div className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12">
-        {/* Canadian side */}
-        <div>
-          <div className="flex items-baseline justify-between mb-6">
-            <div className="label">Currently in Canada</div>
-            <div className="display text-2xl text-ink-faint">CA</div>
-          </div>
-          <div className="space-y-8">
-            <Field label="Annual salary (CAD)">
-              <div className="flex items-baseline">
-                <span className="num text-2xl text-ink-faint mr-2">$</span>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={state.salaryCAD}
-                  onChange={e => update({ salaryCAD: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            </Field>
-            <Field label="Province">
-              <select className="select-field" value={state.province} onChange={e => update({ province: e.target.value })}>
-                {Object.entries(PROVINCIAL_2026).map(([k, v]) =>
-                  <option key={k} value={k}>{v.label}</option>
-                )}
-              </select>
-            </Field>
-          </div>
-        </div>
-
-        {/* US side */}
-        <div className="md:border-l md:border-cream-line md:pl-12">
-          <div className="flex items-baseline justify-between mb-6">
-            <div className="label">Considering the US offer</div>
-            <div className="display text-2xl text-ink-faint">US</div>
-          </div>
-          <div className="space-y-8">
-            <Field label="Offered salary (USD)">
-              <div className="flex items-baseline">
-                <span className="num text-2xl text-ink-faint mr-2">$</span>
-                <input
-                  type="number"
-                  className="input-field"
-                  value={state.salaryUSD}
-                  onChange={e => update({ salaryUSD: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            </Field>
-            <Field label="State">
-              <select className="select-field" value={state.state} onChange={e => update({ state: e.target.value })}>
-                {Object.entries(STATE_2026).map(([k, v]) =>
-                  <option key={k} value={k}>{v.label}</option>
-                )}
-              </select>
-            </Field>
-            {state.state === 'NY' && (
-              <label className="flex items-center gap-3 cursor-pointer text-sm">
-                <input
-                  type="checkbox"
-                  checked={state.nyc}
-                  onChange={e => update({ nyc: e.target.checked })}
-                  className="w-4 h-4 accent-vermillion"
-                />
-                <span>Living within NYC (adds NYC personal income tax)</span>
-              </label>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Shared row */}
-      <div className="max-w-6xl mx-auto px-6 pb-12">
-        <div className="rule mb-8" />
-        <div className="grid md:grid-cols-4 gap-8">
-          <Field label="Filing status">
-            <div className="flex gap-2 mt-1">
-              <button className={`pill ${state.filingStatus === 'single' ? 'active' : ''}`} onClick={() => update({ filingStatus: 'single' })}>Single</button>
-              <button className={`pill ${state.filingStatus === 'mfj' ? 'active' : ''}`} onClick={() => update({ filingStatus: 'mfj' })}>Married, joint</button>
-            </div>
-          </Field>
-          <Field label="Kids under 13">
-            <div className="flex gap-2 mt-1">
-              {[0, 1, 2, 3].map(n =>
-                <button key={n} className={`pill ${state.kids === n ? 'active' : ''}`} onClick={() => update({ kids: n })}>
-                  {n === 3 ? '3+' : n}
-                </button>
-              )}
-            </div>
-          </Field>
-          <Field label="Visa type">
-            <select className="select-field" value={state.visaType} onChange={e => update({ visaType: e.target.value })}>
-              <option value="TN">TN (Canadian professional)</option>
-              <option value="H1B">H1B</option>
-              <option value="GC">Green Card</option>
-            </select>
-          </Field>
-          <Field label="CAD per USD">
-            <input
-              type="number" step="0.01"
-              className="input-field"
-              value={state.fxRate}
-              onChange={e => update({ fxRate: parseFloat(e.target.value) || 0.73 })}
-            />
-          </Field>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <div className="label mb-2">{label}</div>
-      {children}
-    </div>
   );
 }
 
@@ -1509,7 +1452,7 @@ function Wizard({ state, update, onComplete }) {
   };
 
   return (
-    <section>
+    <section id="wizard" className="scroll-mt-4">
       <div className="max-w-3xl mx-auto px-6 pt-12 pb-24">
         {/* Progress */}
         <div className="flex items-center gap-4 mb-16">
@@ -1728,6 +1671,167 @@ function ReviewScreen({ state, onNext, onBack }) {
         <button onClick={onBack} className="text-sm text-ink-soft underline-offset-4 hover:underline">Back</button>
       </div>
     </div>
+  );
+}
+
+/* ========================================================================
+   SEO CONTENT — long-form editorial below the calculator
+   ======================================================================== */
+
+function StatCallout({ value, label, color }) {
+  const colorClass = color === 'vermillion' ? 'text-vermillion' : color === 'forest' ? 'text-forest' : 'text-ink';
+  return (
+    <div className="border-l-2 border-ink py-3 pl-5 my-10">
+      <div className={`stat-num text-3xl md:text-4xl font-medium leading-none ${colorClass}`}>{value}</div>
+      <div className="text-sm text-ink-soft mt-2 max-w-xl leading-relaxed">{label}</div>
+    </div>
+  );
+}
+
+function SeoContent({ startWizard }) {
+  return (
+    <section className="border-t border-cream-line bg-cream-deep/30">
+      <div className="max-w-3xl mx-auto px-6 py-20 md:py-28">
+        <div className="label mb-3">The bigger picture</div>
+        <h2 className="display text-4xl md:text-5xl font-medium leading-tight mb-8">
+          Canadians keep moving to the US for higher salaries — but is it always worth it?
+        </h2>
+        <p className="text-lg text-ink-soft leading-relaxed mb-6">
+          The salary gap between Canada and the United States is real and widening, especially in technology and healthcare. Bank of Canada productivity research shows the average American worker now generates roughly thirty percent more output per hour than the average Canadian, and that gap shows up directly in compensation. A senior software engineer in Toronto might earn $145,000 CAD; the equivalent role at a Bay Area FAANG company pays $300,000 to $450,000 USD in total compensation. Even after tax and a thirty-five percent currency adjustment, that delta is hard to ignore.
+        </p>
+        <p className="text-lg text-ink-soft leading-relaxed mb-12">
+          But the gap is not the whole story. The honest answer to "is the US offer worth it?" depends on factors most calculators skip — state-level tax, out-of-pocket healthcare, daycare costs, the CRA's departure tax, the TFSA becoming a US tax problem, and visa structure that may stop your spouse from working. For families with young children, the answer is often no. For single tech workers moving to a no-state-tax metro, the answer is almost always yes. Run the numbers on your specific scenario and the verdict often surprises people.
+        </p>
+
+        <button onClick={startWizard} className="cta mb-16">Run my numbers ↓</button>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4 mt-4">Why the salary gap is real</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          The headline numbers are not an illusion. Compensation surveys from levels.fyi, Glassdoor, and Robert Half consistently show 1.5x to 3x salary differentials for the same role between major Canadian and American tech hubs. Healthcare workers see similar gaps: a registered nurse in Ontario earns $75,000 to $95,000 CAD, while the same role in Texas pays $85,000 to $110,000 USD plus shift differentials. Canadian pharmacists earning $110,000 CAD often clear $130,000 USD or more in the US. Family physicians billing $250,000 in Canada commonly earn $300,000 to $400,000 in equivalent US positions, and specialists frequently double that.
+        </p>
+
+        <StatCallout
+          value="1.5x – 3x"
+          label="typical salary multiplier for the same software engineering role between Toronto/Vancouver and the major US tech hubs (San Francisco, Seattle, New York, Austin)."
+          color="forest"
+        />
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The state tax swing</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          Where in the US matters enormously. Federal tax brackets are nearly identical wherever you land, but state-level tax can swing the answer by tens of thousands of dollars. Texas, Florida, Washington, Tennessee, Nevada, and a handful of others charge no state income tax at all. California tops out at 13.3 percent on incomes above one million, plus a one percent mental-health-services surcharge on millionaire earners. New York City stacks a personal income tax on top of New York State, taking the combined top marginal rate to roughly 14.8 percent. For a Toronto software engineer earning $250,000 USD, choosing Austin versus San Francisco versus Manhattan changes annual take-home by $20,000 to $35,000 USD before housing costs even enter the picture.
+        </p>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Healthcare is a real line item</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          Canadians often underestimate how much American healthcare costs even with employer insurance. The Kaiser Family Foundation's annual Employer Health Benefits Survey finds the average employer-sponsored family premium runs about $25,000 a year, with employees contributing roughly $6,500 of that. Add a $4,000 to $6,000 family deductible, plus routine out-of-pocket costs for prescriptions and specialist visits, and most middle-class American families spend $9,000 to $12,000 a year on healthcare. If you change jobs and need COBRA, the full premium falls on you for up to eighteen months — typically $1,800 to $2,500 a month for a family. These costs are invisible in Canada because they are absorbed into payroll tax, but they are a genuine line item in the US comparison.
+        </p>
+
+        <StatCallout
+          value="$9,000 – $12,000"
+          label="annual out-of-pocket healthcare cost for a typical American middle-class family with employer insurance — premium contribution, deductible, copays, and prescriptions combined."
+          color="vermillion"
+        />
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Childcare flips the math for families</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          For parents of children under five, childcare is often the single largest swing in the calculation. Ontario's Canada-Wide Early Learning and Child Care (CWELCC) program brings licensed daycare to about $10 a day — roughly $2,500 a year per child. In contrast, full-time licensed daycare in Boston, Manhattan, San Francisco, or Seattle averages $25,000 to $32,000 per child annually, with Texas and Florida metros falling closer to $15,000 to $20,000. A family of four with two kids under five faces a $40,000 to $50,000 annual childcare delta. Unless the US offer comes with a 1.5x to 2x salary bump, the math frequently does not work for young families.
+        </p>
+
+        <StatCallout
+          value="$40,000 – $50,000"
+          label="annual childcare cost difference for a family with two kids under five between Toronto under CWELCC and most US tech metros."
+          color="vermillion"
+        />
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The hidden costs of leaving Canada</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-4">
+          Most cross-border calculators ignore the one-time tax friction of severing residency. The big ones to plan for:
+        </p>
+        <ul className="space-y-4 text-base text-ink-soft leading-relaxed mb-10 list-disc pl-6">
+          <li>
+            <strong className="text-ink">Departure tax.</strong> When you sever Canadian tax residency, the CRA deems you to have sold your non-registered investments at fair market value. Capital gains tax is owed on paper gains even if you have not actually sold. RRSPs and pensions are exempt; principal residences typically are too. A typical software engineer with $50,000 in unrealized gains in their non-registered brokerage account owes roughly $11,000 to $16,000 in departure tax depending on province.
+          </li>
+          <li>
+            <strong className="text-ink">TFSA becomes a US tax problem.</strong> The IRS does not recognize the TFSA shelter. Earnings are taxed annually on your US 1040, and Canadian mutual funds and ETFs trigger PFIC (Passive Foreign Investment Company) reporting on Form 8621. PFIC tax treatment is punitive enough that compliance fees and tax often exceed everything the TFSA shelter saved. Most cross-border accountants recommend liquidating the TFSA before the move.
+          </li>
+          <li>
+            <strong className="text-ink">RESP grants stop.</strong> The Canada Education Savings Grant ends the day you become a non-resident. Existing balances stay invested but no new grants accrue. Unused contribution room means a permanent loss of the twenty percent government match.
+          </li>
+          <li>
+            <strong className="text-ink">FIRPTA on Canadian rental property.</strong> Keeping your Canadian house and renting it out triggers withholding tax under FIRPTA-adjacent rules and creates ongoing dual-country filings. Eventually selling is messy because the principal residence exemption is partially lost for years spent as a non-resident.
+          </li>
+        </ul>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The TN visa trap</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          The TN visa is the most common pathway for Canadian professionals — it is a NAFTA/USMCA category that lets degreed Canadians work in the US in roughly sixty enumerated professions. But it has two restrictions most calculators do not surface. First, TN requires non-immigrant intent: there is no path from TN to a green card without switching to another visa category like H1B, which is lottery-based and capped at 85,000 a year. Second, TD dependent status for spouses does not include work authorization. If both partners need to work, one of them needs an independent visa — most commonly their own TN if they qualify, an H1B, or an L1 if their employer can structure an intra-company transfer. For dual-income families, this is often the decisive issue that calculators miss entirely.
+        </p>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">Who comes out ahead, and who does not</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-6">
+          The pattern across hundreds of cross-border moves is consistent. <strong className="text-ink">Single tech workers</strong> moving to a no-state-tax metro (Austin, Seattle, Miami, Nashville) on a 1.7x or higher salary multiplier almost always come out ahead, even after departure tax. <strong className="text-ink">Tech workers</strong> moving to California or New York City see most of the bump consumed by state and city tax, and the answer often ends up break-even after factoring in cost of living. <strong className="text-ink">Families with two young children</strong> need a 1.5x or higher multiplier just to break even on childcare and healthcare; a flat lateral move to the US almost always loses. <strong className="text-ink">Healthcare workers</strong> face additional friction from the licensing path (NCLEX for nurses, USMLE for physicians) but often see the highest absolute salary deltas in the long run. <strong className="text-ink">Dual-income couples</strong> on TN are constrained by the spouse work-authorization issue — the household economy depends entirely on whether the second visa can be solved.
+        </p>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-6">Frequently asked questions</h3>
+        <div className="space-y-8 mb-12">
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">Should I close my TFSA before moving to the US?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              Almost always yes. The IRS taxes TFSA earnings on your 1040 and Canadian mutual funds inside the account trigger PFIC reporting, which often costs more in compliance fees and punitive tax than the TFSA shelter ever saved. Most cross-border accountants recommend liquidating before you sever residency.
+            </p>
+          </div>
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">What about my RRSP?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              RRSPs are protected by the Canada-US tax treaty. You can leave the account in Canada, continue letting it grow, and the treaty defers US tax on internal growth until withdrawal. RRSPs are not subject to PFIC rules. They are the cleanest part of the cross-border investment picture.
+            </p>
+          </div>
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">Can my spouse work on my TN visa?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              No. TD (TN Dependent) status does not include work authorization. Your spouse needs their own work visa — most commonly their own TN if they are a Canadian professional in a qualifying occupation, an H1B, or an L1 if they get an intra-company transfer. For dual-income households this is often the largest single factor in whether the move makes sense.
+            </p>
+          </div>
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">Should I keep my Canadian house and rent it?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              It is possible but messy. The CRA will withhold twenty-five percent of gross rental income (reducible to net via a Section 216 election), and you will file in both countries. Eventually selling triggers principal residence considerations (lost exemption for years as a non-resident) plus FIRPTA-adjacent withholding. For most movers, selling before the move simplifies the picture significantly.
+            </p>
+          </div>
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">Does the "1.5x rule" actually work?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              The rule of thumb — only move if the US offer is 1.5x your Canadian total comp — is roughly right for single workers in no-state-tax states. For families with kids, you usually need closer to 1.7x or 2x to break even after childcare and healthcare. For California or New York City moves, add another ten to fifteen percent to the threshold to absorb state and city tax.
+            </p>
+          </div>
+          <div>
+            <div className="display text-lg md:text-xl font-medium mb-2">When should I talk to a cross-border accountant?</div>
+            <p className="text-base text-ink-soft leading-relaxed">
+              Before you sign the offer. Departure tax timing, TFSA wind-down, and RRSP elections all interact, and a few thousand dollars of upfront advice often saves five-figure mistakes later. Firms like Cardinal Point, MCA Cross Border Advisors, and Serbinski specialize in Canada-US individual tax planning.
+            </p>
+          </div>
+        </div>
+
+        <h3 className="display text-2xl md:text-3xl font-medium mb-4">The factors no calculator captures</h3>
+        <p className="text-base text-ink-soft leading-relaxed mb-4">
+          Money is a piece of the answer, not the whole answer. The factors that show up most often in regret stories — from people who moved and from people who chose not to:
+        </p>
+        <ul className="space-y-3 text-base text-ink-soft leading-relaxed mb-12 list-disc pl-6">
+          <li><strong className="text-ink">Healthcare access if you lose your job.</strong> COBRA at $1,500 to $2,500 a month for a family for eighteen months is a real exposure that does not exist in Canada.</li>
+          <li><strong className="text-ink">Parental leave.</strong> Canada offers twelve to eighteen months of EI parental leave. The US offers twelve weeks of unpaid FMLA, and only at companies with fifty or more employees.</li>
+          <li><strong className="text-ink">Distance from aging parents.</strong> International moves you assume are temporary often become permanent. The flight back for an emergency feels different at seventy than at thirty-five.</li>
+          <li><strong className="text-ink">School and gun proximity.</strong> The day-to-day reality of American school routines (lockdown drills, security infrastructure, district disparity) differs from Canadian ones in ways that some families adjust to easily and others do not.</li>
+          <li><strong className="text-ink">Citizenship path.</strong> TN does not lead to a green card. Indian-born professionals on H1B face employment-based green card backlogs of a decade or more. If you want permanence, structure the visa accordingly from day one.</li>
+          <li><strong className="text-ink">Currency risk.</strong> If you keep CAD-denominated debts (mortgage on a Canadian property) and earn USD, currency moves can swing your real cost of living by ten to twenty percent over a few years.</li>
+        </ul>
+
+        <p className="text-lg text-ink-soft leading-relaxed mb-8">
+          The honest answer to "should I take the offer?" is rarely a clean yes or no. It is "for these inputs, here is the math." That is what this calculator is for. Run it for your specific scenario, share the URL with your partner or accountant, and revisit the soft factors before you sign.
+        </p>
+
+        <button onClick={startWizard} className="cta">Run the numbers for my offer ↓</button>
+      </div>
+    </section>
   );
 }
 
