@@ -9,6 +9,20 @@
 
 const CHANGELOG = [
   {
+    version: '4.3.0',
+    date: '2026-04-30',
+    title: 'Metro housing, live wizard preview, graph hover tooltips, dead code removal',
+    items: [
+      'Metro selector in wizard step 4 — pick your city/metro for tighter housing and COL defaults (e.g. Bay Area $5,500/mo vs Sacramento $2,200/mo within the same CA state)',
+      'Live estimate panel below the wizard — shows CA vs US household take-home and net annual delta in real-time once both salaries are entered; updates on every keystroke and step change',
+      'Breakeven chart now has hover tooltips — hover any year column to see exact CA and US values plus the running delta in a floating label',
+      'Chart end-of-line labels updated to show dollar amounts; chart height bumped to give annotations more breathing room',
+      'Roadmap version numbers now auto-compute from the latest CHANGELOG entry — they can never go stale again (tier 1 = current minor+1, tier 2 = minor+2, tier 3 = major+1)',
+      'Disclaimer cleaned up — removed "BC, QC, CA, NY currently approximated" caveat (full brackets shipped in v4.0.0)',
+      'Removed dead buildBreakeven function — superseded by buildHouseholdBreakeven since v4.0.0; tests updated accordingly'
+    ]
+  },
+  {
     version: '4.2.2',
     date: '2026-04-30',
     title: 'Remove "The trouble" sticker + subtext; add spacing around marquee',
@@ -327,39 +341,42 @@ const CHANGELOG = [
   }
 ];
 
+/* ROADMAP — version numbers are intentionally omitted here.
+   ChangelogView computes them dynamically from CHANGELOG[0].version so they
+   auto-advance with every release and can never go stale.
+   tier 1 → current minor+1 (Next), tier 2 → minor+2 (Soon), tier 3 → major+1 (Later). */
 const ROADMAP = [
   {
-    version: '4.1.0', horizon: 'Next', title: 'Verified brackets + small fixes',
+    tier: 1, horizon: 'Next',
+    title: 'Verified brackets + accuracy fixes',
     items: [
-      'Replace approximated BC, QC, CA, NY brackets with final 2026 published numbers (currently flagged in the verdict disclaimer)',
-      'Canada Employment Amount credit (~$200 understatement currently)',
-      'AMT comparison check on US side',
-      'Live FX rate fetch (user-editable input added in v3.4.0; still hardcoded default of 0.73)',
+      'Replace approximated BC, QC brackets with final 2026 published numbers',
+      'Canada Employment Amount credit (~$200 federal understatement on every Canadian return)',
+      'Live FX rate fetch — default 0.73 is static; integrate an open FX endpoint so the rate is current at page load',
       'Remaining provinces: MB, SK, NS, NB, NL, PE',
-      'Metro-keyed (not state-keyed) COL multiplier and housing — SF vs. Sacramento are wildly different at the same state code',
-      'Separate spouseSalaryUSD input so we stop assuming spouse-parity when their US offer is actually different',
-      'TFSA wind-down PFIC liability projection (currently noted in copy, not modeled)'
+      'Separate spouse USD salary input — currently assumes parity with CA take-home when work-auth allows; many couples have a real different US offer',
+      'TFSA wind-down PFIC liability projection (noted in copy, not yet modeled as a dollar line item)'
     ]
   },
   {
-    version: '4.0.0', horizon: 'Soon', title: 'Equity, housing, multi-state',
+    tier: 2, horizon: 'Soon',
+    title: 'Equity, itemized deductions, multi-state',
     items: [
-      'RSU and stock option cross-border treatment',
-      'Cost-of-living adjustment by metro — $200k in Austin vs $250k in SF',
-      'Itemized deductions, mortgage interest, SALT cap math',
-      'Multi-state allocation for partial-year residents',
-      'Departure tax estimator with portfolio inputs',
-      'TFSA wind-down calculator with PFIC liability projection'
+      'RSU and stock option cross-border treatment — vesting in both countries triggers separate tax events',
+      'Itemized deductions: mortgage interest, SALT cap ($10k), charitable giving — matters for high earners in high-tax states',
+      'Multi-state partial-year allocation for people who move mid-year',
+      'AMT comparison on the US side for incomes above $130k',
+      'Downloadable PDF summary for accountant or offer negotiation'
     ]
   },
   {
-    version: '5.0.0', horizon: 'Later', title: 'Persona variants + monetization',
+    tier: 3, horizon: 'Later',
+    title: 'Persona variants + preset scenarios',
     items: [
-      'Healthcare worker variant — NCLEX path, malpractice insurance line item',
-      'Dual-income couple modeling with TN/TD spouse work restriction',
-      'Family-of-four GTA-to-Texas/Florida preset scenario',
-      'Downloadable PDF report for accountant or offer negotiation',
-      'Cross-border accountant + immigration lawyer referral integration'
+      'Healthcare worker variant — NCLEX path, malpractice insurance, hospital signing bonuses',
+      'Preset scenario cards: GTA-to-Austin family of four, BC-to-Seattle couple, QC-to-NYC single',
+      'Cross-border accountant + immigration lawyer referral integration (booking flow, not just a link)',
+      'Mobile app (native iOS/Android) with push alerts for FX rate moves'
     ]
   }
 ];

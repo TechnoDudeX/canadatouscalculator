@@ -176,6 +176,32 @@ const US_COL_MULTIPLIER_DEFAULT = {
   MA: 1.20, IL: 1.10, CO: 1.10
 };
 
+/* Metro-level housing defaults (USD/mo, 2BR equivalent) keyed by state then city.
+   Anchored to real 2025-2026 rental market data. Wildly varies even within a metro —
+   these are a better starting point than the state average but still estimates. */
+const US_HOUSING_METRO_USD = {
+  CA: { 'Bay Area': 5500, 'Los Angeles': 3500, 'San Diego': 3200, 'Sacramento': 2200 },
+  NY: { 'NYC': 4500, 'Buffalo / Upstate': 1800 },
+  WA: { 'Seattle': 3200, 'Spokane': 1500 },
+  TX: { 'Austin': 2200, 'Dallas': 1900, 'Houston': 1800, 'San Antonio': 1600 },
+  FL: { 'Miami': 3000, 'Tampa': 2200, 'Orlando': 2000, 'Jacksonville': 1700 },
+  MA: { 'Boston': 3800, 'Worcester': 2000 },
+  IL: { 'Chicago': 2600, 'Other Illinois': 1500 },
+  CO: { 'Denver': 2800, 'Boulder': 2900, 'Colorado Springs': 1800 }
+};
+
+/* Metro-level COL multipliers vs. Toronto baseline (ex-housing/healthcare/childcare). */
+const US_COL_METRO_MULTIPLIER = {
+  CA: { 'Bay Area': 1.45, 'Los Angeles': 1.35, 'San Diego': 1.30, 'Sacramento': 1.15 },
+  NY: { 'NYC': 1.45, 'Buffalo / Upstate': 1.05 },
+  WA: { 'Seattle': 1.25, 'Spokane': 1.00 },
+  TX: { 'Austin': 1.10, 'Dallas': 1.05, 'Houston': 1.05, 'San Antonio': 1.00 },
+  FL: { 'Miami': 1.20, 'Tampa': 1.10, 'Orlando': 1.05, 'Jacksonville': 1.00 },
+  MA: { 'Boston': 1.25, 'Worcester': 1.05 },
+  IL: { 'Chicago': 1.15, 'Other Illinois': 0.95 },
+  CO: { 'Denver': 1.15, 'Boulder': 1.20, 'Colorado Springs': 1.05 }
+};
+
 /* ========================================================================
    PURE FUNCTIONS
    ======================================================================== */
@@ -283,31 +309,6 @@ function estimateHealthcareCost(filingStatus, kids) {
     ? HEALTHCARE_2026.single
     : kids > 0 ? HEALTHCARE_2026.mfj_with_kids : HEALTHCARE_2026.mfj_no_kids;
   return tier.premium + tier.oop;
-}
-
-function buildBreakeven({ caTakeHomeCAD, usTakeHomeCAD, movingCostsCAD, years = 5 }) {
-  const pts = [];
-  for (let y = 0; y <= years; y++) {
-    pts.push({
-      year: y,
-      ca: caTakeHomeCAD * y,
-      us: y === 0 ? -movingCostsCAD : usTakeHomeCAD * y - movingCostsCAD
-    });
-  }
-  let breakeven = null;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i].us - pts[i].ca;
-    const b = pts[i + 1].us - pts[i + 1].ca;
-    if (a < 0 && b >= 0) {
-      const t = -a / (b - a);
-      breakeven = {
-        year: pts[i].year + t,
-        value: pts[i].ca + t * (pts[i + 1].ca - pts[i].ca)
-      };
-      break;
-    }
-  }
-  return { pts, breakeven };
 }
 
 /* ========================================================================
@@ -438,9 +439,10 @@ if (typeof module !== 'undefined' && module.exports) {
     HEALTHCARE_2026, CHILDCARE_PROV, CHILDCARE_STATE_DEFAULT,
     VISA_SPOUSE_WORK, CA_RENT_DEFAULT_MONTHLY_CAD,
     US_HOUSING_DEFAULT_MONTHLY_USD, US_COL_MULTIPLIER_DEFAULT,
+    US_HOUSING_METRO_USD, US_COL_METRO_MULTIPLIER,
     applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
     calcCPP, calcEI, calculateCanada,
-    calcStateTax, calculateUS, estimateHealthcareCost, buildBreakeven,
+    calcStateTax, calculateUS, estimateHealthcareCost,
     spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD,
     estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven
   };

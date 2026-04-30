@@ -112,9 +112,10 @@ const INITIAL_STATE = {
   caMortgageBalanceCAD: 0,
   caHomeDecision: 'sell',      // 'sell' | 'keep'
 
-  // v4.0.0 — US housing + cost-of-living. 0 = "use the state-keyed
+  // v4.0.0 — US housing + cost-of-living. 0 = "use the metro or state-keyed
   // default", set in the result useMemo. Real edits become >0 (or in
   // the multiplier's case, a non-zero float).
+  metro: '',             // '' = use state default; non-empty = use metro default
   usMonthlyHousingUSD: 0,
   usCOLmultiplier: 0,
 
@@ -212,8 +213,12 @@ function App() {
     /* Housing — both sides. Inputs left blank fall back to province/state
        defaults so the verdict still renders something useful. */
     const caRentEffective = state.caRentMonthlyCAD || CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 0;
-    const usHousingMonthlyEffectiveUSD = state.usMonthlyHousingUSD || US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 0;
-    const colMultiplierEffective = state.usCOLmultiplier || US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+    const usHousingMonthlyEffectiveUSD = state.usMonthlyHousingUSD ||
+      (state.metro && US_HOUSING_METRO_USD[state.state]?.[state.metro]) ||
+      US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 0;
+    const colMultiplierEffective = state.usCOLmultiplier ||
+      (state.metro && US_COL_METRO_MULTIPLIER[state.state]?.[state.metro]) ||
+      US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
 
     const caHousingMonthly = caHousingMonthlyCAD({
       caHousing: state.caHousing,
@@ -306,7 +311,7 @@ function App() {
         <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
         <Hero scrollToWizard={scrollToWizard} />
         <HiddenCosts result={result} state={state} />
-        <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} />
+        <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} result={result} />
         <VerdictSection state={state} update={update} result={result} aiTrigger={aiTrigger} />
         <Footer state={state} update={update} />
       </main>
@@ -575,7 +580,7 @@ function MoneyInput({ symbol = '$', currency, value, onChange, placeholder, auto
   );
 }
 
-function Wizard({ state, update, scrollToSection, onComplete }) {
+function Wizard({ state, update, scrollToSection, onComplete, result }) {
   const [step, setStep] = useState(0);
   const steps = [
     { kicker: 'Step 1 / 5', q: 'Where you stand',     sub: 'Current Canadian salary, the US offer, and where each is.' },
@@ -608,8 +613,12 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
     ? state.spouseCanWorkOverride
     : (visaInfo?.canWorkDefault ?? false);
 
-  const usHousingPlaceholder = US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 2500;
-  const colPlaceholder = US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+  const usHousingPlaceholder =
+    (state.metro && US_HOUSING_METRO_USD[state.state]?.[state.metro]) ||
+    US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 2500;
+  const colPlaceholder =
+    (state.metro && US_COL_METRO_MULTIPLIER[state.state]?.[state.metro]) ||
+    US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
   const caRentPlaceholder = CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 2500;
 
   return (
@@ -668,7 +677,7 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
                       <div className="mt-4 flex flex-wrap gap-2">
                         {Object.entries(STATE_2026).map(([k, v]) => (
                           <button key={k} className={`pill ${state.state === k ? 'active' : ''}`}
-                            onClick={() => update({ state: k })}>
+                            onClick={() => update({ state: k, metro: '' })}>
                             {v.label}
                           </button>
                         ))}
@@ -801,6 +810,22 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
 
                 {step === 3 && (
                   <div className="space-y-8 max-w-xl">
+                    {Object.keys(US_HOUSING_METRO_USD[state.state] || {}).length > 0 && (
+                      <div>
+                        <div className="label text-night/60 mb-3">Metro area</div>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.keys(US_HOUSING_METRO_USD[state.state]).map(m => (
+                            <button key={m} className={`pill ${state.metro === m ? 'active' : ''}`}
+                              onClick={() => update({ metro: state.metro === m ? '' : m })}>
+                              {m}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                          Pick your metro for tighter defaults — state averages hide a lot of variance. Leave blank to stick with the state-level estimate.
+                        </p>
+                      </div>
+                    )}
                     <div>
                       <div className="label text-night/60 mb-3">US monthly housing</div>
                       <MoneyInput
@@ -809,7 +834,7 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
                         onChange={v => update({ usMonthlyHousingUSD: v })}
                       />
                       <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
-                        Default for {STATE_2026[state.state].short}: ${usHousingPlaceholder.toLocaleString('en-US')}/mo. Leave blank to use it. Two months go in as a security deposit (one-time exit cost).
+                        Default for {state.metro || STATE_2026[state.state].short}: ${usHousingPlaceholder.toLocaleString('en-US')}/mo. Leave blank to use it. Two months go in as a security deposit (one-time exit cost).
                       </p>
                     </div>
                     <div>
@@ -824,7 +849,7 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
                         <span className="num text-sm text-night/60">×</span>
                       </div>
                       <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
-                        Default for {STATE_2026[state.state].short}: <span className="num font-semibold text-night/70">{colPlaceholder}×</span>. Covers groceries, transport, dining out (housing/healthcare/childcare are modeled separately). Leave blank to use the default.
+                        Default for {state.metro || STATE_2026[state.state].short}: <span className="num font-semibold text-night/70">{colPlaceholder}×</span>. Covers groceries, transport, dining out (housing/healthcare/childcare are modeled separately). Leave blank to use the default.
                       </p>
                     </div>
                   </div>
@@ -894,10 +919,53 @@ function Wizard({ state, update, scrollToSection, onComplete }) {
                   className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-night/40 w-2' : 'bg-night/15 w-2'}`}/>
               ))}
             </div>
+
+            {state.salaryCAD > 0 && state.salaryUSD > 0 && (
+              <WizardPreview result={result} state={state} />
+            )}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/* ============================================================
+   WIZARD LIVE PREVIEW
+   ============================================================ */
+function WizardPreview({ result, state }) {
+  const delta = result.netDeltaCAD;
+  const isAhead = delta >= 0;
+  return (
+    <div className="mt-6 panel p-5 md:p-6">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="label text-night/50">Live estimate</span>
+        <span className="grotesk text-xs text-night/30">· updates as you fill in each step</span>
+      </div>
+      <div className="grid grid-cols-2 gap-6 mb-4">
+        <div>
+          <div className="grotesk text-xs text-night/50 uppercase tracking-widest mb-1">🇨🇦 Stay in Canada</div>
+          <div className="stat-num text-[26px] leading-none text-night">{fmtCAD(result.caHouseholdAnnualCAD)}</div>
+          <div className="grotesk text-xs text-night/45 mt-1">household take-home / yr</div>
+        </div>
+        <div>
+          <div className="grotesk text-xs text-night/50 uppercase tracking-widest mb-1">🇺🇸 Move to US</div>
+          <div className="stat-num text-[26px] leading-none text-night">{fmtCAD(result.usHouseholdAnnualCAD)}</div>
+          <div className="grotesk text-xs text-night/45 mt-1">after tax, health, housing</div>
+        </div>
+      </div>
+      <div className="border-t border-night/10 pt-4 flex items-center gap-3 flex-wrap">
+        <span className={`sticker ${isAhead ? 'sticker-lime' : 'sticker-pink'}`}>
+          {isAhead ? '+' : '−'}{fmtCAD(Math.abs(delta))}/yr
+        </span>
+        <span className="grotesk text-night/60 text-sm">
+          {isAhead ? 'ahead on the US side' : 'behind on the US side'}
+          {result.breakeven
+            ? ` · breakeven yr ${result.breakeven.year.toFixed(1)}`
+            : (result.fiveYrDelta < 0 ? ' · no breakeven in 5 yrs' : '')}
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -1311,8 +1379,9 @@ function LegendDot({ color, label, filled }) {
    CHART
    ============================================================ */
 function BreakevenChart({ pts, breakeven, years, hasInput }) {
-  const w = 880, h = 380;
-  const padL = 70, padT = 24, padR = 30, padB = 50;
+  const [hoveredYear, setHoveredYear] = React.useState(null);
+  const w = 880, h = 430;
+  const padL = 78, padT = 30, padR = 34, padB = 52;
   const plotW = w - padL - padR, plotH = h - padT - padB;
 
   const allVals = pts.flatMap(p => [p.ca, p.us]);
@@ -1338,8 +1407,14 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
     return sign + '$' + Math.round(abs / 1000) + 'k';
   };
 
+  const hPt = hoveredYear !== null ? pts.find(p => p.year === hoveredYear) : null;
+  const colW = plotW / years;
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet"
+      onMouseLeave={() => setHoveredYear(null)}>
+
+      {/* Grid lines + Y axis labels */}
       {yTicks.map(v => (
         <g key={v}>
           <line x1={padL} y1={yS(v)} x2={padL + plotW} y2={yS(v)}
@@ -1349,25 +1424,113 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
             fill="#0E0B2C" opacity="0.55" fontFamily="Geist Mono">{fmtTick(v)}</text>
         </g>
       ))}
+
+      {/* X axis year labels */}
       {pts.map(p => (
-        <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle" fontSize="11"
-          fill="#0E0B2C" opacity="0.55" fontFamily="Space Grotesk">Y{p.year}</text>
+        <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle"
+          fontSize="11" fontFamily="Space Grotesk"
+          fill="#0E0B2C" opacity={hoveredYear === p.year ? 1 : 0.55}
+          fontWeight={hoveredYear === p.year ? '700' : '400'}>
+          Y{p.year}
+        </text>
       ))}
+      <text x={padL + plotW / 2} y={padT + plotH + 42} textAnchor="middle"
+        fontSize="9.5" fill="#0E0B2C" opacity="0.3" fontFamily="Space Grotesk" letterSpacing="0.12em">
+        YEARS FROM NOW
+      </text>
 
       {hasInput && (
         <>
+          {/* Area fills under each line */}
           <path d={`${caPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#D4FF3A" fillOpacity="0.08"/>
           <path d={`${usPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#FF3D7F" fillOpacity="0.10"/>
+
+          {/* Lines */}
           <path d={caPath} fill="none" stroke="#D4FF3A" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
           <path d={usPath} fill="none" stroke="#FF3D7F" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+
+          {/* Data point dots */}
           {pts.map(p => (
             <g key={'d'+p.year}>
-              <circle cx={xS(p.year)} cy={yS(p.ca)} r="4.5" fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2.2"/>
-              <circle cx={xS(p.year)} cy={yS(p.us)} r="4.5" fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2.2"/>
+              <circle cx={xS(p.year)} cy={yS(p.ca)} r={hoveredYear === p.year ? 6.5 : 4.5}
+                fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2.2"
+                style={{transition: 'r 0.1s'}}/>
+              <circle cx={xS(p.year)} cy={yS(p.us)} r={hoveredYear === p.year ? 6.5 : 4.5}
+                fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2.2"
+                style={{transition: 'r 0.1s'}}/>
             </g>
           ))}
+
+          {/* End-of-line labels with dollar values */}
+          {(() => {
+            const last = pts[years];
+            const caLabelY = yS(last.ca) - 16;
+            const usLabelY = yS(last.us) - 16;
+            const tooClose = Math.abs(caLabelY - usLabelY) < 20;
+            return (
+              <>
+                <text x={xS(years) - 8} y={caLabelY} textAnchor="end"
+                  fontSize="11" fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
+                  🇨🇦 {fmtTick(last.ca)}
+                </text>
+                <text x={xS(years) - 8} y={tooClose ? caLabelY + 20 : usLabelY} textAnchor="end"
+                  fontSize="11" fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
+                  🇺🇸 {fmtTick(last.us)}
+                </text>
+              </>
+            );
+          })()}
+
+          {/* Invisible hover hit areas per year column */}
+          {pts.map((p, i) => {
+            const x0 = i === 0 ? xS(0) : xS(p.year) - colW / 2;
+            const x1 = i === years ? xS(years) : xS(p.year) + colW / 2;
+            return (
+              <rect key={'hit'+p.year}
+                x={x0} y={padT} width={x1 - x0} height={plotH}
+                fill="transparent" style={{cursor: 'crosshair'}}
+                onMouseEnter={() => setHoveredYear(p.year)}
+              />
+            );
+          })}
         </>
       )}
+
+      {/* Hover overlay */}
+      {hPt && hasInput && (() => {
+        const x = xS(hPt.year);
+        const delta = hPt.us - hPt.ca;
+        const tooltipW = 146;
+        const tooltipH = 90;
+        const tooltipX = hPt.year >= years * 0.65 ? x - tooltipW - 14 : x + 14;
+        const midY = (yS(hPt.ca) + yS(hPt.us)) / 2;
+        const tooltipY = Math.max(padT + 4, Math.min(midY - tooltipH / 2, padT + plotH - tooltipH - 4));
+        return (
+          <g>
+            <line x1={x} y1={padT} x2={x} y2={padT + plotH}
+              stroke="#0E0B2C" strokeWidth="1" opacity="0.22" strokeDasharray="3 3"/>
+            <rect x={tooltipX} y={tooltipY} width={tooltipW} height={tooltipH} rx="10"
+              fill="#0E0B2C" opacity="0.93"/>
+            <text x={tooltipX + 12} y={tooltipY + 18} fontSize="9.5" fill="#FFF6E5" opacity="0.55"
+              fontFamily="Space Grotesk" fontWeight="600" letterSpacing="0.1em">
+              YEAR {hPt.year}
+            </text>
+            <circle cx={tooltipX + 14} cy={tooltipY + 33} r="4" fill="#D4FF3A"/>
+            <text x={tooltipX + 24} y={tooltipY + 37} fontSize="11" fill="#FFF6E5"
+              fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.ca)}</text>
+            <circle cx={tooltipX + 14} cy={tooltipY + 52} r="4" fill="#FF3D7F"/>
+            <text x={tooltipX + 24} y={tooltipY + 56} fontSize="11" fill="#FFF6E5"
+              fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.us)}</text>
+            <line x1={tooltipX + 12} y1={tooltipY + 66} x2={tooltipX + tooltipW - 12} y2={tooltipY + 66}
+              stroke="#FFF6E5" strokeWidth="0.5" opacity="0.2"/>
+            <text x={tooltipX + 12} y={tooltipY + 81} fontSize="10"
+              fill={delta >= 0 ? '#D4FF3A' : '#FF3D7F'}
+              fontFamily="Space Grotesk" fontWeight="700">
+              {delta >= 0 ? '+' : '−'}{fmtCAD(Math.abs(delta))} delta
+            </text>
+          </g>
+        );
+      })()}
 
       {!hasInput && (
         <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
@@ -1390,19 +1553,6 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
           </g>
         </g>
       )}
-
-      {hasInput && (
-        <>
-          <text x={xS(years) - 6} y={yS(pts[years].ca) - 14} textAnchor="end"
-            fontSize="13" fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
-            Stay in Canada
-          </text>
-          <text x={xS(years) - 6} y={yS(pts[years].us) - 14} textAnchor="end"
-            fontSize="13" fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
-            Move to US
-          </text>
-        </>
-      )}
     </svg>
   );
 }
@@ -1410,6 +1560,11 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
 /* ============================================================
    CHANGELOG VIEW
    ============================================================ */
+function computeRoadmapVersion(currentVer, tier) {
+  const [major, minor] = currentVer.split('.').map(Number);
+  return tier >= 3 ? `${major + 1}.0.0` : `${major}.${minor + tier}.0`;
+}
+
 function ChangelogView() {
   return (
     <>
@@ -1454,7 +1609,9 @@ function ChangelogView() {
             {ROADMAP.map((v, i) => (
               <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-night/10 pt-8">
                 <div className="md:col-span-3">
-                  <div className="num text-2xl font-medium tracking-tight text-night/70">v{v.version}</div>
+                  <div className="num text-2xl font-medium tracking-tight text-night/70">
+                    v{computeRoadmapVersion(CHANGELOG[0].version, v.tier)}
+                  </div>
                   <div className="label text-night/50 mt-2">{v.horizon}</div>
                   <div className="inline-block mt-3"><span className="sticker sticker-outline">Planned</span></div>
                 </div>
@@ -1554,7 +1711,7 @@ function Footer({ state, update }) {
       <div className="border-t border-night/10">
         <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-6">
           <p className="grotesk text-xs text-night/55 leading-relaxed max-w-4xl">
-            <span className="font-semibold text-night/80">Estimates only</span> · 2026 brackets (BC, QC, CA, NY currently approximated) · spouse parity assumed when work-auth allows · COL multiplier is a single state-level figure, not metro-specific · <span className="font-semibold text-night/80">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
+            <span className="font-semibold text-night/80">Estimates only</span> · 2026 brackets · spouse parity assumed when work-auth allows · COL multiplier is metro-level where available, state-level otherwise · <span className="font-semibold text-night/80">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
             {' '}Assumes $1 USD = <FxRateEdit fx={state.fxRate} onChange={(v) => update({ fxRate: v })}/> CAD <span className="text-night/35">(click to edit)</span>.
             {' '}The numbers all run in your browser; the optional <span className="font-semibold text-night/80">AI explanation</span> in the verdict section is the only feature that sends inputs out (to Anthropic's API).
           </p>

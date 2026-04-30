@@ -6,7 +6,7 @@ const {
   VISA_SPOUSE_WORK,
   applyBrackets, calcCPP, calcEI, calcOntarioHealthPremium,
   calculateCanada, calcStateTax, calculateUS,
-  estimateHealthcareCost, buildBreakeven,
+  estimateHealthcareCost,
   spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD,
   estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven
 } = calc;
@@ -224,27 +224,6 @@ describe('US take-home — pinned scenarios (2026 brackets, currently approximat
   test('$300k New York mfj no kids → $219,365', () => {
     const r = calculateUS({ income: 300000, state: 'NY', filingStatus: 'mfj', kids: 0 });
     expect(Math.round(r.takeHome)).toBe(219365);
-  });
-});
-
-describe('buildBreakeven', () => {
-  test('produces year 0..N points with the right shape', () => {
-    const r = buildBreakeven({ caTakeHomeCAD: 100000, usTakeHomeCAD: 130000, movingCostsCAD: 25000, years: 5 });
-    expect(r.pts).toHaveLength(6);
-    expect(r.pts[0]).toEqual({ year: 0, ca: 0, us: -25000 });
-    expect(r.pts[5].year).toBe(5);
-  });
-
-  test('finds breakeven year when US eventually overtakes CA', () => {
-    const r = buildBreakeven({ caTakeHomeCAD: 100000, usTakeHomeCAD: 130000, movingCostsCAD: 25000, years: 5 });
-    expect(r.breakeven).not.toBeNull();
-    expect(r.breakeven.year).toBeGreaterThan(0);
-    expect(r.breakeven.year).toBeLessThanOrEqual(5);
-  });
-
-  test('returns null breakeven when US never catches up', () => {
-    const r = buildBreakeven({ caTakeHomeCAD: 150000, usTakeHomeCAD: 100000, movingCostsCAD: 25000, years: 5 });
-    expect(r.breakeven).toBeNull();
   });
 });
 
