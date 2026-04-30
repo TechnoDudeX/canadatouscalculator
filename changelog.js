@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '4.4.0',
+    date: '2026-04-30',
+    title: 'Canada Employment Amount credit, live FX rate, roadmap pruning',
+    items: [
+      'Canada Employment Amount non-refundable federal credit now applied (~$200 increase in Canadian take-home for any employment income above $1,433)',
+      'FX rate auto-fetches live from frankfurter.app on page load — defaults to the live CAD/USD rate instead of the hardcoded 0.73; manual override still works',
+      'Roadmap pruned: removed "Replace BC/QC brackets" (shipped in v4.0.0) and "Employment Amount credit" + "Live FX rate" (both shipped in this release); tier 1 now focuses on remaining provinces and spouse offer input'
+    ]
+  },
+  {
     version: '4.3.0',
     date: '2026-04-30',
     title: 'Metro housing, live wizard preview, graph hover tooltips, dead code removal',
@@ -348,11 +358,8 @@ const CHANGELOG = [
 const ROADMAP = [
   {
     tier: 1, horizon: 'Next',
-    title: 'Verified brackets + accuracy fixes',
+    title: 'More provinces + spouse offer input',
     items: [
-      'Replace approximated BC, QC brackets with final 2026 published numbers',
-      'Canada Employment Amount credit (~$200 federal understatement on every Canadian return)',
-      'Live FX rate fetch — default 0.73 is static; integrate an open FX endpoint so the rate is current at page load',
       'Remaining provinces: MB, SK, NS, NB, NL, PE',
       'Separate spouse USD salary input — currently assumes parity with CA take-home when work-auth allows; many couples have a real different US offer',
       'TFSA wind-down PFIC liability projection (noted in copy, not yet modeled as a dollar line item)'

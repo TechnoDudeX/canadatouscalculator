@@ -15,6 +15,7 @@ const CA_FEDERAL_2026 = [
   { upTo: Infinity, rate: 0.33 }
 ];
 const CA_BPA_2026 = 16129;
+const CA_EMPLOYMENT_AMOUNT_2026 = 1433;
 
 const PROVINCIAL_2026 = {
   ON: { label: 'Ontario', short: 'Ontario',
@@ -259,7 +260,7 @@ function calculateCanada({ income, province }) {
   const cppBase = cpp - cppEnhanced;
   const taxableIncome = income - cppEnhanced;
   const fedTaxGross = applyBrackets(taxableIncome, CA_FEDERAL_2026);
-  const fedCreditBase = (CA_BPA_2026 + cppBase + ei) * CA_FEDERAL_2026[0].rate;
+  const fedCreditBase = (CA_BPA_2026 + cppBase + ei + Math.min(income, CA_EMPLOYMENT_AMOUNT_2026)) * CA_FEDERAL_2026[0].rate;
   let fedTax = Math.max(0, fedTaxGross - fedCreditBase);
   const prov = PROVINCIAL_2026[province];
   if (prov.federalAbatement) fedTax = fedTax * (1 - prov.federalAbatement);
@@ -434,7 +435,7 @@ function buildHouseholdBreakeven({ caHouseholdAnnualCAD, usHouseholdAnnualCAD, o
    visible as globals to the inline JSX <script> block in index.html. */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    CA_FEDERAL_2026, CA_BPA_2026, PROVINCIAL_2026, CPP_2026, EI_2026,
+    CA_FEDERAL_2026, CA_BPA_2026, CA_EMPLOYMENT_AMOUNT_2026, PROVINCIAL_2026, CPP_2026, EI_2026,
     US_FEDERAL_2026, US_STD_DED_2026, CTC_2026, FICA_2026, STATE_2026,
     HEALTHCARE_2026, CHILDCARE_PROV, CHILDCARE_STATE_DEFAULT,
     VISA_SPOUSE_WORK, CA_RENT_DEFAULT_MONTHLY_CAD,

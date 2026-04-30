@@ -152,6 +152,16 @@ function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  useEffect(() => {
+    fetch('https://api.frankfurter.app/latest?from=CAD&to=USD')
+      .then(r => r.json())
+      .then(d => {
+        const rate = d?.rates?.USD;
+        if (rate && rate > 0) setState(s => s.fxRate === INITIAL_STATE.fxRate ? { ...s, fxRate: +rate.toFixed(4) } : s);
+      })
+      .catch(() => {});
+  }, []);
+
   const update = (patch) => setState(s => ({ ...s, ...patch }));
 
   const navigate = (toView) => {

@@ -169,29 +169,29 @@ describe('estimateHealthcareCost', () => {
    When you intentionally change brackets, regenerate baselines and update these.
    When they break unexpectedly, you have a real regression. */
 describe('Canada take-home — pinned scenarios (2026 brackets, currently approximated)', () => {
-  test('$100k Ontario single → $73,993', () => {
+  test('$100k Ontario single → $74,194', () => {
     const r = calculateCanada({ income: 100000, province: 'ON' });
-    expect(Math.round(r.takeHome)).toBe(73993);
+    expect(Math.round(r.takeHome)).toBe(74194);
   });
 
-  test('$200k Ontario → $130,927', () => {
+  test('$200k Ontario → $131,128', () => {
     const r = calculateCanada({ income: 200000, province: 'ON' });
-    expect(Math.round(r.takeHome)).toBe(130927);
+    expect(Math.round(r.takeHome)).toBe(131128);
   });
 
-  test('$400k Ontario → $226,393', () => {
+  test('$400k Ontario → $226,594', () => {
     const r = calculateCanada({ income: 400000, province: 'ON' });
-    expect(Math.round(r.takeHome)).toBe(226393);
+    expect(Math.round(r.takeHome)).toBe(226594);
   });
 
-  test('$200k Alberta → $137,535', () => {
+  test('$200k Alberta → $137,736', () => {
     const r = calculateCanada({ income: 200000, province: 'AB' });
-    expect(Math.round(r.takeHome)).toBe(137535);
+    expect(Math.round(r.takeHome)).toBe(137736);
   });
 
-  test('$200k Quebec (with federal abatement) → $123,897', () => {
+  test('$200k Quebec (with federal abatement) → $124,064', () => {
     const r = calculateCanada({ income: 200000, province: 'QC' });
-    expect(Math.round(r.takeHome)).toBe(123897);
+    expect(Math.round(r.takeHome)).toBe(124064);
   });
 });
 
