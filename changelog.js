@@ -9,6 +9,15 @@
 
 const CHANGELOG = [
   {
+    version: '4.1.5',
+    date: '2026-04-30',
+    title: 'Replace partial-gradient highlights with solid full-word highlights',
+    items: [
+      'hl-lime, hl-pink, hl-cobalt now use a solid background color covering the entire word instead of a bottom-40% gradient strip',
+      'Fixes text visibility in all contexts — no more cream-on-cream or dark-on-dark in the transparent portion of the gradient'
+    ]
+  },
+  {
     version: '4.1.4',
     date: '2026-04-30',
     title: 'Fix hl-cobalt highlight making "questions" text invisible on light background',
