@@ -1060,8 +1060,8 @@ function VerdictSection({ state, update, result, aiTrigger }) {
 
         <div className="grid md:grid-cols-4 gap-4 md:gap-5 mb-14">
           <StatBlock kicker="Pays for itself in"
-            value={result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : (hasInput ? 'Never' : '—')}
-            detail={result.breakeven ? 'when cumulative US take-home overtakes staying' : (hasInput ? "US doesn't catch CA in 5 yrs" : 'awaiting your inputs')}
+            value={!hasInput ? '—' : result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : 'Never'}
+            detail={!hasInput ? 'awaiting your inputs' : result.breakeven ? 'when cumulative US take-home overtakes staying' : "US doesn't catch CA in 5 yrs"}
             color="cobalt"/>
           <StatBlock kicker="3-year nest egg"
             value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
@@ -1549,7 +1549,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
         </text>
       )}
 
-      {breakeven && (
+      {hasInput && breakeven && (
         <g>
           <line x1={xS(breakeven.year)} y1={padT} x2={xS(breakeven.year)} y2={padT + plotH}
             stroke="#0E0B2C" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.55"/>

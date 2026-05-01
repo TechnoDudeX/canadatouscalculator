@@ -9,6 +9,14 @@
 
 const CHANGELOG = [
   {
+    version: '4.4.1',
+    date: '2026-05-01',
+    title: 'Fix blank-state breakeven showing 0.8 years',
+    items: [
+      'Breakeven StatBlock and chart marker now gate on hasInput — blank state correctly shows "—" instead of a spurious "Year 0.8" computed from all-zero inputs'
+    ]
+  },
+  {
     version: '4.4.0',
     date: '2026-04-30',
     title: 'Canada Employment Amount credit, live FX rate, roadmap pruning',
