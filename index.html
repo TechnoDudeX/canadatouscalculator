@@ -21,6 +21,9 @@
   <meta property="og:description" content="A cross-border honesty audit. Reveals what's left after state tax, healthcare, childcare, departure tax, and the TFSA trap." />
   <meta property="og:url" content="https://canadatouscalculator.netlify.app/" />
   <meta property="og:site_name" content="North×South" />
+  <meta property="og:image" content="https://canadatouscalculator.netlify.app/og.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
@@ -82,6 +85,24 @@ const { useState, useEffect, useMemo } = React;
 /* Pure calc functions (applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
    calcCPP, calcEI, calculateCanada, calcStateTax, calculateUS,
    estimateHealthcareCost, buildBreakeven) live in calc.js. */
+
+const PROVINCE_CAVEATS = {
+  ON: 'Ontario\'s surtax kicks in above ~$107k, layering an effective 20–36% surcharge on top of the base provincial rate.',
+  QC: 'Quebec\'s top provincial rate is 25.75% — highest in Canada. QPP replaces CPP, and QPIP replaces EI for parental leave.',
+  BC: 'BC has a 20.5% top marginal provincial rate. If you keep a BC property vacant after leaving, the Speculation & Vacancy Tax applies.',
+  AB: 'Alberta has no provincial sales tax and a competitive 10% flat rate — but it turns progressive above ~$148k.',
+};
+
+const STATE_CAVEATS = {
+  CA: 'California tops out at 13.3% state income tax — the highest in the US. SDI adds another 1.1%. Expect the highest combined marginal rate in the country.',
+  NY: 'New York City adds a city income tax (~3.9%) on top of the state rate. Combined NYC+NY+federal can hit ~55% at high incomes.',
+  WA: 'Washington has no income tax, but a 7% capital gains tax applies to gains above ~$262k. Strong pick for RSU-heavy comp.',
+  TX: 'Texas has no state income tax — but property taxes run among the highest in the US (~1.6–2.5% effective rate).',
+  FL: 'Florida has no state income tax and no capital gains tax. One of the most tax-friendly destinations for high earners.',
+  MA: 'Massachusetts flat-taxes all income at 5% plus a 4% surtax on income above $1M ("millionaire\'s tax").',
+  IL: 'Illinois applies a flat 4.95% state income tax. Chicago city residents pay an additional city tax.',
+  CO: 'Colorado\'s flat 4.4% rate is modest by coastal standards — and Denver housing is cheaper than SF/NYC.',
+};
 
 const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
 const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
@@ -368,40 +389,6 @@ function Header({ navigate, scrollToSection, scrollToWizard, view }) {
 }
 
 /* ============================================================
-   MARQUEE
-   ============================================================ */
-function Marquee() {
-  const items = [
-    '🇨🇦 CRA SENDS A GOODBYE BILL',
-    '🇺🇸 COBRA = $2K/MO IF FIRED',
-    '🇨🇦 TFSA ≠ TAX-FREE IN THE US',
-    '🇺🇸 SF RENT IS 2.4× TORONTO',
-    '🇨🇦 TN VISA = SPOUSE CAN\'T WORK',
-    '🇺🇸 CHILDCARE: $2.4K vs $28K/YR',
-    '🇨🇦 PFIC FORM 8621 IS NOT A JOKE',
-    '🇺🇸 HEALTHCARE: $900/MO BEFORE YOU GET SICK',
-  ];
-  const row = (
-    <>
-      {items.map((t, i) => (
-        <span key={i} className="grotesk font-bold text-base md:text-lg tracking-wider whitespace-nowrap mx-8 inline-flex items-center">
-          <span className="inline-block w-2 h-2 rounded-full bg-pink mx-3 -translate-y-0.5"/>
-          {t}
-        </span>
-      ))}
-    </>
-  );
-  return (
-    <div className="bg-lime text-night py-3 overflow-hidden border-y-2 border-night-deep marquee-wrap">
-      <div className="flex marquee whitespace-nowrap">
-        <div className="flex shrink-0">{row}</div>
-        <div className="flex shrink-0" aria-hidden="true">{row}</div>
-      </div>
-    </div>
-  );
-}
-
-/* ============================================================
    HERO — the thesis
    ============================================================ */
 function Hero({ scrollToWizard }) {
@@ -418,19 +405,6 @@ function Hero({ scrollToWizard }) {
               you have it too, don't you 👀
             </div>
           </div>
-        </div>
-
-        <div className="mt-14 md:mt-20 grid md:grid-cols-3 gap-5 md:gap-6">
-          <PlanCard n="01" color="pink" headline="Take the bigger US offer"
-            sub={<>Six figures beats five <span className="opacity-60">on paper</span>.</>}/>
-          <PlanCard n="02" color="cobalt" headline="Grind 3–5 years"
-            sub={<>Save aggressively. Avoid lifestyle creep.</>}/>
-          <PlanCard n="03" color="lime" headline="Come home rich"
-            sub={<>Down payment, portfolio, a story to tell.</>}/>
-        </div>
-
-        <div className="mt-14 md:mt-20 -mx-6 md:-mx-10">
-          <Marquee />
         </div>
 
         <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
@@ -466,18 +440,6 @@ function Hero({ scrollToWizard }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function PlanCard({ n, color, headline, sub }) {
-  const cls = color === 'lime' ? 'panel-lime' : color === 'pink' ? 'panel-pink' : color === 'cobalt' ? 'panel-cobalt' : 'panel-cream';
-  return (
-    <div className={`${cls} p-7 md:p-8 relative overflow-hidden`}>
-      <div className="grotesk font-bold text-sm opacity-80 mb-8">STEP {n}</div>
-      <div className="display text-2xl md:text-[28px] font-bold leading-tight mb-3">{headline}</div>
-      <div className="grotesk text-base opacity-80">{sub}</div>
-      <div className="absolute -right-6 -bottom-8 stat-num text-[140px] font-bold opacity-10 leading-none">{n}</div>
-    </div>
   );
 }
 
@@ -676,6 +638,11 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                           </button>
                         ))}
                       </div>
+                      {PROVINCE_CAVEATS[state.province] && (
+                        <p className="grotesk text-xs text-night/55 mt-3 leading-relaxed border-l-2 border-night/20 pl-3">
+                          {PROVINCE_CAVEATS[state.province]}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <div className="label text-night/60 mb-3">US offer</div>
@@ -692,6 +659,11 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                           </button>
                         ))}
                       </div>
+                      {STATE_CAVEATS[state.state] && (
+                        <p className="grotesk text-xs text-night/55 mt-3 leading-relaxed border-l-2 border-night/20 pl-3">
+                          {STATE_CAVEATS[state.state]}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -931,7 +903,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
             </div>
 
             {state.salaryCAD > 0 && state.salaryUSD > 0 && (
-              <WizardPreview result={result} state={state} />
+              <WizardPreview result={result} state={state} step={step} />
             )}
           </div>
         </div>
@@ -943,14 +915,17 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
 /* ============================================================
    WIZARD LIVE PREVIEW
    ============================================================ */
-function WizardPreview({ result, state }) {
+function WizardPreview({ result, state, step }) {
   const delta = result.netDeltaCAD;
   const isAhead = delta >= 0;
+  const isPartial = step < 2;
   return (
     <div className="mt-6 panel p-5 md:p-6">
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <span className="label text-night/50">Live estimate</span>
-        <span className="grotesk text-xs text-night/30">· updates as you fill in each step</span>
+        {isPartial
+          ? <span className="grotesk text-xs text-night/40 italic">· partial — family, housing & exit not yet entered</span>
+          : <span className="grotesk text-xs text-night/30">· updates as you fill in each step</span>}
       </div>
       <div className="grid grid-cols-2 gap-6 mb-4">
         <div>
@@ -1013,6 +988,10 @@ function VerdictSection({ state, update, result, aiTrigger }) {
     verdictTitle = 'Plan breaks down.';
     verdictBody = 'On these inputs, the move costs you money over 5 years. Negotiate higher or stay.';
     verdictColor = 'pink';
+  } else if (fiveYrDelta < 150000) {
+    verdictTitle = 'Marginal — push back.';
+    verdictBody = 'Thin margin. One bad year, an FX headwind, or lifestyle drift erases it. Negotiate sign-on or relocation before signing.';
+    verdictColor = 'cobalt';
   } else if (fiveYrDelta > 400000) {
     verdictTitle = 'Plan crushes it.';
     verdictBody = 'Strong delta — even with lifestyle drift, the move pays off comfortably.';
@@ -1156,17 +1135,6 @@ function VerdictSection({ state, update, result, aiTrigger }) {
           )}
         </div>
 
-        <div className="mt-14">
-          <div className="flex items-center gap-3 mb-6 flex-wrap">
-            <span className="sticker sticker-pink">⚠ Reality check</span>
-            <span className="grotesk text-night/60 text-sm">three things this number is hiding</span>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-5">
-            <RealityCheck n="01" headline="Cost of living" body="SF rent is 2.4× Toronto. The raise gets eaten before it hits savings."/>
-            <RealityCheck n="02" headline="Lifestyle drift" body="Most people spend 30–50% of any raise. Plan for it or it plans for you."/>
-            <RealityCheck n="03" headline="Re-entry FX risk" body="Coming home means a CAD mortgage on USD savings. Currency moves against you."/>
-          </div>
-        </div>
       </div>
     </section>
   );
@@ -1364,16 +1332,6 @@ function LineItem({ label, value, detail, tone }) {
   );
 }
 
-function RealityCheck({ n, headline, body }) {
-  return (
-    <div className="panel p-6">
-      <div className="grotesk font-bold text-pink text-sm tracking-widest mb-3">{n}</div>
-      <div className="display text-xl font-bold text-night mb-2">{headline}</div>
-      <div className="grotesk text-sm text-night/70 leading-relaxed">{body}</div>
-    </div>
-  );
-}
-
 function LegendDot({ color, label, filled }) {
   return (
     <div className="flex items-center gap-2">
@@ -1423,6 +1381,15 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet"
       onMouseLeave={() => setHoveredYear(null)}>
+
+      {/* Y axis title */}
+      <text
+        x={14} y={padT + plotH / 2}
+        textAnchor="middle" fontSize="9" fill="#0E0B2C" opacity="0.3"
+        fontFamily="Space Grotesk" letterSpacing="0.1em"
+        transform={`rotate(-90, 14, ${padT + plotH / 2})`}>
+        CUMULATIVE TAKE-HOME (CAD)
+      </text>
 
       {/* Grid lines + Y axis labels */}
       {yTicks.map(v => (

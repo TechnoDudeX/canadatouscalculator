@@ -9,6 +9,22 @@
 
 const CHANGELOG = [
   {
+    version: '4.5.0',
+    date: '2026-05-01',
+    title: 'Landing page tightening, marginal verdict tier, province/state caveats, chart label, OG image',
+    items: [
+      'Removed 3-step "plan" cards (STEP 01/02/03) from hero — reduces clutter before the thesis',
+      'Removed marquee ticker — facts were duplicated from the FailMode cards below it',
+      'Removed "Reality check" footer cards from verdict — generic content at the wrong moment',
+      'Added 4th verdict tier: "Marginal — push back." for 5yr deltas of $0–$150k (cobalt), reducing false confidence in borderline cases',
+      'WizardPreview now labels itself "partial" on steps 1–2 before family/housing inputs are entered',
+      'Province caveats (ON/QC/BC/AB) appear inline after province selection in Step 1',
+      'State caveats (CA/NY/WA/TX/FL/MA/IL/CO) appear inline after state selection in Step 1',
+      'Breakeven chart now shows a rotated Y-axis title: "CUMULATIVE TAKE-HOME (CAD)"',
+      'Added og.svg (1200×630) and og:image meta tags for link preview cards',
+    ]
+  },
+  {
     version: '4.4.1',
     date: '2026-05-01',
     title: 'Fix blank-state breakeven showing 0.8 years',
