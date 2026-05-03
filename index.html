@@ -10,14 +10,14 @@
   <meta name="apple-mobile-web-app-title" content="North×South" />
   <meta name="format-detection" content="telephone=no" />
 
-  <title>North×South — Should you take the US offer? A cross-border honesty audit</title>
+  <title>North×South · Should you take the US offer? A cross-border honesty audit</title>
   <meta name="description" content="A calculator that reveals the hidden cost of moving from Canada to the US: state tax, healthcare, childcare, departure tax, TFSA traps. See if the 3–5 year detour actually pays off." />
 
   <link rel="canonical" href="https://canadatouscalculator.netlify.app/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="North×South — Should you take the US offer?" />
+  <meta property="og:title" content="North×South · Should you take the US offer?" />
   <meta property="og:description" content="A cross-border honesty audit. Reveals what's left after state tax, healthcare, childcare, departure tax, and the TFSA trap." />
   <meta property="og:url" content="https://canadatouscalculator.netlify.app/" />
   <meta property="og:site_name" content="North×South" />
@@ -27,7 +27,7 @@
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="North×South — Should you take the US offer?" />
+  <meta name="twitter:title" content="North×South · Should you take the US offer?" />
   <meta name="twitter:description" content="A cross-border honesty audit for Canadians weighing a US job offer." />
 
   <!-- Favicon (inline SVG: lime N×S on night background) -->
@@ -63,7 +63,7 @@
   <noscript>
     <div style="padding:32px;font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;color:#FFF6E5;">
       <h1 style="font-size:28px;margin:0 0 12px;">North×South needs JavaScript.</h1>
-      <p style="opacity:0.8;line-height:1.5;">This calculator runs entirely in your browser — no server, no analytics, no tracking. Enable JavaScript and reload to use it.</p>
+      <p style="opacity:0.8;line-height:1.5;">This calculator runs entirely in your browser. No server, no analytics, no tracking. Enable JavaScript and reload to use it.</p>
     </div>
   </noscript>
   <div id="root"></div>
@@ -88,20 +88,20 @@ const { useState, useEffect, useMemo } = React;
 
 const PROVINCE_CAVEATS = {
   ON: 'Ontario\'s surtax kicks in above ~$107k, layering an effective 20–36% surcharge on top of the base provincial rate.',
-  QC: 'Quebec\'s top provincial rate is 25.75% — highest in Canada. QPP replaces CPP, and QPIP replaces EI for parental leave.',
+  QC: 'Quebec\'s top provincial rate is 25.75%, the highest in Canada. QPP replaces CPP, and QPIP replaces EI for parental leave.',
   BC: 'BC has a 20.5% top marginal provincial rate. If you keep a BC property vacant after leaving, the Speculation & Vacancy Tax applies.',
-  AB: 'Alberta has no provincial sales tax and a competitive 10% flat rate — but it turns progressive above ~$148k.',
+  AB: 'Alberta has no provincial sales tax and a competitive 10% flat rate, but it turns progressive above ~$148k.',
 };
 
 const STATE_CAVEATS = {
-  CA: 'California tops out at 13.3% state income tax — the highest in the US. SDI adds another 1.1%. Expect the highest combined marginal rate in the country.',
+  CA: 'California tops out at 13.3% state income tax, the highest in the US. SDI adds another 1.1%. Expect the highest combined marginal rate in the country.',
   NY: 'New York City adds a city income tax (~3.9%) on top of the state rate. Combined NYC+NY+federal can hit ~55% at high incomes.',
   WA: 'Washington has no income tax, but a 7% capital gains tax applies to gains above ~$262k. Strong pick for RSU-heavy comp.',
-  TX: 'Texas has no state income tax — but property taxes run among the highest in the US (~1.6–2.5% effective rate).',
+  TX: 'Texas has no state income tax, but property taxes run among the highest in the US (~1.6–2.5% effective rate).',
   FL: 'Florida has no state income tax and no capital gains tax. One of the most tax-friendly destinations for high earners.',
   MA: 'Massachusetts flat-taxes all income at 5% plus a 4% surtax on income above $1M ("millionaire\'s tax").',
   IL: 'Illinois applies a flat 4.95% state income tax. Chicago city residents pay an additional city tax.',
-  CO: 'Colorado\'s flat 4.4% rate is modest by coastal standards — and Denver housing is cheaper than SF/NYC.',
+  CO: 'Colorado\'s flat 4.4% rate is modest by coastal standards, and Denver housing is cheaper than SF/NYC.',
 };
 
 const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
@@ -427,7 +427,7 @@ function Hero({ scrollToWizard }) {
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
             <p className="grotesk text-lg md:text-xl text-night/80 mt-7 max-w-2xl leading-relaxed">
-              Two tax systems. Two filing seasons. One CRA departure bill. The IRS doesn't recognize your TFSA. Your RSUs vest across a border. State income tax can hit 13.3% on top of FICA on top of federal — and the offer letter never mentions any of it.
+              A US offer comes with two tax systems, two filing seasons, and a CRA bill on the day you leave. State income tax can stack to 13.3% on top of FICA on top of federal, the IRS won't recognize your TFSA, and your RSUs will vest across a border in your first year. The offer letter mentions none of it.
             </p>
             <p className="grotesk text-lg md:text-xl text-night mt-5 max-w-2xl leading-relaxed font-semibold">
               Five questions. Your real after-tax numbers. <span className="hl-lime">Claude reads the verdict</span>, then <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink underline decoration-pink decoration-2 underline-offset-4 hover:opacity-80">Copilot Tax</a> handles the strategies that actually shrink the bill.
@@ -435,9 +435,9 @@ function Hero({ scrollToWizard }) {
           </div>
 
           <div className="md:col-span-5 space-y-4">
-            <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%. NY+NYC can hit 14.8%. Stacked on FICA + federal — the marginal rate quietly outruns Ontario."/>
+            <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%, NY+NYC can hit 14.8%. Stacked on FICA + federal, the marginal rate quietly outruns Ontario."/>
             <FailMode n="ii" kicker="The CRA exit bill" line="Deemed disposition the day you sever residency. $200k unrealized gains ≈ $26k owed, in cash, that year."/>
-            <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth. Canadian ETFs trigger Form 8621 hell. $3k–$8k/yr in compliance if you don't liquidate first."/>
+            <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth, Canadian ETFs trigger Form 8621 reporting, and $3k–$8k/yr in compliance is normal if you don't liquidate first."/>
           </div>
         </div>
 
@@ -487,7 +487,7 @@ function HiddenCosts({ result, state }) {
               The four <span className="hl-pink">tax surprises</span><br/>that flip the plan
             </h3>
             <p className="grotesk text-night/60 mt-5 leading-relaxed text-sm md:text-base">
-              The salary number is loud. These four are quiet — and together they're usually the difference between the move paying off and not.
+              The salary number is loud. These four are quiet, and together they're usually the difference between the move paying off and not.
             </p>
           </div>
         </aside>
@@ -495,22 +495,22 @@ function HiddenCosts({ result, state }) {
         <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
           <CostCard n="i" color="pink" title="State + city tax" tag="annual"
             num={stateTaxNum} label={stateTaxLabel}
-            body="Stacked on top of federal + FICA. CA hits 13.3%, NY+NYC near 14.8%. WA/TX/FL/NV charge 0%. Same offer, different state — five-figure swing."/>
+            body="Stacked on top of federal + FICA. CA hits 13.3%, NY+NYC nearer 14.8%, WA/TX/FL/NV charge 0%. Same offer, different state, five-figure swing."/>
           <CostCard n="ii" color="cobalt" title="FICA double-up" tag="annual"
             num="7.65%" label="of every dollar"
-            body="6.2% Social Security (capped) + 1.45% Medicare (uncapped) + 0.9% surcharge above $200k. The US doesn't have CPP/EI — these are the equivalents and they're bigger."/>
+            body="6.2% Social Security (capped) + 1.45% Medicare (uncapped) + 0.9% surcharge above $200k. The US has no CPP or EI; these are the equivalents and they're bigger."/>
           <CostCard n="iii" color="lime" title="The TFSA + PFIC trap" tag="one-time"
             num="$3–8k" label="compliance + tax"
-            body="IRS doesn't recognize the shelter — taxes growth as ordinary income. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you sever residency."/>
+            body="The IRS doesn't recognize the shelter and taxes the growth as ordinary income. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you sever residency."/>
           <CostCard n="iv" color="night" title="CRA departure tax" tag="one-time"
             num="varies" label="50% × marginal rate"
-            body="CRA deems you sold everything the day you leave. You owe capital gains tax in cash on paper gains. RRSPs exempt. Real estate exempt. Almost everything else isn't."/>
+            body="CRA deems you sold everything the day you leave, so you owe capital gains tax in cash on paper gains. RRSPs and real estate are exempt. Almost everything else gets hit."/>
         </div>
 
         <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
           <span className="sticker sticker-lime">Next ↓</span>
           <span className="grotesk text-night/70 text-base md:text-lg">
-            Plug in your numbers. The verdict shows your full after-tax delta — and the strategies to shrink the bill.
+            Plug in your numbers. The verdict shows your full after-tax delta, plus the strategies to shrink the bill.
           </span>
         </div>
       </div>
@@ -567,7 +567,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
   const steps = [
     { kicker: 'Step 1 / 5', q: 'Where you stand',     sub: 'Current Canadian salary, the US offer, and where each is.' },
     { kicker: 'Step 2 / 5', q: 'Family + spouse',     sub: "Family situation, spouse income, visa type. The TN/TD work-auth gap is where most household budgets break." },
-    { kicker: 'Step 3 / 5', q: 'Home in Canada',      sub: 'Own or rent — and if you own, sell or keep it.' },
+    { kicker: 'Step 3 / 5', q: 'Home in Canada',      sub: 'Own or rent. If you own, sell or keep it.' },
     { kicker: 'Step 4 / 5', q: 'Home + life in the US', sub: 'Monthly housing and a rough cost-of-living adjustment vs. Toronto baseline.' },
     { kicker: 'Step 5 / 5', q: 'The exit + the offer', sub: 'Unrealized capital gains for departure tax, plus what the employer is putting on the table.' },
   ];
@@ -610,7 +610,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
           <aside className="md:col-span-4">
             <div className="sticky top-10">
               <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
-                Your turn —<br/>five real <span className="hl-cobalt">questions</span>
+                Your turn.<br/>Five real <span className="hl-cobalt">questions</span>
               </h3>
             </div>
           </aside>
@@ -792,7 +792,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                               onClick={() => update({ caHomeDecision: 'keep' })}>Keep paying it</button>
                           </div>
                           <p className="grotesk text-xs text-night/50 mt-3 leading-relaxed">
-                            Sell adds ~5.5% (realtor + legal) to exit costs but kills the carrying cost. Keep means the mortgage continues — modeled as ~5%/12 of balance + $500/mo (taxes + maintenance), ignoring rental income.
+                            Sell adds ~5.5% (realtor + legal) to exit costs but kills the carrying cost. Keep means the mortgage continues, modeled as ~5%/12 of balance + $500/mo (taxes + maintenance), ignoring rental income.
                           </p>
                         </div>
                       </>
@@ -814,7 +814,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                           ))}
                         </div>
                         <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
-                          Pick your metro for tighter defaults — state averages hide a lot of variance. Leave blank to stick with the state-level estimate.
+                          Pick your metro for tighter defaults; state averages hide a lot of variance. Leave blank to stick with the state-level estimate.
                         </p>
                       </div>
                     )}
@@ -857,7 +857,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                         onChange={v => update({ unrealizedGainsCAD: v })}
                       />
                       <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
-                        CRA deems disposition the day you sever residency. Tax = gains × 50% × your marginal rate. RRSPs and TFSAs are exempt from deemed disposition (TFSA loses tax-shelter status separately — that's the "TFSA trap").
+                        CRA deems disposition the day you sever residency. Tax = gains × 50% × your marginal rate. RRSPs and TFSAs are exempt from deemed disposition (TFSA loses tax-shelter status separately, that's the "TFSA trap").
                       </p>
                     </div>
                     <div>
@@ -934,7 +934,7 @@ function WizardPreview({ result, state, step }) {
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <span className="label text-night/50">Live estimate</span>
         {isPartial
-          ? <span className="grotesk text-xs text-night/40 italic">· partial — family, housing & exit not yet entered</span>
+          ? <span className="grotesk text-xs text-night/40 italic">· partial · family, housing & exit not yet entered</span>
           : <span className="grotesk text-xs text-night/30">· updates as you fill in each step</span>}
       </div>
       <div className="grid grid-cols-2 gap-6 mb-4">
@@ -987,7 +987,7 @@ function VerdictSection({ state, update, result, aiTrigger }) {
     ? `based on your inputs · ${fmtCAD(state.salaryCAD)} ${PROVINCIAL_2026[state.province].short} → $${state.salaryUSD.toLocaleString('en-US')} ${STATE_2026[state.state].short} · ${familyLabel}${visaSpouseLine}`
     : 'based on your inputs · run the wizard above';
 
-  let verdictTitle = 'Plan survives — barely.';
+  let verdictTitle = 'Plan survives, barely.';
   let verdictBody = 'Worth it if you stay 4+ years and resist lifestyle drift.';
   let verdictColor = 'lime';
   if (!hasInput) {
@@ -999,12 +999,12 @@ function VerdictSection({ state, update, result, aiTrigger }) {
     verdictBody = 'On these inputs, the move costs you money over 5 years. Negotiate higher or stay.';
     verdictColor = 'pink';
   } else if (fiveYrDelta < 150000) {
-    verdictTitle = 'Marginal — push back.';
+    verdictTitle = 'Marginal. Push back.';
     verdictBody = 'Thin margin. One bad year, an FX headwind, or lifestyle drift erases it. Negotiate sign-on or relocation before signing.';
     verdictColor = 'cobalt';
   } else if (fiveYrDelta > 400000) {
     verdictTitle = 'Plan crushes it.';
-    verdictBody = 'Strong delta — even with lifestyle drift, the move pays off comfortably.';
+    verdictBody = 'Strong delta. Even with lifestyle drift, the move pays off comfortably.';
     verdictColor = 'lime';
   }
 
@@ -1076,7 +1076,7 @@ function VerdictSection({ state, update, result, aiTrigger }) {
           <div className="panel p-6 md:p-10 mb-14">
             <div className="flex items-center gap-3 mb-6 flex-wrap">
               <span className="sticker sticker-pink">Tax + household audit</span>
-              <span className="grotesk text-night/60 text-sm">your annual tax bill on each side, then where the rest of the money goes — all in CAD</span>
+              <span className="grotesk text-night/60 text-sm">your annual tax bill on each side, then where the rest of the money goes, all in CAD</span>
             </div>
             <div className="mb-6 grid sm:grid-cols-3 gap-5 pb-6 border-b border-night/10">
               <LineItem
@@ -1095,8 +1095,8 @@ function VerdictSection({ state, update, result, aiTrigger }) {
                 label="Annual tax delta"
                 value={fmtSigned(-result.annualTaxDeltaCAD, fmtCAD)}
                 detail={result.annualTaxDeltaCAD > 0
-                  ? 'US side pays more tax in absolute CAD — higher salary, higher bill'
-                  : 'US side pays less in absolute CAD — gross is higher but rate is lower'}
+                  ? 'US side pays more tax in absolute CAD. Higher salary, higher bill.'
+                  : 'US side pays less in absolute CAD. Gross is higher but rate is lower.'}
                 tone={result.annualTaxDeltaCAD > 0 ? 'pink' : 'lime'}
               />
             </div>
@@ -1106,8 +1106,8 @@ function VerdictSection({ state, update, result, aiTrigger }) {
                 value={result.spouseAnnualLossCAD > 0 ? fmtSigned(-result.spouseAnnualLossCAD, fmtCAD) : (state.spouseIncomeCAD > 0 ? '$0' : '—')}
                 detail={state.spouseIncomeCAD > 0
                   ? (result.spouseCanWork
-                      ? `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} can work — assumed parity with CA take-home`
-                      : `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} cannot legally work — full CA take-home gone per year`)
+                      ? `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} can work; assumed parity with CA take-home`
+                      : `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} cannot legally work, so full CA take-home is gone per year`)
                   : 'no spouse income entered'}
                 tone={result.spouseAnnualLossCAD > 0 ? 'pink' : 'neutral'}
               />
@@ -1301,11 +1301,11 @@ function ExplainPanel({ state, result, hasInput, autoTrigger, onChartInsight }) 
       {status === 'idle' && (
         <>
           <p className="grotesk text-cream/85 text-base md:text-lg leading-relaxed mb-6 max-w-2xl">
-            Claude reads your inputs and gives you a tight plain-English breakdown — the verdict, the biggest line item, one thing to sanity-check, and a negotiation lever if there's a clean one.
+            Claude reads your inputs and gives you a tight plain-English breakdown of the verdict, the biggest line item, one thing to sanity-check, and a negotiation lever if there's a clean one.
           </p>
           <button onClick={generate} className="btn-primary">Generate →</button>
           <p className="grotesk text-xs text-cream/50 mt-5 leading-relaxed max-w-2xl">
-            Sends your wizard inputs (no PII) to Anthropic's API. The numerical calculator runs entirely in your browser — this is the only feature that doesn't.
+            Sends your wizard inputs (no PII) to Anthropic's API. The numerical calculator runs entirely in your browser. This is the only feature that doesn't.
           </p>
         </>
       )}
@@ -1394,7 +1394,7 @@ function TaxStrategies() {
               Six moves that <span className="hl-lime">claw back tax</span>
             </h3>
             <p className="grotesk text-night/65 mt-5 leading-relaxed">
-              The verdict above is the napkin math. These are the levers a cross-border CPA pulls to shrink the bill on the way out — and again in your first US filing year.
+              The verdict above is the napkin math. A cross-border CPA pulls these levers to shrink the bill on the way out, and again in your first US filing year.
             </p>
             <p className="grotesk text-night/55 mt-4 leading-relaxed text-sm italic">
               Generic ranges. For your actual numbers,{' '}
@@ -1410,19 +1410,19 @@ function TaxStrategies() {
             body="Severing residency Jan 1 vs Dec 31 can move tens of thousands. A clean stub-year split lets each side tax only the income earned under its watch."/>
           <PlayCard n="ii" title="Realize gains pre-departure"
             tag="one-time"
-            body="In some brackets, triggering capital gains while still Canadian-resident beats the deemed-disposition departure tax. Depends on bracket, gain size, and re-acquisition plans."/>
+            body="In some brackets, triggering capital gains while still Canadian-resident beats the deemed-disposition departure tax. Depends on bracket size and what you plan to re-acquire on the US side."/>
           <PlayCard n="iii" title="Top up the RRSP"
             tag="one-time"
             body="Your last year of high Canadian income is the best time to deduct an RRSP contribution. The Canada-US treaty lets you defer US tax on the balance after you move."/>
           <PlayCard n="iv" title="Wind down the TFSA"
             tag="one-time"
-            body="The IRS taxes growth as ordinary income and slaps PFIC reporting on Canadian ETFs. Liquidate before you become US-resident — there's nothing to gain by carrying it."/>
+            body="The IRS taxes growth as ordinary income and slaps PFIC reporting on Canadian ETFs. Liquidate before you become US-resident; there's nothing to gain by carrying it across."/>
           <PlayCard n="v" title="Pick the state deliberately"
             tag="strategic"
             body="Same offer, different state, $30k+ delta. WA / TX / FL / NV charge zero state income tax. CA / NY / NJ stack the highest. State choice is one of the largest 5-year levers."/>
           <PlayCard n="vi" title="Bifurcate RSU vesting"
             tag="annual"
-            body="RSUs that vest after the move get treaty-bifurcated — the Canadian-earned slice gets foreign tax credit. Done wrong, you double-pay both sides on the same income."/>
+            body="RSUs that vest after the move get treaty-bifurcated. The Canadian-earned slice gets foreign tax credit. Done wrong, you double-pay both sides on the same income."/>
         </div>
 
         <div className="md:col-span-12 mt-10">
@@ -1430,7 +1430,7 @@ function TaxStrategies() {
             <div>
               <div className="grotesk font-bold text-xs uppercase tracking-widest text-lime mb-3">Get yours done right</div>
               <p className="grotesk text-cream/85 text-base md:text-lg max-w-2xl leading-relaxed">
-                None of this is generic advice — every play depends on your residency dates, asset mix, RSU schedule, and the state you land in. <span className="text-cream font-semibold">Copilot Tax</span> handles the cross-border filings, treaty elections, and exit planning end-to-end.
+                None of this is generic advice. Every play depends on your residency dates, asset mix, RSU schedule, and the state you land in. <span className="text-cream font-semibold">Copilot Tax</span> handles the cross-border filings, treaty elections, RSU bifurcation, and exit planning end to end.
               </p>
             </div>
             <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 whitespace-nowrap shrink-0">
@@ -1743,7 +1743,7 @@ function Footer({ state, update }) {
                 Need help with your <span className="hl-lime">actual taxes?</span>
               </h3>
               <p className="grotesk text-cream/75 mt-5 text-base md:text-lg max-w-xl leading-relaxed">
-                North×South is the napkin math. <span className="text-cream font-semibold">Copilot Tax</span> is the cross-border CPA that finishes the job — TN/H1B filings, departure-tax planning, TFSA wind-down, RSU treatment.
+                North×South is the napkin math. <span className="text-cream font-semibold">Copilot Tax</span> is the cross-border CPA that finishes the job: TN/H1B filings, departure-tax planning, TFSA wind-down, RSU treatment.
               </p>
             </div>
             <div className="md:col-span-4 flex md:justify-end">
@@ -1763,7 +1763,7 @@ function Footer({ state, update }) {
             <span aria-hidden="true">🇺🇸</span>
           </div>
           <p className="grotesk text-night/60 mt-3 max-w-sm leading-relaxed">
-            A joint project by <span className="text-night font-semibold">Mazin Kanuga</span> and <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-night font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">Copilot Tax</a> — the napkin math meets the actual cross-border CPA.
+            A joint project by <span className="text-night font-semibold">Mazin Kanuga</span> and <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-night font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">Copilot Tax</a>. The napkin math meets the actual cross-border CPA.
           </p>
         </div>
         <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-night/70">

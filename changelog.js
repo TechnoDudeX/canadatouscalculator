@@ -9,6 +9,18 @@
 
 const CHANGELOG = [
   {
+    version: '4.6.1',
+    date: '2026-05-02',
+    title: 'Copy pass: em-dash purge, hero rewrite, removed staccato bursts and rule-of-three triplets',
+    items: [
+      'Full em-dash purge across user-facing prose: hero, hidden-costs cards + subtitle + "next" hint, wizard sub-copy + aside heading, wizard-preview partial label, verdict titles ("Plan survives, barely.", "Marginal. Push back.", "Strong delta. Even with..."), audit subtitle and tax-delta detail, spouse line-item details, ExplainPanel description, strategies aside + play cards + dark CTA, footer partner CTA + joint project line, page <title> and og:title (now use · separator), province/state caveats data, noscript fallback. Code comments and the typographic placeholder character for empty stat values were left in place.',
+      'Hero body paragraph rewritten: replaced 6-fragment staccato burst with two longer sentences that scan as prose ("A US offer comes with two tax systems, two filing seasons, and a CRA bill on the day you leave...")',
+      'Departure tax cost card rewritten: removed the 5-sentence negation ladder ("RRSPs exempt. Real estate exempt. Almost everything else isn\'t.") in favor of "RRSPs and real estate are exempt. Almost everything else gets hit."',
+      'Untripped two rule-of-three lists in the strategies section: "bracket, gain size, and re-acquisition plans" → "bracket size and what you plan to re-acquire on the US side"; "cross-border filings, treaty elections, and exit planning end-to-end" → 4-item list ending in "exit planning end to end"',
+      'TFSA + PFIC card and FICA card slightly tightened to match the new rhythm',
+    ]
+  },
+  {
     version: '4.6.0',
     date: '2026-05-02',
     title: 'Tax-first reframe: hero, hidden surprises, audit, chart, and a Copilot Tax strategies section',
