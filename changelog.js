@@ -9,6 +9,14 @@
 
 const CHANGELOG = [
   {
+    version: '6.2.1',
+    date: '2026-05-03',
+    title: 'Wizard step transitions scroll back to the top of the wizard',
+    items: [
+      'Each wizard step (Next button, Back button, and step-indicator dots at the bottom) now smooth-scrolls back to the top of the wizard section so the user always sees the new step\'s heading first instead of landing mid-form. Implemented as a goToStep helper that calls setStep + window.scrollTo({ top, behavior: "smooth" }) using the wizard\'s absolute Y position.',
+    ]
+  },
+  {
     version: '6.2.0',
     date: '2026-05-03',
     title: 'Wizard heading centered at top · landing sections tighter with thin dividers',

@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=6.2.0a" />
+  <link rel="stylesheet" href="style.css?v=6.2.1" />
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -590,12 +590,25 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
     else update({ familySituation: 'mfj-with-kids', filingStatus: 'mfj', kids: state.kids || 1 });
   };
 
+  const goToStep = (next) => {
+    setStep(next);
+    // Scroll back to the top of the wizard so the new step's heading
+    // is the first thing the user sees. Compute the absolute Y instead of
+    // using scrollIntoView so it works when the element is already partly
+    // in the viewport.
+    const el = document.getElementById('wizard');
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  };
+
   const handleNext = () => {
     if (step === steps.length - 1) {
       onComplete?.();
       scrollToSection('verdict');
     } else {
-      setStep(step + 1);
+      goToStep(step + 1);
     }
   };
 
@@ -911,7 +924,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
               </div>
 
               <div className="mt-12 flex items-center justify-between gap-4 pt-7 border-t border-night/10">
-                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}
+                <button onClick={() => goToStep(Math.max(0, step - 1))} disabled={step === 0}
                   className="label text-night/60 hover:text-night disabled:opacity-30">
                   ← Back
                 </button>
@@ -923,7 +936,7 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
 
             <div className="mt-8 flex justify-center gap-2">
               {steps.map((_, i) => (
-                <button key={i} onClick={() => setStep(i)}
+                <button key={i} onClick={() => goToStep(i)}
                   className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-night/40 w-2' : 'bg-night/15 w-2'}`}/>
               ))}
             </div>
