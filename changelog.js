@@ -9,6 +9,17 @@
 
 const CHANGELOG = [
   {
+    version: '6.1.5',
+    date: '2026-05-03',
+    title: 'Strategies section: punchy 2-col header — heading left, description right',
+    items: [
+      'Strategies section header now uses an explicit 2-column grid (.vb-section-head-split) at desktop ≥900px instead of a :has(.vb-deck) selector. Some browsers don\'t resolve :has() reliably and the description was falling back to stacked-below-heading with empty space on the right. The new explicit class is applied directly in the JSX so there\'s no selector ambiguity.',
+      'Heading max-width tightened from 22ch to 14ch so big h2s like "Six moves that claw back tax." break into 2 punchy lines (≈ 528px wide) instead of stretching across one thin wide line. Heading + eyebrow live in the left grid column (548px), description lives in the right grid column (548px) bottom-aligned with the heading. On mobile both stack as a normal block.',
+      'JSX restructured to wrap the eyebrow + h2 in a single div so they form one grid item; the description is the second grid item. No layout reliance on selectors that browsers might not support.',
+      'Cache-bust bumped to 6.1.5 on landing.css.',
+    ]
+  },
+  {
     version: '6.1.4',
     date: '2026-05-03',
     title: 'Drop gradient text-clip on h2s — fixes dark rectangle rendering artifacts',

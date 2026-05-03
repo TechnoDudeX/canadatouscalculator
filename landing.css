@@ -376,21 +376,23 @@ body {
   margin: 0 auto;
 }
 .vb-section-head { margin-bottom: 56px; }
-/* When the heading area has both an h2 and a description, place them side-by-side
-   on desktop so the section header fills the section width instead of pinning to top-left.
-   Falls back to stacked block layout on small screens (or browsers without :has()). */
+
+/* Magazine-style 2-column header: punchy heading on the left, description on the
+   right. Applied via an explicit class on the JSX (vb-section-head-split) so it
+   works without :has() support. Falls back to stacked block layout on mobile. */
 @media (min-width: 900px) {
-  .vb-section-head:has(.vb-deck) {
+  .vb-section-head-split {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: 72px;
     align-items: end;
   }
-  .vb-section-head:has(.vb-deck) .vb-deck {
-    margin-top: 0;
-  }
+  .vb-section-head-split .vb-deck { margin-top: 0; }
 }
-.vb-section-head .vb-h2 { max-width: 22ch; }
+
+/* Punchy heading: wrap at ~14ch so big h2s break across 2-3 lines instead of
+   floating as a single thin line at the top. */
+.vb-section-head .vb-h2 { max-width: 14ch; }
 .vb-section-head .vb-deck { max-width: 56ch; }
 .vb-section-eyebrow {
   display: flex; align-items: center; gap: 8px;

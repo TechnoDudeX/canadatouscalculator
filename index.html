@@ -48,7 +48,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="landing.css?v=6.1.4" />
+  <link rel="stylesheet" href="landing.css?v=6.1.5" />
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -390,14 +390,16 @@ function HowItWorks() {
 function Strategies() {
   return (
     <section className="vb-section" id="strategies">
-      <div className="vb-section-head vb-reveal">
-        <div className="vb-section-eyebrow">
-          <span className="vb-bullet" /> TAX STRATEGY PREVIEW
+      <div className="vb-section-head vb-section-head-split vb-reveal">
+        <div>
+          <div className="vb-section-eyebrow">
+            <span className="vb-bullet" /> TAX STRATEGY PREVIEW
+          </div>
+          <h2 className="vb-display vb-h2 vb-soft-text">
+            Six moves that <span className="vb-grad">claw back tax.</span>
+          </h2>
         </div>
-        <h2 className="vb-display vb-h2 vb-soft-text">
-          Six moves that <span className="vb-grad">claw back tax.</span>
-        </h2>
-        <p className="vb-deck" style={{ marginTop: 24 }}>
+        <p className="vb-deck">
           The audit surfaces the gap. A cross-border CPA picks the levers
           that fit your residency dates, RSU schedule, and asset mix.
           Three of these are universal one-time plays; three depend on a
