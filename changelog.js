@@ -9,6 +9,19 @@
 
 const CHANGELOG = [
   {
+    version: '6.1.0',
+    date: '2026-05-03',
+    title: 'Wizard re-themed to match landing aesthetic · mobile + desktop polish',
+    items: [
+      'Wizard now wears the same dark fintech aesthetic as the landing page. Tailwind color tokens (cream / night / lime / pink / cobalt) re-mapped in tailwind.config.js to the variant-B palette — the same class names produce the new theme without touching wizard.html. cream → #0a0e1a (dark navy bg), night → #e7ecf3 (light text), lime → #5eead4 (mint), pink → #ff7a7a (coral), cobalt → #5b8bff (blue). Fonts switched to Inter + JetBrains Mono everywhere; Fraunces / Space Grotesk / Geist removed.',
+      'src.css rewritten for the dark theme. Body background → dark navy; soft blue-mint glow mesh replaces the old pink/lime/cobalt gradients. Stickers are now glass-style mono badges with translucent borders. Panels use rgba glass backgrounds with backdrop-blur. The btn-primary lost its hard 6px lime shadow and gained the landing\'s soft blue glow + lift-on-hover. Pills, input-line, btn-ghost all retoned for dark.',
+      'Wizard header rebuilt: sticky position with scroll-triggered backdrop-blur glass (.wiz-top / .wiz-top-scrolled), gradient blue-to-mint brand mark replacing the old lime badge, compact "N×S" brand on mobile (full "🇨🇦 North×South 🇺🇸" + subtitle on tablet/desktop), nav items hide progressively at smaller breakpoints, "Start ↓" CTA never wraps. Logo links to / so the back-to-landing path is one tap.',
+      'Breakeven chart colors swapped: CA line was lime, now mint; US line was pink, now blue; tooltip is dark with light text and blue/mint dots; breakeven marker is blue with dark stroke; all SVG fonts switched to Inter / JetBrains Mono. Legend dots match. Empty-state message readable on dark.',
+      'Mobile experience tightened on both pages. Landing already had a hamburger menu; wizard now has touch-friendly tap targets (44px+ pills/buttons), no nav-wrap, and the salary-input bottom-line still works on dark. Both pages tested at 375px (mobile) and 1280px (desktop) viewports.',
+      'Cache-bust query params bumped to 6.1.0 for style.css, calc.js, and changelog.js so the deployed wizard picks up the new theme without users having to hard-refresh.',
+    ]
+  },
+  {
     version: '6.0.0',
     date: '2026-05-03',
     title: 'New fintech landing page · wizard moved to its own page · two-page split',
