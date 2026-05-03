@@ -9,84 +9,19 @@
 
 const CHANGELOG = [
   {
-    version: '4.8.1',
+    version: '5.0.0',
     date: '2026-05-03',
-    title: 'Hero FailMode cards moved under the CTA, 3-up horizontal at desktop',
+    title: 'Landing rebuild: salary ≠ paycheck framing, action-first reorder, new strategies section, full copy pass',
     items: [
-      'The three "state-tax surprise / CRA exit bill / TFSA + PFIC" cards used to sit in a vertical column on the right of the hero (col-span-5). They\'re now placed below the CTA in a 3-column grid (md:grid-cols-3), full-width and stacked on mobile.',
-      'Body paragraph and CTA no longer constrained to a 7-column gutter; they sit in their own row above the cards.',
-    ]
-  },
-  {
-    version: '4.8.0',
-    date: '2026-05-03',
-    title: 'Reframe: salary ≠ paycheck. New hero, broader hero body, take-home framing on chart and explainer',
-    items: [
-      'Hero rewritten. Out: "Most Canadians moving south have the same plan: the tax math always ends with them ahead. Except when it doesn\'t." In: H1 "A bigger salary doesn\'t always mean a bigger paycheck." (lime "salary", pink "paycheck") + italic pink subhead "Run the math before you run south." Reframe is salary≠paycheck instead of taxes-only.',
-      'Hero body broadened beyond the tax stack to also name healthcare premiums, COL, and the CRA exit bill: "State + FICA + federal taxes, healthcare premiums, COL, and a CRA bill on the way out all pull from the gross before it lands in your account. The offer letter mentions none of it."',
-      'Verdict explainer: "after-tax delta" → "take-home delta"',
-      'Chart title: "Cumulative after-tax cash, 5 years" → "Cumulative take-home, 5 years" (with hl-pink on "take-home")',
-      'Y-axis label: "CUMULATIVE AFTER-TAX (CAD)" → "CUMULATIVE TAKE-HOME (CAD)"',
-      'Left as-is on purpose: "The four tax surprises behind your verdict" (the cards are genuinely tax-specific), "Tax + household audit" sticker (accurate label for the panel\'s structure), "Six moves that claw back tax" (strategies really are tax strategies), and meta descriptions (already broader).',
-    ]
-  },
-  {
-    version: '4.7.2',
-    date: '2026-05-03',
-    title: 'Removed the "you have it too, don\'t you 👀" sticker from the hero',
-    items: [
-      'The floating pink sticker pinned to the right of the hero headline is gone. The combined headline now stands on its own without the side commentary.',
-    ]
-  },
-  {
-    version: '4.7.1',
-    date: '2026-05-03',
-    title: 'Combined hero into a single thesis statement',
-    items: [
-      'The two stacked headlines ("Most Canadians moving south have the same plan." and "The tax math always ends with you ahead. Except when it doesn\'t.") merged into one continuous heading: "Most Canadians moving south have the same plan: the tax math always ends with them ahead. Except when it doesn\'t." Reads as one thesis with a payoff instead of two competing hooks.',
-      'Heading size tuned (clamp 6.5vw, max 5.5rem) so the longer combined text still fits without wrapping awkwardly. Sticker ("you have it too, don\'t you 👀") still pinned right.',
-      '"you" → "them" in the math line so subject agreement matches "Most Canadians".',
-    ]
-  },
-  {
-    version: '4.7.0',
-    date: '2026-05-03',
-    title: 'Action-first reorder, hero CTA promoted into the body, copy aggressively pruned',
-    items: [
-      'Section order changed from Hero → Tax surprises → Wizard → Verdict → Strategies to Hero → Wizard → Verdict → Tax surprises → Strategies. The calculator is now the first thing after the thesis; tax surprises become the deeper-dive context behind your verdict, not pre-quiz education',
-      'Hero rebuilt: shorter body (one sentence instead of two paragraphs), primary "Run the numbers ↓" CTA promoted into the left column right under the body so it is visible without scrolling past the FailMode cards. Bottom-of-hero duplicate CTA + 5-questions sub-line removed (now consolidated into a single CTA + small caption)',
-      'FailMode cards in hero shortened (state-tax surprise, CRA exit bill, TFSA + PFIC trap)',
-      'HiddenCosts: title changed from "behind the plan" framing to "behind your verdict" since this section now follows the verdict. All four card bodies cut roughly in half (state+city, FICA, TFSA+PFIC, departure tax). Subtitle and the post-cards "Next ↓" hint rewritten to point forward to the strategies section',
-      'TaxStrategies: aside copy and all six PlayCard bodies pruned. Dark Copilot Tax CTA paragraph tightened',
-      'Header nav order updated to match the new page flow: The plan · Run it · Tax surprises · Strategies',
-    ]
-  },
-  {
-    version: '4.6.1',
-    date: '2026-05-02',
-    title: 'Copy pass: em-dash purge, hero rewrite, removed staccato bursts and rule-of-three triplets',
-    items: [
-      'Full em-dash purge across user-facing prose: hero, hidden-costs cards + subtitle + "next" hint, wizard sub-copy + aside heading, wizard-preview partial label, verdict titles ("Plan survives, barely.", "Marginal. Push back.", "Strong delta. Even with..."), audit subtitle and tax-delta detail, spouse line-item details, ExplainPanel description, strategies aside + play cards + dark CTA, footer partner CTA + joint project line, page <title> and og:title (now use · separator), province/state caveats data, noscript fallback. Code comments and the typographic placeholder character for empty stat values were left in place.',
-      'Hero body paragraph rewritten: replaced 6-fragment staccato burst with two longer sentences that scan as prose ("A US offer comes with two tax systems, two filing seasons, and a CRA bill on the day you leave...")',
-      'Departure tax cost card rewritten: removed the 5-sentence negation ladder ("RRSPs exempt. Real estate exempt. Almost everything else isn\'t.") in favor of "RRSPs and real estate are exempt. Almost everything else gets hit."',
-      'Untripped two rule-of-three lists in the strategies section: "bracket, gain size, and re-acquisition plans" → "bracket size and what you plan to re-acquire on the US side"; "cross-border filings, treaty elections, and exit planning end-to-end" → 4-item list ending in "exit planning end to end"',
-      'TFSA + PFIC card and FICA card slightly tightened to match the new rhythm',
-    ]
-  },
-  {
-    version: '4.6.0',
-    date: '2026-05-02',
-    title: 'Tax-first reframe: hero, hidden surprises, audit, chart, and a Copilot Tax strategies section',
-    items: [
-      'Hero rewritten to lead with the tax thesis (two systems, departure bill, TFSA non-recognition, RSU bifurcation, state-tax stacking) instead of generic cost-of-living framing',
-      'FailMode cards in hero replaced with the three biggest tax surprises: state-tax stacking, CRA exit bill, TFSA + PFIC trap',
-      'HiddenCosts section reframed as "The four tax surprises that flip the plan" — replaced healthcare/childcare cards with state+city tax (live state-rate readout), FICA double-up, TFSA+PFIC trap, and CRA departure tax',
-      'Verdict audit now leads with a 3-up tax row: Canada total annual tax (effective %), US total annual tax (effective %), and the annual tax delta in CAD — surfaces the headline tax bill on each side before the household line items',
-      'Chart title reframed: "Cumulative after-tax cash, 5 years" with a one-line subtitle naming what\'s being netted out (fed/state/FICA/CPP/EI/healthcare/childcare/housing/departure tax)',
-      'Y-axis label updated from "CUMULATIVE TAKE-HOME (CAD)" to "CUMULATIVE AFTER-TAX (CAD)"',
-      'New section: "Six moves that claw back tax" — Copilot Tax handoff with strategy cards (exit timing, pre-departure gain realization, RRSP top-up, TFSA wind-down, state choice, RSU treaty bifurcation) and a prominent CTA',
-      'Header nav: "Hidden costs" → "Tax surprises" + new "Strategies" anchor link',
-      'Calc result useMemo now exposes caTotalTaxCAD / usTotalTaxUSD / effective rates / annual tax delta so any future tax-focused UI can surface them without recomputing',
+      'New thesis. Hero H1 is now "A bigger salary doesn\'t always mean a bigger paycheck." with italic pink subhead "Run the math before you run south." Lime highlight on "salary", pink on "paycheck". Replaces the previous "Most Canadians moving south have the same plan / tax math always wins" framing.',
+      'Action-first section order: Hero → Wizard → Verdict → Tax surprises → Strategies. The calculator is the first thing after the thesis; the four tax surprises now sit under the verdict as deeper context, not pre-quiz education.',
+      'Hero CTA "Run the numbers ↓" promoted directly under the body with caption "5 questions · 3 min · Claude reads the verdict". Three FailMode cards (state-tax surprise / CRA exit bill / TFSA + PFIC) moved below the CTA into a 3-column horizontal grid (stacks on mobile).',
+      'New section: "Six moves that claw back tax" — exit timing, pre-departure gain realization, RRSP top-up, TFSA wind-down, state choice, RSU treaty bifurcation. Closes with a dark "Talk to Copilot Tax" CTA panel.',
+      'Verdict audit now leads with a 3-up tax row at the top (🇨🇦 total annual tax, 🇺🇸 total annual tax, annual tax delta), each with effective rate. Household line items below.',
+      'Chart title reframed to take-home: "Cumulative take-home, 5 years" + subtitle naming what\'s netted out (fed/state taxes, FICA/CPP/EI, healthcare, childcare, housing, departure tax). Y-axis label "CUMULATIVE TAKE-HOME (CAD)".',
+      'Full em-dash purge across user-facing prose. Staccato bursts and rule-of-three triplets reduced. Verdict titles tightened ("Plan survives, barely.", "Marginal. Push back.", "Strong delta. Even with lifestyle drift...").',
+      'Header nav reordered to match new flow: The plan · Run it · Tax surprises · Strategies.',
+      'Calc result useMemo exposes caTotalTaxCAD / usTotalTaxUSD / effective rates / annual tax delta so future tax-focused UI can surface them without recomputing.',
     ]
   },
   {
@@ -463,32 +398,30 @@ const CHANGELOG = [
 const ROADMAP = [
   {
     tier: 1, horizon: 'Next',
-    title: 'More provinces + spouse offer input',
+    title: 'Spouse offer input + remaining provinces',
     items: [
-      'Remaining provinces: MB, SK, NS, NB, NL, PE',
-      'Separate spouse USD salary input — currently assumes parity with CA take-home when work-auth allows; many couples have a real different US offer',
-      'TFSA wind-down PFIC liability projection (noted in copy, not yet modeled as a dollar line item)'
+      'Separate spouse USD salary input. Currently assumes parity with CA take-home when work-auth allows, but many couples have a different US offer in hand',
+      'Remaining provinces: MB, SK, NS, NB, NL, PE'
     ]
   },
   {
     tier: 2, horizon: 'Soon',
-    title: 'Equity, itemized deductions, multi-state',
+    title: 'Equity, retirement parity, and itemized deductions',
     items: [
-      'RSU and stock option cross-border treatment — vesting in both countries triggers separate tax events',
-      'Itemized deductions: mortgage interest, SALT cap ($10k), charitable giving — matters for high earners in high-tax states',
-      'Multi-state partial-year allocation for people who move mid-year',
-      'AMT comparison on the US side for incomes above $130k',
+      'RSU and stock option cross-border treatment. Vesting in both countries triggers separate tax events under the treaty',
+      'Retirement contribution parity: 401k vs RRSP annual limits, plus HSA contribution if on a high-deductible health plan',
+      'TFSA wind-down: model the PFIC liability and Form 8621 compliance cost as a dollar line item, not just a copy callout',
+      'Itemized deductions: mortgage interest, SALT cap ($10k), charitable giving. Matters for high earners in high-tax states',
       'Downloadable PDF summary for accountant or offer negotiation'
     ]
   },
   {
     tier: 3, horizon: 'Later',
-    title: 'Persona variants + preset scenarios',
+    title: 'Persona variants + deeper Copilot Tax integration',
     items: [
-      'Healthcare worker variant — NCLEX path, malpractice insurance, hospital signing bonuses',
       'Preset scenario cards: GTA-to-Austin family of four, BC-to-Seattle couple, QC-to-NYC single',
-      'Cross-border accountant + immigration lawyer referral integration (booking flow, not just a link)',
-      'Mobile app (native iOS/Android) with push alerts for FX rate moves'
+      'Healthcare worker variant: NCLEX path, malpractice insurance, hospital signing bonuses',
+      'Copilot Tax booking flow embedded directly, not just an outbound link'
     ]
   }
 ];
