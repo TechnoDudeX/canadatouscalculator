@@ -410,8 +410,9 @@ function Hero({ scrollToWizard }) {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
 
         <div className="relative">
-          <h2 className="display font-bold text-[clamp(2.5rem,8vw,7rem)] leading-[1.02] tracking-tight text-night max-w-[14ch] pb-2">
-            Most Canadians moving south have <span className="hl-lime">the same plan</span>.
+          <h2 className="display font-bold text-[clamp(2.25rem,6.5vw,5.5rem)] leading-[1.05] tracking-tight text-night max-w-[20ch] pb-2">
+            Most Canadians moving south have <span className="hl-lime">the same plan</span>: the <span className="hl-pink">tax math</span> <span className="strike-pink text-night/60">always</span> ends with them ahead.
+            <span className="block mt-3 text-pink display italic">Except when it doesn't.</span>
           </h2>
           <div className="hidden lg:block absolute right-0 top-8 floating-tag-r">
             <div className="sticker sticker-pink text-sm py-3 px-5">
@@ -420,13 +421,9 @@ function Hero({ scrollToWizard }) {
           </div>
         </div>
 
-        <div className="mt-16 md:mt-24 grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="mt-12 md:mt-20 grid md:grid-cols-12 gap-8 md:gap-12 items-start">
           <div className="md:col-span-7">
-            <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-night pb-2">
-              The <span className="hl-pink">tax math</span> <span className="strike-pink text-night/60">always</span> ends with you ahead.
-              <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
-            </h3>
-            <p className="grotesk text-lg md:text-xl text-night/80 mt-7 max-w-2xl leading-relaxed">
+            <p className="grotesk text-lg md:text-xl text-night/80 max-w-2xl leading-relaxed">
               Two tax systems, one CRA exit bill, and a state+FICA+federal stack on every paycheck. The offer letter mentions none of it.
             </p>
 

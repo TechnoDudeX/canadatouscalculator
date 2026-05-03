@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '4.7.1',
+    date: '2026-05-03',
+    title: 'Combined hero into a single thesis statement',
+    items: [
+      'The two stacked headlines ("Most Canadians moving south have the same plan." and "The tax math always ends with you ahead. Except when it doesn\'t.") merged into one continuous heading: "Most Canadians moving south have the same plan: the tax math always ends with them ahead. Except when it doesn\'t." Reads as one thesis with a payoff instead of two competing hooks.',
+      'Heading size tuned (clamp 6.5vw, max 5.5rem) so the longer combined text still fits without wrapping awkwardly. Sticker ("you have it too, don\'t you 👀") still pinned right.',
+      '"you" → "them" in the math line so subject agreement matches "Most Canadians".',
+    ]
+  },
+  {
     version: '4.7.0',
     date: '2026-05-03',
     title: 'Action-first reorder, hero CTA promoted into the body, copy aggressively pruned',
