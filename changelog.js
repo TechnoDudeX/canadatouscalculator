@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '6.1.4',
+    date: '2026-05-03',
+    title: 'Drop gradient text-clip on h2s — fixes dark rectangle rendering artifacts',
+    items: [
+      '.vb-soft-text was using a vertical light-to-translucent gradient with -webkit-background-clip: text. On some Chrome compositor paths the gradient rendered as opaque rectangular blocks behind the glyphs instead of clipping to letter shapes — most visible on the Strategies "Six moves that claw back tax." h2 where the wrap geometry made the artifacts most obvious. Replaced the gradient with a solid var(--vb-text) light color. Visual difference at a glance is none; rendering is now reliable across browsers.',
+      '.vb-grad (the blue-to-mint gradient on the highlighted phrase, e.g. "claw back tax.") is unchanged — that one renders cleanly on a single inline span and is still the key brand accent.',
+      'Cache-bust bumped to 6.1.4 on landing.css.',
+    ]
+  },
+  {
     version: '6.1.3',
     date: '2026-05-03',
     title: 'Landing section headers fill the row instead of pinning top-left',

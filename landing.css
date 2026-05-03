@@ -59,10 +59,10 @@ body {
   background: linear-gradient(135deg, var(--vb-blue), var(--vb-mint));
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.vb-soft-text {
-  background: linear-gradient(180deg, var(--vb-text) 0%, color-mix(in srgb, var(--vb-text) 70%, transparent) 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
+/* Was a gradient-clipped text effect, but background-clip: text on a multi-line
+   gradient renders as opaque rectangular blocks under some Chrome compositor
+   paths. Solid light color is more robust and visually identical at a glance. */
+.vb-soft-text { color: var(--vb-text); }
 
 .vb-container {
   max-width: 1200px;
