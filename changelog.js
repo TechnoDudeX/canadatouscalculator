@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '6.1.3',
+    date: '2026-05-03',
+    title: 'Landing section headers fill the row instead of pinning top-left',
+    items: [
+      'Removed the max-width: 32ch constraint from .vb-section-head. The unit was being computed against the parent\'s inherited 16px font-size (so 32ch resolved to ~256px wide), which forced punchy h2s like "Four line items that quietly eat the offer." and "Six moves that claw back tax." into 4 narrow lines on the left side of the section with empty space to the right. Now the heading container spans the full section width and the h2 wraps naturally at ~22ch of its own 56px font (~830px), so headings break across at most 2 lines.',
+      'Section headers that have a description (Strategies) now use a 2-column grid on desktop (≥900px): heading on the left, description on the right, aligned to the bottom edge. Section headers without a description (Surprises, Pricing, FAQ) flow as a single wide block. Mobile stacks both into a normal single-column block.',
+      'Cache-bust bumped to 6.1.3 on landing.css.',
+    ]
+  },
+  {
     version: '6.1.2',
     date: '2026-05-03',
     title: 'Dark-mode contrast fixes, hide-when-blank verdict items, link author bio',
