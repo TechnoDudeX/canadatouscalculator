@@ -9,6 +9,17 @@
 
 const CHANGELOG = [
   {
+    version: '6.1.2',
+    date: '2026-05-03',
+    title: 'Dark-mode contrast fixes, hide-when-blank verdict items, link author bio',
+    items: [
+      'Fixed unreadable dark-on-dark text in three places after the v6.1 token re-map: TaxStrategies CTA panel ("Every play depends on your residency dates..."), Footer partner CTA ("Need help with your actual taxes? / North×South is the napkin math..."), and the AI explanation panel. Root cause: text-cream/N classes still produced dark text after the cream token was flipped to dark navy. Replaced all 13 text-cream usages in wizard.html with text-night so the same opacity ramps now produce light text on dark surfaces.',
+      'Verdict line items now hide when their underlying input is blank, instead of showing a "—" placeholder. Spouse income shock hides if no spouse income entered; Childcare delta hides if 0 kids; Healthcare premium hides until US salary is entered; Departure tax hides if no unrealized gains; TFSA carry cost hides if no TFSA balance; Cost of living hides if multiplier is 1.0×. Tax delta + Housing delta always render since they\'re always computable from the base inputs.',
+      'Author attribution links now point to https://mazinkanuga.ca/ wherever "Mazin Kanuga" appears: wizard footer "joint project by" line, wizard footer copyright row, landing FAQ "Who built this?" answer, landing minimal footer, and README.md. Each link opens in a new tab with rel="noopener noreferrer".',
+      'Cache-bust bumped to 6.1.2 across calc.js, changelog.js, style.css, and landing.css.',
+    ]
+  },
+  {
     version: '6.1.0',
     date: '2026-05-03',
     title: 'Wizard re-themed to match landing aesthetic · mobile + desktop polish',

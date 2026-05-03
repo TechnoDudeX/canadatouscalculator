@@ -1,6 +1,6 @@
 # North×South
 
-A cross-border honesty audit for Canadians weighing a US job offer. A joint project by [Mazin Kanuga](https://github.com/TechnoDudeX) and [Copilot Tax](https://copilottax.ca/) — the napkin math meets the actual cross-border CPA.
+A cross-border honesty audit for Canadians weighing a US job offer. A joint project by [Mazin Kanuga](https://mazinkanuga.ca/) and [Copilot Tax](https://copilottax.ca/) — the napkin math meets the actual cross-border CPA.
 
 Models the household — primary salary + spouse work-auth, housing on both sides, cost of living, departure tax, and what the employer is actually putting on the table — not just the salary delta.
 

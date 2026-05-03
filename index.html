@@ -48,7 +48,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="landing.css?v=6.0.0" />
+  <link rel="stylesheet" href="landing.css?v=6.1.2" />
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -106,7 +106,7 @@ const FAQS = [
   { q: "Where does my data go?", a: "Nowhere. The calculator runs entirely in your browser. Your salary, household details, and assumptions never leave your device. The optional AI verdict (powered by Claude) is the only feature that sends inputs out, and only when you trigger it." },
   { q: "Do you handle visa types other than L1?", a: "Yes — TN, H1B, O1, L1A/B, and green-card track. The visa type changes spouse work-auth, which changes household income, which changes everything." },
   { q: "What if I'm moving the other way (US → Canada)?", a: "The mathematical structure is symmetric, but the current build is optimized for the Canada → US direction (departure tax, TFSA wind-down, US state choice). The reverse direction is on the roadmap." },
-  { q: "Who built this?", a: "Mazin Kanuga in partnership with Copilot Tax, a cross-border CPA practice. The calculator is open source and the math is auditable." },
+  { q: "Who built this?", a: <span><a href="https://mazinkanuga.ca/" target="_blank" rel="noopener noreferrer" style={{color:"var(--vb-blue-soft)",textDecoration:"underline",textUnderlineOffset:"2px"}}>Mazin Kanuga</a> in partnership with <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" style={{color:"var(--vb-blue-soft)",textDecoration:"underline",textUnderlineOffset:"2px"}}>Copilot Tax</a>, a cross-border CPA practice. The calculator is open source and the math is auditable.</span> },
 ];
 
 function useReveal() {
@@ -546,7 +546,7 @@ function Closer() {
 function Foot() {
   return (
     <footer className="vb-foot">
-      <span>NORTH×SOUTH · BUILT BY MAZIN KANUGA × <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer">COPILOT TAX</a></span>
+      <span>NORTH×SOUTH · BUILT BY <a href="https://mazinkanuga.ca/" target="_blank" rel="noopener noreferrer">MAZIN KANUGA</a> × <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer">COPILOT TAX</a></span>
       <span><a href="/wizard.html#changelog">CHANGELOG</a> · <a href="/wizard.html">CALCULATOR</a></span>
       <span>NOT FINANCIAL ADVICE</span>
     </footer>
