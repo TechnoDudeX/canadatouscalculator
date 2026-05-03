@@ -9,6 +9,14 @@
 
 const CHANGELOG = [
   {
+    version: '4.7.2',
+    date: '2026-05-03',
+    title: 'Removed the "you have it too, don\'t you 👀" sticker from the hero',
+    items: [
+      'The floating pink sticker pinned to the right of the hero headline is gone. The combined headline now stands on its own without the side commentary.',
+    ]
+  },
+  {
     version: '4.7.1',
     date: '2026-05-03',
     title: 'Combined hero into a single thesis statement',
