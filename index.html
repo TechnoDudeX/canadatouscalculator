@@ -304,6 +304,15 @@ function App() {
     const fiveYrDelta = pts[5].us - pts[5].ca;
     const threeYrDelta = pts[3].us - pts[3].ca;
 
+    /* Tax totals for the audit / chart. Both expressed in their native currency
+       and (for the US side) in CAD so we can show a clean annual-tax delta. */
+    const caTotalTaxCAD = state.salaryCAD > 0 ? state.salaryCAD - ca.takeHome : 0;
+    const usTotalTaxUSD = state.salaryUSD > 0 ? state.salaryUSD - us.takeHome : 0;
+    const usTotalTaxCAD = usTotalTaxUSD / (state.fxRate || 0.73);
+    const caEffRate = state.salaryCAD > 0 ? caTotalTaxCAD / state.salaryCAD : 0;
+    const usEffRate = state.salaryUSD > 0 ? usTotalTaxUSD / state.salaryUSD : 0;
+    const annualTaxDeltaCAD = usTotalTaxCAD - caTotalTaxCAD;
+
     return {
       // primary
       caTakeHomeCAD, usTakeHomeCAD,
@@ -314,6 +323,8 @@ function App() {
       // housing + COL
       caHousingAnnualCAD, usHousingAnnualCAD, housingDeltaAnnualCAD, colExtraAnnualCAD,
       caHousingMonthly, usHousingMonthlyUSD: usHousingMonthlyEffectiveUSD, colMultiplier: colMultiplierEffective,
+      // tax
+      caTotalTaxCAD, usTotalTaxUSD, usTotalTaxCAD, caEffRate, usEffRate, annualTaxDeltaCAD,
       // exit
       marginalRateCA, exitCosts,
       // aggregate
@@ -344,6 +355,7 @@ function App() {
         <HiddenCosts result={result} state={state} />
         <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} result={result} />
         <VerdictSection state={state} update={update} result={result} aiTrigger={aiTrigger} />
+        <TaxStrategies />
         <Footer state={state} update={update} />
       </main>
     </>
@@ -374,8 +386,9 @@ function Header({ navigate, scrollToSection, scrollToWizard, view }) {
           {view === 'main' && (
             <>
               <button onClick={() => scrollToSection('thesis')} className="label text-night/70 hover:text-pink transition-colors hidden sm:inline">The plan</button>
-              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Hidden costs</button>
+              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Tax surprises</button>
               <button onClick={() => scrollToSection('wizard')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Run it</button>
+              <button onClick={() => scrollToSection('strategies')} className="label text-night/70 hover:text-pink transition-colors hidden lg:inline">Strategies</button>
             </>
           )}
           <button onClick={() => navigate('changelog')} className={`label transition-colors hidden sm:inline ${view === 'changelog' ? 'text-pink' : 'text-night/70 hover:text-pink'}`}>
@@ -410,23 +423,21 @@ function Hero({ scrollToWizard }) {
         <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
           <div className="md:col-span-7">
             <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-night pb-2">
-              The detour <span className="strike-pink text-night/60">always</span> ends with you ahead.
+              The <span className="hl-pink">tax math</span> <span className="strike-pink text-night/60">always</span> ends with you ahead.
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
             <p className="grotesk text-lg md:text-xl text-night/80 mt-7 max-w-2xl leading-relaxed">
-              Higher salary, higher cost of living. Healthcare premiums you've never paid.
-              Childcare priced like a second mortgage. A TFSA the IRS will tax.
-              And a goodbye bill from CRA on your way out.
+              Two tax systems. Two filing seasons. One CRA departure bill. The IRS doesn't recognize your TFSA. Your RSUs vest across a border. State income tax can hit 13.3% on top of FICA on top of federal — and the offer letter never mentions any of it.
             </p>
             <p className="grotesk text-lg md:text-xl text-night mt-5 max-w-2xl leading-relaxed font-semibold">
-              Five questions. Your real numbers. <span className="hl-lime">Claude reads the verdict</span> and tells you what's actually moving the needle.
+              Five questions. Your real after-tax numbers. <span className="hl-lime">Claude reads the verdict</span>, then <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink underline decoration-pink decoration-2 underline-offset-4 hover:opacity-80">Copilot Tax</a> handles the strategies that actually shrink the bill.
             </p>
           </div>
 
           <div className="md:col-span-5 space-y-4">
-            <FailMode n="i" kicker="The break-even illusion" line="On paper: +$110k/yr. After healthcare + childcare: +$40k less."/>
-            <FailMode n="ii" kicker="The cost-of-living trap" line="SF rent is 2.4× Toronto. The raise vanishes into a 1-bed."/>
-            <FailMode n="iii" kicker="The exit penalty" line="CRA departure tax + TFSA wind-down = $20k–$60k on the way out."/>
+            <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%. NY+NYC can hit 14.8%. Stacked on FICA + federal — the marginal rate quietly outruns Ontario."/>
+            <FailMode n="ii" kicker="The CRA exit bill" line="Deemed disposition the day you sever residency. $200k unrealized gains ≈ $26k owed, in cash, that year."/>
+            <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth. Canadian ETFs trigger Form 8621 hell. $3k–$8k/yr in compliance if you don't liquidate first."/>
           </div>
         </div>
 
@@ -460,16 +471,12 @@ function FailMode({ n, kicker, line }) {
    ============================================================ */
 function HiddenCosts({ result, state }) {
   const hasUSD = state.salaryUSD > 0;
-  const usHealthcareLine = hasUSD ? '−' + fmtUSD(result.usHealthcare) : '−$11,700';
-  const healthcareLabel = hasUSD
-    ? (state.filingStatus === 'single' ? 'single, annual' : state.kids > 0 ? `family of ${2 + state.kids}` : 'married, no kids')
-    : 'family of 3';
-  const usChildcareLine = state.kids > 0
-    ? '−' + fmtUSD(CHILDCARE_STATE_DEFAULT[state.state] || 22000)
-    : '−$25,500';
-  const childcareLabel = state.kids > 0
-    ? `${STATE_2026[state.state].short} per kid`
-    : 'CA vs ON delta';
+  const stateTaxLabel = hasUSD ? `${STATE_2026[state.state].short} top rate` : 'CA top rate';
+  const stateTaxNum = hasUSD
+    ? (STATE_2026[state.state].type === 'none' ? '0%'
+        : STATE_2026[state.state].type === 'flat' ? `${(STATE_2026[state.state].rate * 100).toFixed(2)}%`
+        : `${(STATE_2026[state.state].brackets[state.filingStatus]?.slice(-1)[0]?.rate * 100 || 0).toFixed(1)}%`)
+    : '13.3%';
 
   return (
     <section id="hidden" className="border-t border-night/10">
@@ -477,30 +484,33 @@ function HiddenCosts({ result, state }) {
         <aside className="md:col-span-4">
           <div className="sticky top-10">
             <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
-              The four numbers<br/>that <span className="hl-pink">flip the plan</span>
+              The four <span className="hl-pink">tax surprises</span><br/>that flip the plan
             </h3>
+            <p className="grotesk text-night/60 mt-5 leading-relaxed text-sm md:text-base">
+              The salary number is loud. These four are quiet — and together they're usually the difference between the move paying off and not.
+            </p>
           </div>
         </aside>
 
         <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
-          <CostCard n="i" color="pink" title="Healthcare" tag="annual"
-            num={usHealthcareLine} label={healthcareLabel}
-            body="Premiums + out-of-pocket runs $7k–$12k a year. Get fired? COBRA hits $2,000/month."/>
-          <CostCard n="ii" color="cobalt" title="Childcare" tag="per kid"
-            num={usChildcareLine} label={childcareLabel}
-            body="CWELCC is real — Ontario daycare is $2.4k/yr. California daycare is $28k. Per kid. Per year."/>
-          <CostCard n="iii" color="lime" title="The TFSA trap" tag="one-time"
-            num="$3–8k" label="accountant + tax"
-            body="IRS doesn't recognize the shelter. ETFs trigger PFIC reporting (Form 8621). Liquidate before you go."/>
-          <CostCard n="iv" color="night" title="Departure tax" tag="one-time"
-            num="varies" label="depends on portfolio"
-            body="CRA deems disposition the day you sever residency. You owe capital gains on paper gains. RRSPs exempt."/>
+          <CostCard n="i" color="pink" title="State + city tax" tag="annual"
+            num={stateTaxNum} label={stateTaxLabel}
+            body="Stacked on top of federal + FICA. CA hits 13.3%, NY+NYC near 14.8%. WA/TX/FL/NV charge 0%. Same offer, different state — five-figure swing."/>
+          <CostCard n="ii" color="cobalt" title="FICA double-up" tag="annual"
+            num="7.65%" label="of every dollar"
+            body="6.2% Social Security (capped) + 1.45% Medicare (uncapped) + 0.9% surcharge above $200k. The US doesn't have CPP/EI — these are the equivalents and they're bigger."/>
+          <CostCard n="iii" color="lime" title="The TFSA + PFIC trap" tag="one-time"
+            num="$3–8k" label="compliance + tax"
+            body="IRS doesn't recognize the shelter — taxes growth as ordinary income. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you sever residency."/>
+          <CostCard n="iv" color="night" title="CRA departure tax" tag="one-time"
+            num="varies" label="50% × marginal rate"
+            body="CRA deems you sold everything the day you leave. You owe capital gains tax in cash on paper gains. RRSPs exempt. Real estate exempt. Almost everything else isn't."/>
         </div>
 
         <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
           <span className="sticker sticker-lime">Next ↓</span>
           <span className="grotesk text-night/70 text-base md:text-lg">
-            Plug in your numbers. Section 03 reveals what's actually left.
+            Plug in your numbers. The verdict shows your full after-tax delta — and the strategies to shrink the bill.
           </span>
         </div>
       </div>
@@ -1065,8 +1075,30 @@ function VerdictSection({ state, update, result, aiTrigger }) {
         {hasInput && (
           <div className="panel p-6 md:p-10 mb-14">
             <div className="flex items-center gap-3 mb-6 flex-wrap">
-              <span className="sticker sticker-cobalt">Household audit</span>
-              <span className="grotesk text-night/60 text-sm">where the household money actually goes — annual, in CAD</span>
+              <span className="sticker sticker-pink">Tax + household audit</span>
+              <span className="grotesk text-night/60 text-sm">your annual tax bill on each side, then where the rest of the money goes — all in CAD</span>
+            </div>
+            <div className="mb-6 grid sm:grid-cols-3 gap-5 pb-6 border-b border-night/10">
+              <LineItem
+                label="🇨🇦 Total annual tax"
+                value={fmtCAD(result.caTotalTaxCAD)}
+                detail={`fed + ${PROVINCIAL_2026[state.province].short} + CPP + EI · effective ${(result.caEffRate * 100).toFixed(1)}%`}
+                tone="neutral"
+              />
+              <LineItem
+                label="🇺🇸 Total annual tax"
+                value={fmtUSD(result.usTotalTaxUSD)}
+                detail={`fed + ${STATE_2026[state.state].short} state + FICA + Medicare · effective ${(result.usEffRate * 100).toFixed(1)}%`}
+                tone="neutral"
+              />
+              <LineItem
+                label="Annual tax delta"
+                value={fmtSigned(-result.annualTaxDeltaCAD, fmtCAD)}
+                detail={result.annualTaxDeltaCAD > 0
+                  ? 'US side pays more tax in absolute CAD — higher salary, higher bill'
+                  : 'US side pays less in absolute CAD — gross is higher but rate is lower'}
+                tone={result.annualTaxDeltaCAD > 0 ? 'pink' : 'lime'}
+              />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               <LineItem
@@ -1118,14 +1150,19 @@ function VerdictSection({ state, update, result, aiTrigger }) {
         )}
 
         <div className="panel p-6 md:p-10">
-          <div className="flex items-baseline justify-between mb-6 flex-wrap gap-3">
-            <h4 className="grotesk font-bold text-night text-xl">Cumulative take-home, 5 years</h4>
+          <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
+            <h4 className="grotesk font-bold text-night text-xl">Cumulative <span className="hl-pink">after-tax</span> cash, 5 years</h4>
             <div className="flex items-center gap-5 text-sm flex-wrap">
               <LegendDot color="#D4FF3A" label="🇨🇦 Stay in Canada"/>
               <LegendDot color="#FF3D7F" label="🇺🇸 Move to US"/>
               <LegendDot color="#0E0B2C" label="Breakeven" filled/>
             </div>
           </div>
+          {hasInput && (
+            <p className="grotesk text-night/55 text-xs md:text-sm mb-6 max-w-2xl leading-relaxed">
+              Net of fed + provincial/state income tax, CPP/EI vs FICA/Medicare, healthcare, childcare, housing, and CRA departure tax. Year 1 absorbs the one-time exit costs.
+            </p>
+          )}
           <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput}/>
           {chartInsight && (
             <div className="mt-5 flex items-start gap-3 border-t border-night/10 pt-5">
@@ -1344,6 +1381,82 @@ function LegendDot({ color, label, filled }) {
 }
 
 /* ============================================================
+   TAX STRATEGIES — Copilot Tax handoff
+   ============================================================ */
+function TaxStrategies() {
+  return (
+    <section id="strategies" className="border-t border-night/10 bg-cream/50">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+        <aside className="md:col-span-4">
+          <div className="sticky top-10">
+            <div className="sticker sticker-pink mb-5">Tax-saving plays</div>
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
+              Six moves that <span className="hl-lime">claw back tax</span>
+            </h3>
+            <p className="grotesk text-night/65 mt-5 leading-relaxed">
+              The verdict above is the napkin math. These are the levers a cross-border CPA pulls to shrink the bill on the way out — and again in your first US filing year.
+            </p>
+            <p className="grotesk text-night/55 mt-4 leading-relaxed text-sm italic">
+              Generic ranges. For your actual numbers,{' '}
+              <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink not-italic font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">
+                Copilot Tax →
+              </a>
+            </p>
+          </div>
+        </aside>
+        <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
+          <PlayCard n="i" title="Time the exit date"
+            tag="one-time"
+            body="Severing residency Jan 1 vs Dec 31 can move tens of thousands. A clean stub-year split lets each side tax only the income earned under its watch."/>
+          <PlayCard n="ii" title="Realize gains pre-departure"
+            tag="one-time"
+            body="In some brackets, triggering capital gains while still Canadian-resident beats the deemed-disposition departure tax. Depends on bracket, gain size, and re-acquisition plans."/>
+          <PlayCard n="iii" title="Top up the RRSP"
+            tag="one-time"
+            body="Your last year of high Canadian income is the best time to deduct an RRSP contribution. The Canada-US treaty lets you defer US tax on the balance after you move."/>
+          <PlayCard n="iv" title="Wind down the TFSA"
+            tag="one-time"
+            body="The IRS taxes growth as ordinary income and slaps PFIC reporting on Canadian ETFs. Liquidate before you become US-resident — there's nothing to gain by carrying it."/>
+          <PlayCard n="v" title="Pick the state deliberately"
+            tag="strategic"
+            body="Same offer, different state, $30k+ delta. WA / TX / FL / NV charge zero state income tax. CA / NY / NJ stack the highest. State choice is one of the largest 5-year levers."/>
+          <PlayCard n="vi" title="Bifurcate RSU vesting"
+            tag="annual"
+            body="RSUs that vest after the move get treaty-bifurcated — the Canadian-earned slice gets foreign tax credit. Done wrong, you double-pay both sides on the same income."/>
+        </div>
+
+        <div className="md:col-span-12 mt-10">
+          <div className="panel-night p-7 md:p-9 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="grotesk font-bold text-xs uppercase tracking-widest text-lime mb-3">Get yours done right</div>
+              <p className="grotesk text-cream/85 text-base md:text-lg max-w-2xl leading-relaxed">
+                None of this is generic advice — every play depends on your residency dates, asset mix, RSU schedule, and the state you land in. <span className="text-cream font-semibold">Copilot Tax</span> handles the cross-border filings, treaty elections, and exit planning end-to-end.
+              </p>
+            </div>
+            <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 whitespace-nowrap shrink-0">
+              Talk to Copilot Tax →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PlayCard({ n, title, tag, body }) {
+  return (
+    <div className="panel p-6 md:p-7 flex flex-col">
+      <div className="flex items-baseline justify-between mb-3">
+        <span className="display italic text-pink text-2xl leading-none">{n}.</span>
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-50">{tag}</span>
+      </div>
+      <div className="display text-xl md:text-[22px] font-bold text-night leading-tight mb-3">{title}</div>
+      <div className="grotesk text-sm text-night/70 leading-relaxed">{body}</div>
+    </div>
+  );
+}
+
+/* ============================================================
    CHART
    ============================================================ */
 function BreakevenChart({ pts, breakeven, years, hasInput }) {
@@ -1388,7 +1501,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
         textAnchor="middle" fontSize="9" fill="#0E0B2C" opacity="0.3"
         fontFamily="Space Grotesk" letterSpacing="0.1em"
         transform={`rotate(-90, 14, ${padT + plotH / 2})`}>
-        CUMULATIVE TAKE-HOME (CAD)
+        CUMULATIVE AFTER-TAX (CAD)
       </text>
 
       {/* Grid lines + Y axis labels */}

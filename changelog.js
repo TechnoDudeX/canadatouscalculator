@@ -9,6 +9,22 @@
 
 const CHANGELOG = [
   {
+    version: '4.6.0',
+    date: '2026-05-02',
+    title: 'Tax-first reframe: hero, hidden surprises, audit, chart, and a Copilot Tax strategies section',
+    items: [
+      'Hero rewritten to lead with the tax thesis (two systems, departure bill, TFSA non-recognition, RSU bifurcation, state-tax stacking) instead of generic cost-of-living framing',
+      'FailMode cards in hero replaced with the three biggest tax surprises: state-tax stacking, CRA exit bill, TFSA + PFIC trap',
+      'HiddenCosts section reframed as "The four tax surprises that flip the plan" — replaced healthcare/childcare cards with state+city tax (live state-rate readout), FICA double-up, TFSA+PFIC trap, and CRA departure tax',
+      'Verdict audit now leads with a 3-up tax row: Canada total annual tax (effective %), US total annual tax (effective %), and the annual tax delta in CAD — surfaces the headline tax bill on each side before the household line items',
+      'Chart title reframed: "Cumulative after-tax cash, 5 years" with a one-line subtitle naming what\'s being netted out (fed/state/FICA/CPP/EI/healthcare/childcare/housing/departure tax)',
+      'Y-axis label updated from "CUMULATIVE TAKE-HOME (CAD)" to "CUMULATIVE AFTER-TAX (CAD)"',
+      'New section: "Six moves that claw back tax" — Copilot Tax handoff with strategy cards (exit timing, pre-departure gain realization, RRSP top-up, TFSA wind-down, state choice, RSU treaty bifurcation) and a prominent CTA',
+      'Header nav: "Hidden costs" → "Tax surprises" + new "Strategies" anchor link',
+      'Calc result useMemo now exposes caTotalTaxCAD / usTotalTaxUSD / effective rates / annual tax delta so any future tax-focused UI can surface them without recomputing',
+    ]
+  },
+  {
     version: '4.5.0',
     date: '2026-05-01',
     title: 'Landing page tightening, marginal verdict tier, province/state caveats, chart label, OG image',
