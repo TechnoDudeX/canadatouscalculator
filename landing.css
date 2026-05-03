@@ -19,7 +19,7 @@
   --vb-mint: #5eead4;
   --vb-coral: #ff7a7a;
   --vb-amber: #fbbf24;
-  --vb-section-y: 120px;
+  --vb-section-y: 72px;
   --vb-gutter: 56px;
 }
 
@@ -374,6 +374,16 @@ body {
   padding: var(--vb-section-y) var(--vb-gutter);
   max-width: 1280px;
   margin: 0 auto;
+  position: relative;
+}
+/* Thin divider line above each section (skip the first) — gives sections a
+   visual seam without inflating the vertical gap. */
+.vb-section + .vb-section,
+.vb-strip + .vb-section,
+.vb-section + .vb-testi,
+.vb-testi + .vb-section,
+.vb-section + .vb-closer {
+  border-top: 1px solid var(--vb-border);
 }
 .vb-section-head { margin-bottom: 56px; }
 

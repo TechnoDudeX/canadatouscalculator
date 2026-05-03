@@ -9,6 +9,16 @@
 
 const CHANGELOG = [
   {
+    version: '6.2.0',
+    date: '2026-05-03',
+    title: 'Wizard heading centered at top · landing sections tighter with thin dividers',
+    items: [
+      'Wizard layout restructured. Was a 2-column grid (sticky "Your turn. Five real questions" prompt on the left, panel on the right). Now the prompt is a single centered heading above the panel, and the panel sits in a 960px-wide centered container. Mobile gets the same vertical-stack layout it always did, just tighter. The whole section feels like a focused single-column form instead of a magazine spread.',
+      'Landing section vertical gap reduced from 120px to 72px (--vb-section-y), with a 1px translucent divider line between adjacent sections. The section seam is now a thin visible rule instead of a 240px void of background. Sections feel connected without losing the breathing room.',
+      'Cache-bust bumped to 6.2.0 across style.css, calc.js, changelog.js, and landing.css.',
+    ]
+  },
+  {
     version: '6.1.5',
     date: '2026-05-03',
     title: 'Strategies section: punchy 2-col header — heading left, description right',

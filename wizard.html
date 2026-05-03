@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=6.1.2" />
+  <link rel="stylesheet" href="style.css?v=6.2.0a" />
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -67,8 +67,8 @@
   </noscript>
   <div id="root"></div>
 
-<script src="calc.js?v=6.1.2"></script>
-<script src="changelog.js?v=6.1.2"></script>
+<script src="calc.js?v=6.2.0"></script>
+<script src="changelog.js?v=6.2.0"></script>
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useMemo } = React;
 
@@ -615,18 +615,13 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
 
   return (
     <section id="wizard" className="border-t border-night/10 bg-cream/50">
-      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
-        <div className="grid md:grid-cols-12 gap-10">
-          <aside className="md:col-span-4">
-            <div className="sticky top-10">
-              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
-                Your turn.<br/>Five real <span className="hl-cobalt">questions</span>
-              </h3>
-            </div>
-          </aside>
+      <div className="max-w-[960px] mx-auto px-6 md:px-10 py-20 md:py-28">
+        <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1 text-center mb-12 md:mb-16">
+          Your turn. Five real <span className="hl-cobalt">questions</span>
+        </h3>
 
-          <div className="md:col-span-8">
-            <div className="panel p-8 md:p-10">
+        <div>
+          <div className="panel p-8 md:p-10">
               <div className="flex items-center justify-between mb-8">
                 <span className="label text-night/70">{cur.kicker}</span>
                 <span className="num text-xs text-night/50">{step + 1} / {steps.length}</span>
@@ -937,7 +932,6 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
               <WizardPreview result={result} state={state} step={step} />
             )}
           </div>
-        </div>
       </div>
     </section>
   );
