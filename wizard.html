@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5EBD3" />
+  <meta name="color-scheme" content="light" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="North×South" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <title>North×South · Cross-border calculator (5-question audit)</title>
+  <meta name="description" content="The North×South 5-question audit. Reveals what's left after state tax, healthcare, childcare, departure tax, and the TFSA trap." />
+
+  <link rel="canonical" href="https://canadatouscalculator.netlify.app/wizard.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="North×South · Should you take the US offer?" />
+  <meta property="og:description" content="A cross-border honesty audit. Reveals what's left after state tax, healthcare, childcare, departure tax, and the TFSA trap." />
+  <meta property="og:url" content="https://canadatouscalculator.netlify.app/wizard.html" />
+  <meta property="og:site_name" content="North×South" />
+  <meta property="og:image" content="https://canadatouscalculator.netlify.app/og.svg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="North×South · Should you take the US offer?" />
+  <meta name="twitter:description" content="A cross-border honesty audit for Canadians weighing a US job offer." />
+
+  <!-- Favicon (inline SVG: lime N×S on night background) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E0B2C'/%3E%3Ctext x='32' y='44' font-size='26' font-family='Georgia,serif' font-weight='700' fill='%23D4FF3A' text-anchor='middle'%3EN%C3%97S%3C/text%3E%3C/svg%3E" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "North×South",
+    "description": "A calculator that reveals the hidden cost of moving from Canada to the US: state tax, healthcare, childcare, departure tax, TFSA traps.",
+    "url": "https://canadatouscalculator.netlify.app/",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Trimmed weights — only what's actually used (Fraunces 700/800, Space Grotesk 400/500/600/700, Geist 400/500, Geist Mono 400/500) -->
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+</head>
+<body>
+  <noscript>
+    <div style="padding:32px;font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;color:#FFF6E5;">
+      <h1 style="font-size:28px;margin:0 0 12px;">North×South needs JavaScript.</h1>
+      <p style="opacity:0.8;line-height:1.5;">This calculator runs entirely in your browser. No server, no analytics, no tracking. Enable JavaScript and reload to use it.</p>
+    </div>
+  </noscript>
+  <div id="root"></div>
+
+<script src="calc.js?v=6.0.0"></script>
+<script src="changelog.js?v=6.0.0"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo } = React;
+
+/* Tax data (CA_FEDERAL_2026, PROVINCIAL_2026, CPP_2026, EI_2026, US_FEDERAL_2026,
+   US_STD_DED_2026, CTC_2026, FICA_2026, STATE_2026, HEALTHCARE_2026,
+   CHILDCARE_PROV, CHILDCARE_STATE_DEFAULT) and the pure calculation functions
+   live in calc.js — see <script src="calc.js"> above. They are visible here
+   as globals. calc.js is also the import target for the Node test suite. */
+
+/* CHANGELOG and ROADMAP arrays live in changelog.js (loaded as a separate
+   <script> above). Visible here as globals. Prepend new entries there. */
+
+/* Pure calc functions (applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
+   calcCPP, calcEI, calculateCanada, calcStateTax, calculateUS,
+   estimateHealthcareCost, buildBreakeven) live in calc.js. */
+
+const PROVINCE_CAVEATS = {
+  ON: 'Ontario\'s surtax kicks in above ~$107k, layering an effective 20–36% surcharge on top of the base provincial rate.',
+  QC: 'Quebec\'s top provincial rate is 25.75%, the highest in Canada. QPP replaces CPP, and QPIP replaces EI for parental leave.',
+  BC: 'BC has a 20.5% top marginal provincial rate. If you keep a BC property vacant after leaving, the Speculation & Vacancy Tax applies.',
+  AB: 'Alberta has no provincial sales tax and a competitive 10% flat rate, but it turns progressive above ~$148k.',
+};
+
+const STATE_CAVEATS = {
+  CA: 'California tops out at 13.3% state income tax, the highest in the US. SDI adds another 1.1%. Expect the highest combined marginal rate in the country.',
+  NY: 'New York City adds a city income tax (~3.9%) on top of the state rate. Combined NYC+NY+federal can hit ~55% at high incomes.',
+  WA: 'Washington has no income tax, but a 7% capital gains tax applies to gains above ~$262k. Strong pick for RSU-heavy comp.',
+  TX: 'Texas has no state income tax, but property taxes run among the highest in the US (~1.6–2.5% effective rate).',
+  FL: 'Florida has no state income tax and no capital gains tax. One of the most tax-friendly destinations for high earners.',
+  MA: 'Massachusetts flat-taxes all income at 5% plus a 4% surtax on income above $1M ("millionaire\'s tax").',
+  IL: 'Illinois applies a flat 4.95% state income tax. Chicago city residents pay an additional city tax.',
+  CO: 'Colorado\'s flat 4.4% rate is modest by coastal standards, and Denver housing is cheaper than SF/NYC.',
+};
+
+const fmtCAD = (n) => '$' + Math.round(n).toLocaleString('en-CA');
+const fmtUSD = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const fmtSigned = (n, fmt) => (n >= 0 ? '+' : '−') + fmt(Math.abs(n));
+
+/* ========================================================================
+   APP
+   ======================================================================== */
+
+const INITIAL_STATE = {
+  salaryCAD: 0,
+  salaryUSD: 0,
+  province: 'ON',
+  state: 'CA',
+  filingStatus: 'single',
+  kids: 0,
+  familySituation: 'single',
+
+  // v4.0.0 — spouse work-auth + income shock
+  spouseIncomeCAD: 0,
+  visaType: 'TN',
+  spouseCanWorkOverride: null, // null = use visa default
+
+  // v4.0.0 — Canadian housing
+  caHousing: 'rent',           // 'rent' | 'own'
+  caRentMonthlyCAD: 0,
+  caHomeValueCAD: 0,
+  caMortgageBalanceCAD: 0,
+  caHomeDecision: 'sell',      // 'sell' | 'keep'
+
+  // v4.0.0 — US housing + cost-of-living. 0 = "use the metro or state-keyed
+  // default", set in the result useMemo. Real edits become >0 (or in
+  // the multiplier's case, a non-zero float).
+  metro: '',             // '' = use state default; non-empty = use metro default
+  usMonthlyHousingUSD: 0,
+  usCOLmultiplier: 0,
+
+  // v4.0.0 — investments + offer credits
+  unrealizedGainsCAD: 0,
+  tfsaBalanceCAD: 0,
+  signOnBonusUSD: 0,
+  relocationCoverageUSD: 0,
+
+  fxRate: 0.73,
+  movingCostsCAD: 15000        // physical move + immigration legal only;
+                               // realtor/departure-tax now modeled separately
+};
+
+function App() {
+  const [state, setState] = useState(INITIAL_STATE);
+  const [view, setView] = useState(() => window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
+  const [aiTrigger, setAiTrigger] = useState(0);
+
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    const initialHash = window.location.hash.slice(1);
+    const SCROLL_TARGETS = ['wizard', 'verdict', 'hidden', 'strategies'];
+    if (initialHash === 'changelog') {
+      // ChangelogView renders; nothing to scroll.
+    } else if (SCROLL_TARGETS.includes(initialHash)) {
+      // Defer until React paints the section
+      requestAnimationFrame(() => {
+        document.getElementById(initialHash)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+      });
+    } else {
+      if (initialHash) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+      window.scrollTo(0, 0);
+    }
+    const onHash = () => {
+      setView(window.location.hash.slice(1) === 'changelog' ? 'changelog' : 'main');
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  useEffect(() => {
+    fetch('https://api.frankfurter.app/latest?from=CAD&to=USD')
+      .then(r => r.json())
+      .then(d => {
+        const rate = d?.rates?.USD;
+        if (rate && rate > 0) setState(s => s.fxRate === INITIAL_STATE.fxRate ? { ...s, fxRate: +rate.toFixed(4) } : s);
+      })
+      .catch(() => {});
+  }, []);
+
+  const update = (patch) => setState(s => ({ ...s, ...patch }));
+
+  const navigate = (toView) => {
+    if (toView === 'main') {
+      window.history.replaceState(null, '', window.location.pathname);
+    } else {
+      window.history.replaceState(null, '', '#' + toView);
+    }
+    setView(toView);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const scrollToWizard = () => {
+    if (view !== 'main') {
+      window.history.replaceState(null, '', window.location.pathname);
+      setView('main');
+    }
+    setTimeout(() => {
+      document.getElementById('wizard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  };
+
+  const result = useMemo(() => {
+    /* Primary worker take-home */
+    const ca = calculateCanada({ income: state.salaryCAD, province: state.province });
+    const us = calculateUS({
+      income: state.salaryUSD,
+      state: state.state,
+      filingStatus: state.filingStatus,
+      kids: state.kids
+    });
+
+    /* Spouse income shock — the single biggest "honesty" delta. If the trailing
+       spouse can't legally work in the US (TN/H1B/O1 default), every dollar
+       they earned in Canada vanishes from the household budget. */
+    const spouseCa = state.spouseIncomeCAD > 0
+      ? calculateCanada({ income: state.spouseIncomeCAD, province: state.province })
+      : { gross: 0, takeHome: 0 };
+    const spouseCanWork = state.spouseCanWorkOverride !== null
+      ? state.spouseCanWorkOverride
+      : spouseCanWorkInUS(state.visaType);
+    /* Naive: if spouse can work, assume parity with their CA take-home (we don't
+       collect a separate USD spouse offer). Conservative — most spouses take a
+       paycut in the new market. User can override the visa toggle if needed. */
+    const spouseUsAnnualCAD = spouseCanWork && state.spouseIncomeCAD > 0
+      ? spouseCa.takeHome
+      : 0;
+    const spouseAnnualLossCAD = spouseCa.takeHome - spouseUsAnnualCAD;
+
+    /* Healthcare + childcare (existing) */
+    const usHealthcare = state.salaryUSD > 0 ? estimateHealthcareCost(state.filingStatus, state.kids) : 0;
+    const usChildcare = state.kids * (CHILDCARE_STATE_DEFAULT[state.state] || 22000);
+    const caChildcare = state.kids * (CHILDCARE_PROV[state.province] || 3000);
+
+    /* Housing — both sides. Inputs left blank fall back to province/state
+       defaults so the verdict still renders something useful. */
+    const caRentEffective = state.caRentMonthlyCAD || CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 0;
+    const usHousingMonthlyEffectiveUSD = state.usMonthlyHousingUSD ||
+      (state.metro && US_HOUSING_METRO_USD[state.state]?.[state.metro]) ||
+      US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 0;
+    const colMultiplierEffective = state.usCOLmultiplier ||
+      (state.metro && US_COL_METRO_MULTIPLIER[state.state]?.[state.metro]) ||
+      US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+
+    const caHousingMonthly = caHousingMonthlyCAD({
+      caHousing: state.caHousing,
+      caRentMonthlyCAD: caRentEffective,
+      caMortgageBalanceCAD: state.caMortgageBalanceCAD,
+      caHomeDecision: state.caHomeDecision
+    });
+    const caHousingAnnualCAD = caHousingMonthly * 12;
+    const usHousingAnnualUSD = usHousingMonthlyEffectiveUSD * 12;
+    const usHousingAnnualCAD = usHousingAnnualUSD / (state.fxRate || 0.73);
+    const housingDeltaAnnualCAD = usHousingAnnualCAD - caHousingAnnualCAD;
+
+    /* Cost-of-living delta (ex-housing/childcare/healthcare) */
+    const colExtraAnnualCAD = estimateColExtraAnnualCAD({
+      multiplier: colMultiplierEffective,
+      salaryCAD: state.salaryCAD
+    });
+
+    /* Departure marginal rate + full one-time exit costs */
+    const marginalRateCA = getMarginalRateCanada(state.salaryCAD, state.province);
+    const exitCosts = estimateExitCostsCAD({
+      caHousing: state.caHousing,
+      caHomeValueCAD: state.caHomeValueCAD,
+      caHomeDecision: state.caHomeDecision,
+      unrealizedGainsCAD: state.unrealizedGainsCAD,
+      marginalRateCA,
+      signOnBonusUSD: state.signOnBonusUSD,
+      relocationCoverageUSD: state.relocationCoverageUSD,
+      movingCostsCAD: state.movingCostsCAD,
+      usMonthlyHousingUSD: usHousingMonthlyEffectiveUSD,
+      fxRate: state.fxRate
+    });
+
+    /* Household annual cash flow on each side, all in CAD.
+       CA: primary + spouse take-home, minus CA childcare and CA housing.
+       US: primary US take-home (after healthcare/childcare/housing) converted
+           to CAD, plus spouse US contribution, minus the COL premium. */
+    const usTakeHomeUSD = us.takeHome - usHealthcare - usChildcare - usHousingAnnualUSD;
+    const usTakeHomeCAD = state.salaryUSD > 0 ? usTakeHomeUSD / state.fxRate : 0;
+    const caTakeHomeCAD = ca.takeHome - caChildcare - caHousingAnnualCAD;
+    const caHouseholdAnnualCAD = caTakeHomeCAD + spouseCa.takeHome;
+    const usHouseholdAnnualCAD = usTakeHomeCAD + spouseUsAnnualCAD - colExtraAnnualCAD;
+
+    const netDeltaCAD = usHouseholdAnnualCAD - caHouseholdAnnualCAD;
+
+    const { pts, breakeven } = buildHouseholdBreakeven({
+      caHouseholdAnnualCAD,
+      usHouseholdAnnualCAD,
+      oneTimeNetCostCAD: exitCosts.net,
+      years: 5
+    });
+    const fiveYrDelta = pts[5].us - pts[5].ca;
+    const threeYrDelta = pts[3].us - pts[3].ca;
+
+    /* Tax totals for the audit / chart. Both expressed in their native currency
+       and (for the US side) in CAD so we can show a clean annual-tax delta. */
+    const caTotalTaxCAD = state.salaryCAD > 0 ? state.salaryCAD - ca.takeHome : 0;
+    const usTotalTaxUSD = state.salaryUSD > 0 ? state.salaryUSD - us.takeHome : 0;
+    const usTotalTaxCAD = usTotalTaxUSD / (state.fxRate || 0.73);
+    const caEffRate = state.salaryCAD > 0 ? caTotalTaxCAD / state.salaryCAD : 0;
+    const usEffRate = state.salaryUSD > 0 ? usTotalTaxUSD / state.salaryUSD : 0;
+    const annualTaxDeltaCAD = usTotalTaxCAD - caTotalTaxCAD;
+
+    /* TFSA carry cost — annual US tax burden + PFIC compliance if the user
+       keeps the account after moving. Informational; not subtracted from
+       the household US take-home (the optimal strategy is to liquidate). */
+    const marginalRateUS = state.salaryUSD > 0
+      ? getMarginalRateUS(state.salaryUSD, state.state, state.filingStatus)
+      : 0;
+    const tfsaCarryCostCAD = estimateTfsaCarryCostCAD({
+      tfsaBalanceCAD: state.tfsaBalanceCAD,
+      marginalRateUS
+    });
+
+    return {
+      // primary
+      caTakeHomeCAD, usTakeHomeCAD,
+      usHealthcare, usChildcare, caChildcare,
+      // spouse
+      spouseCanWork, spouseUsAnnualCAD, spouseAnnualLossCAD,
+      spouseCaTakeHome: spouseCa.takeHome,
+      // housing + COL
+      caHousingAnnualCAD, usHousingAnnualCAD, housingDeltaAnnualCAD, colExtraAnnualCAD,
+      caHousingMonthly, usHousingMonthlyUSD: usHousingMonthlyEffectiveUSD, colMultiplier: colMultiplierEffective,
+      // tax
+      caTotalTaxCAD, usTotalTaxUSD, usTotalTaxCAD, caEffRate, usEffRate, annualTaxDeltaCAD,
+      marginalRateUS, tfsaCarryCostCAD,
+      // raw breakdowns for the Show-the-math panel
+      caBreakdown: ca.breakdown, usBreakdown: us.breakdown,
+      // exit
+      marginalRateCA, exitCosts,
+      // aggregate
+      caHouseholdAnnualCAD, usHouseholdAnnualCAD,
+      netDeltaCAD, pts, breakeven, fiveYrDelta, threeYrDelta
+    };
+  }, [state]);
+
+  if (view === 'changelog') {
+    return (
+      <>
+        <a href="#main" className="skip-link">Skip to content</a>
+        <main id="main" className="min-h-screen">
+          <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
+          <ChangelogView />
+          <Footer state={state} update={update} />
+        </main>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <a href="#main" className="skip-link">Skip to content</a>
+      <main id="main" className="min-h-screen">
+        <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
+        <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} result={result} />
+        <VerdictSection state={state} update={update} result={result} aiTrigger={aiTrigger} />
+        <HiddenCosts result={result} state={state} />
+        <TaxStrategies />
+        <Footer state={state} update={update} />
+      </main>
+    </>
+  );
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+function Header({ navigate, scrollToSection, scrollToWizard, view }) {
+  return (
+    <header className="border-b border-night/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex items-center justify-between gap-6">
+        <a href="/" className="flex items-center gap-3 text-left">
+          <div className="w-10 h-10 rounded-full bg-lime grid place-items-center shrink-0">
+            <span className="display text-night text-xl font-bold leading-none">N×S</span>
+          </div>
+          <div>
+            <div className="grotesk font-bold text-night text-lg leading-none flex items-center gap-1.5">
+              <span aria-hidden="true">🇨🇦</span>
+              <span>North<span className="text-pink">×</span>South</span>
+              <span aria-hidden="true">🇺🇸</span>
+            </div>
+            <div className="label text-night/50 mt-1">AI-powered cross-border calculator</div>
+          </div>
+        </a>
+        <nav className="flex items-center gap-3 md:gap-5">
+          {view === 'main' && (
+            <>
+              <a href="/" className="label text-night/70 hover:text-pink transition-colors hidden sm:inline">Home</a>
+              <button onClick={() => scrollToSection('wizard')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Run it</button>
+              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Tax surprises</button>
+              <button onClick={() => scrollToSection('strategies')} className="label text-night/70 hover:text-pink transition-colors hidden lg:inline">Strategies</button>
+            </>
+          )}
+          <button onClick={() => navigate('changelog')} className={`label transition-colors hidden sm:inline ${view === 'changelog' ? 'text-pink' : 'text-night/70 hover:text-pink'}`}>
+            Changelog
+          </button>
+          <button onClick={scrollToWizard} className="btn-primary">Start ↓</button>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+/* ============================================================
+   HERO — the thesis
+   ============================================================ */
+function Hero({ scrollToWizard }) {
+  return (
+    <section id="thesis" className="relative overflow-hidden">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
+
+        <div className="relative">
+          <h2 className="display font-bold text-[clamp(2.5rem,7vw,6rem)] leading-[1.04] tracking-tight text-night max-w-[18ch] pb-2">
+            Does moving to <span className="hl-lime">the US</span> actually mean a <span className="hl-pink">bigger paycheck</span>?
+          </h2>
+          <p className="display italic text-pink font-bold text-[clamp(1.5rem,3.5vw,2.5rem)] leading-[1.1] mt-4 max-w-[20ch]">
+            Run the math before you run south.
+          </p>
+        </div>
+
+        <div className="mt-10 md:mt-14 flex flex-wrap items-center gap-5">
+          <button onClick={scrollToWizard} className="btn-primary">
+            Run the numbers ↓
+          </button>
+          <span className="grotesk text-night/65 text-sm md:text-base">
+            5 questions · 3 min · <span className="hl-lime">Claude reads the verdict</span>
+          </span>
+        </div>
+
+        <div className="mt-12 md:mt-16 grid md:grid-cols-3 gap-5 md:gap-6">
+          <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%. Stacked on FICA on federal, the marginal quietly outruns Ontario."/>
+          <FailMode n="ii" kicker="The CRA exit bill" line="Deemed disposition the day you leave. $200k of paper gains ≈ $26k owed in cash."/>
+          <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth. PFIC reporting on Canadian ETFs runs $3k–$8k/yr if you don't liquidate first."/>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FailMode({ n, kicker, line }) {
+  return (
+    <div className="panel p-5 md:p-6 grid grid-cols-[36px_1fr] gap-4">
+      <div className="display italic text-2xl text-pink leading-none pt-1">{n}.</div>
+      <div>
+        <div className="grotesk font-bold text-night text-base mb-1">{kicker}</div>
+        <div className="text-sm text-night/70 leading-snug">{line}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   HIDDEN COSTS — Section 1
+   ============================================================ */
+function HiddenCosts({ result, state }) {
+  const hasUSD = state.salaryUSD > 0;
+  const stateTaxLabel = hasUSD ? `${STATE_2026[state.state].short} top rate` : 'CA top rate';
+  const stateTaxNum = hasUSD
+    ? (STATE_2026[state.state].type === 'none' ? '0%'
+        : STATE_2026[state.state].type === 'flat' ? `${(STATE_2026[state.state].rate * 100).toFixed(2)}%`
+        : `${(STATE_2026[state.state].brackets[state.filingStatus]?.slice(-1)[0]?.rate * 100 || 0).toFixed(1)}%`)
+    : '13.3%';
+
+  return (
+    <section id="hidden" className="border-t border-night/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+        <aside className="md:col-span-4">
+          <div className="sticky top-10">
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
+              The four <span className="hl-pink">tax surprises</span><br/>behind your verdict
+            </h3>
+            <p className="grotesk text-night/60 mt-5 leading-relaxed text-sm md:text-base">
+              The salary number is loud. These four are quiet, and together they're the difference between the move paying off and not.
+            </p>
+          </div>
+        </aside>
+
+        <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
+          <CostCard n="i" color="pink" title="State + city tax" tag="annual"
+            num={stateTaxNum} label={stateTaxLabel}
+            body="Stacked on federal + FICA. CA 13.3%, WA/TX/FL/NV 0%. Same offer, different state, five-figure swing."/>
+          <CostCard n="ii" color="cobalt" title="FICA double-up" tag="annual"
+            num="7.65%" label="of every dollar"
+            body="6.2% Social Security + 1.45% Medicare + 0.9% surcharge above $200k. CPP/EI's bigger US cousin."/>
+          <CostCard n="iii" color="lime" title="The TFSA + PFIC trap" tag="one-time"
+            num="$3–8k" label="compliance + tax"
+            body="IRS taxes the growth. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you leave."/>
+          <CostCard n="iv" color="night" title="CRA departure tax" tag="one-time"
+            num="varies" label="50% × marginal rate"
+            body="CRA deems you sold everything the day you leave. RRSPs and real estate exempt. Everything else owes capital gains in cash."/>
+        </div>
+
+        <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
+          <span className="sticker sticker-pink">Next ↓</span>
+          <span className="grotesk text-night/70 text-base md:text-lg">
+            These are why your verdict is what it is. The strategies below shrink them.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CostCard({ n, color, title, tag, num, label, body }) {
+  const cls =
+    color === 'lime' ? 'panel-lime' :
+    color === 'pink' ? 'panel-pink' :
+    color === 'cobalt' ? 'panel-cobalt' :
+    color === 'night' ? 'panel-night' :
+    'panel-cream';
+  return (
+    <div className={`${cls} p-7 md:p-8 relative overflow-hidden flex flex-col`}>
+      <div className="flex items-baseline justify-between mb-6">
+        <span className="grotesk font-bold text-sm opacity-80">{n.toUpperCase()}</span>
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-60">{tag}</span>
+      </div>
+      <div className="display text-2xl md:text-3xl font-bold leading-tight mb-4">{title}</div>
+      <div className="stat-num text-[40px] md:text-[52px] leading-none mb-1">{num}</div>
+      <div className="grotesk text-xs uppercase tracking-wider opacity-70 mb-5">{label}</div>
+      <div className="grotesk text-sm leading-relaxed opacity-85 mt-auto">{body}</div>
+    </div>
+  );
+}
+
+/* ============================================================
+   WIZARD — v4.0.0 multi-field steps
+   ============================================================ */
+function MoneyInput({ symbol = '$', currency, value, onChange, placeholder, autoFocus, onEnter }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="num text-2xl text-night/40">{symbol}</span>
+      <input
+        autoFocus={autoFocus}
+        type="number"
+        inputMode="numeric"
+        className="input-line"
+        placeholder={placeholder}
+        value={value || ''}
+        onChange={e => onChange(parseInt(e.target.value) || 0)}
+        onKeyDown={e => { if (e.key === 'Enter' && onEnter) onEnter(); }}
+        onFocus={e => e.target.select()}
+      />
+      <span className="num text-sm text-night/60">{currency}</span>
+    </div>
+  );
+}
+
+function Wizard({ state, update, scrollToSection, onComplete, result }) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { kicker: 'Step 1 / 5', q: 'Where you stand',     sub: 'Current Canadian salary, the US offer, and where each is.' },
+    { kicker: 'Step 2 / 5', q: 'Family + spouse',     sub: "Family situation, spouse income, visa type. The TN/TD work-auth gap is where most household budgets break." },
+    { kicker: 'Step 3 / 5', q: 'Home in Canada',      sub: 'Own or rent. If you own, sell or keep it.' },
+    { kicker: 'Step 4 / 5', q: 'Home + life in the US', sub: 'Monthly housing and a rough cost-of-living adjustment vs. Toronto baseline.' },
+    { kicker: 'Step 5 / 5', q: 'The exit + the offer', sub: 'Unrealized capital gains for departure tax, plus what the employer is putting on the table.' },
+  ];
+  const cur = steps[step];
+  const pct = ((step + 1) / steps.length) * 100;
+
+  const setFamily = (situation) => {
+    if (situation === 'single') update({ familySituation: 'single', filingStatus: 'single', kids: 0, spouseIncomeCAD: 0 });
+    else if (situation === 'mfj-no-kids') update({ familySituation: 'mfj-no-kids', filingStatus: 'mfj', kids: 0 });
+    else update({ familySituation: 'mfj-with-kids', filingStatus: 'mfj', kids: state.kids || 1 });
+  };
+
+  const handleNext = () => {
+    if (step === steps.length - 1) {
+      onComplete?.();
+      scrollToSection('verdict');
+    } else {
+      setStep(step + 1);
+    }
+  };
+
+  const isMarried = state.familySituation === 'mfj-no-kids' || state.familySituation === 'mfj-with-kids';
+  const visaInfo = VISA_SPOUSE_WORK[state.visaType];
+  const spouseCanWork = state.spouseCanWorkOverride !== null
+    ? state.spouseCanWorkOverride
+    : (visaInfo?.canWorkDefault ?? false);
+
+  const usHousingPlaceholder =
+    (state.metro && US_HOUSING_METRO_USD[state.state]?.[state.metro]) ||
+    US_HOUSING_DEFAULT_MONTHLY_USD[state.state] || 2500;
+  const colPlaceholder =
+    (state.metro && US_COL_METRO_MULTIPLIER[state.state]?.[state.metro]) ||
+    US_COL_MULTIPLIER_DEFAULT[state.state] || 1.0;
+  const caRentPlaceholder = CA_RENT_DEFAULT_MONTHLY_CAD[state.province] || 2500;
+
+  return (
+    <section id="wizard" className="border-t border-night/10 bg-cream/50">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+        <div className="grid md:grid-cols-12 gap-10">
+          <aside className="md:col-span-4">
+            <div className="sticky top-10">
+              <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
+                Your turn.<br/>Five real <span className="hl-cobalt">questions</span>
+              </h3>
+            </div>
+          </aside>
+
+          <div className="md:col-span-8">
+            <div className="panel p-8 md:p-10">
+              <div className="flex items-center justify-between mb-8">
+                <span className="label text-night/70">{cur.kicker}</span>
+                <span className="num text-xs text-night/50">{step + 1} / {steps.length}</span>
+              </div>
+              <div className="h-[4px] bg-night/10 rounded-full mb-10 overflow-hidden">
+                <div className="h-full bg-lime rounded-full transition-all duration-500" style={{width: pct + '%'}}/>
+              </div>
+
+              <div className="min-h-[360px]">
+                <h4 className="display text-3xl md:text-5xl font-bold leading-[1.05] mb-3 text-night tracking-tight pb-1">
+                  {cur.q}
+                </h4>
+                <p className="grotesk text-base md:text-lg text-night/60 mb-10 leading-relaxed">{cur.sub}</p>
+
+                {step === 0 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div>
+                      <div className="label text-night/60 mb-3">Current salary</div>
+                      <MoneyInput
+                        autoFocus currency="CAD" placeholder="165,000"
+                        value={state.salaryCAD}
+                        onChange={v => update({ salaryCAD: v })}
+                      />
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {Object.entries(PROVINCIAL_2026).map(([k, v]) => (
+                          <button key={k} className={`pill ${state.province === k ? 'active' : ''}`}
+                            onClick={() => update({ province: k })}>
+                            {v.label}
+                          </button>
+                        ))}
+                      </div>
+                      {PROVINCE_CAVEATS[state.province] && (
+                        <p className="grotesk text-xs text-night/55 mt-3 leading-relaxed border-l-2 border-night/20 pl-3">
+                          {PROVINCE_CAVEATS[state.province]}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">US offer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="245,000"
+                        value={state.salaryUSD}
+                        onChange={v => update({ salaryUSD: v })}
+                      />
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {Object.entries(STATE_2026).map(([k, v]) => (
+                          <button key={k} className={`pill ${state.state === k ? 'active' : ''}`}
+                            onClick={() => update({ state: k, metro: '' })}>
+                            {v.label}
+                          </button>
+                        ))}
+                      </div>
+                      {STATE_CAVEATS[state.state] && (
+                        <p className="grotesk text-xs text-night/55 mt-3 leading-relaxed border-l-2 border-night/20 pl-3">
+                          {STATE_CAVEATS[state.state]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {step === 1 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { id: 'single',          label: 'Single' },
+                        { id: 'mfj-no-kids',     label: 'Married, no kids' },
+                        { id: 'mfj-with-kids',   label: 'Married, with kids' }
+                      ].map(s => (
+                        <button key={s.id} className={`pill ${state.familySituation === s.id ? 'active' : ''}`}
+                          onClick={() => setFamily(s.id)}>
+                          {s.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {state.familySituation === 'mfj-with-kids' && (
+                      <div>
+                        <div className="label text-night/60 mb-3">Number of kids</div>
+                        <input type="number" min="1" className="input-line max-w-[140px]"
+                          value={state.kids || 1}
+                          onChange={e => update({ kids: parseInt(e.target.value) || 1 })}/>
+                      </div>
+                    )}
+
+                    {isMarried && (
+                      <>
+                        <div>
+                          <div className="label text-night/60 mb-3">Spouse's current Canadian salary</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="0 if not working"
+                            value={state.spouseIncomeCAD}
+                            onChange={v => update({ spouseIncomeCAD: v })}
+                          />
+                          <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                            If your spouse can't work in the US, this is the household income shock.
+                          </p>
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">Your visa path</div>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(VISA_SPOUSE_WORK).map(([k, v]) => (
+                              <button key={k}
+                                className={`pill ${state.visaType === k ? 'active' : ''}`}
+                                onClick={() => update({ visaType: k, spouseCanWorkOverride: null })}>
+                                {v.label}
+                              </button>
+                            ))}
+                          </div>
+                          <p className="grotesk text-xs text-night/60 mt-3 leading-relaxed">
+                            Default: spouse {spouseCanWork ? <span className="font-semibold text-night">can work</span> : <span className="font-semibold text-pink">cannot work</span>} on a {visaInfo?.spouseLabel}.{' '}
+                            {state.spouseIncomeCAD > 0 && (
+                              <button
+                                onClick={() => update({ spouseCanWorkOverride: !spouseCanWork })}
+                                className="underline decoration-dotted underline-offset-2 hover:decoration-solid">
+                                Override
+                              </button>
+                            )}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div className="flex flex-wrap gap-2">
+                      <button className={`pill ${state.caHousing === 'rent' ? 'active' : ''}`}
+                        onClick={() => update({ caHousing: 'rent' })}>I rent</button>
+                      <button className={`pill ${state.caHousing === 'own' ? 'active' : ''}`}
+                        onClick={() => update({ caHousing: 'own' })}>I own</button>
+                    </div>
+
+                    {state.caHousing === 'rent' && (
+                      <div>
+                        <div className="label text-night/60 mb-3">Monthly rent</div>
+                        <MoneyInput
+                          currency="CAD/mo" placeholder={String(caRentPlaceholder)}
+                          value={state.caRentMonthlyCAD}
+                          onChange={v => update({ caRentMonthlyCAD: v })}
+                        />
+                        <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                          Default for {PROVINCIAL_2026[state.province].short}: ${caRentPlaceholder.toLocaleString('en-CA')}/mo. Leave blank to use it.
+                        </p>
+                      </div>
+                    )}
+
+                    {state.caHousing === 'own' && (
+                      <>
+                        <div>
+                          <div className="label text-night/60 mb-3">Estimated home value</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="950,000"
+                            value={state.caHomeValueCAD}
+                            onChange={v => update({ caHomeValueCAD: v })}
+                          />
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">Mortgage balance remaining</div>
+                          <MoneyInput
+                            currency="CAD" placeholder="650,000"
+                            value={state.caMortgageBalanceCAD}
+                            onChange={v => update({ caMortgageBalanceCAD: v })}
+                          />
+                        </div>
+                        <div>
+                          <div className="label text-night/60 mb-3">When you move</div>
+                          <div className="flex flex-wrap gap-2">
+                            <button className={`pill ${state.caHomeDecision === 'sell' ? 'active' : ''}`}
+                              onClick={() => update({ caHomeDecision: 'sell' })}>Sell it</button>
+                            <button className={`pill ${state.caHomeDecision === 'keep' ? 'active' : ''}`}
+                              onClick={() => update({ caHomeDecision: 'keep' })}>Keep paying it</button>
+                          </div>
+                          <p className="grotesk text-xs text-night/50 mt-3 leading-relaxed">
+                            Sell adds ~5.5% (realtor + legal) to exit costs but kills the carrying cost. Keep means the mortgage continues, modeled as ~5%/12 of balance + $500/mo (taxes + maintenance), ignoring rental income.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-8 max-w-xl">
+                    {Object.keys(US_HOUSING_METRO_USD[state.state] || {}).length > 0 && (
+                      <div>
+                        <div className="label text-night/60 mb-3">Metro area</div>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.keys(US_HOUSING_METRO_USD[state.state]).map(m => (
+                            <button key={m} className={`pill ${state.metro === m ? 'active' : ''}`}
+                              onClick={() => update({ metro: state.metro === m ? '' : m })}>
+                              {m}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                          Pick your metro for tighter defaults; state averages hide a lot of variance. Leave blank to stick with the state-level estimate.
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <div className="label text-night/60 mb-3">US monthly housing</div>
+                      <MoneyInput
+                        currency="USD/mo" placeholder={String(usHousingPlaceholder)}
+                        value={state.usMonthlyHousingUSD}
+                        onChange={v => update({ usMonthlyHousingUSD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Default for {state.metro || STATE_2026[state.state].short}: ${usHousingPlaceholder.toLocaleString('en-US')}/mo. Leave blank to use it. Two months go in as a security deposit (one-time exit cost).
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Cost-of-living multiplier vs. Toronto</div>
+                      <div className="flex items-baseline gap-3 max-w-xs">
+                        <input
+                          type="number" step="0.05" min="0.5" max="3" className="input-line"
+                          placeholder={String(colPlaceholder)}
+                          value={state.usCOLmultiplier || ''}
+                          onChange={e => update({ usCOLmultiplier: parseFloat(e.target.value) || 0 })}
+                        />
+                        <span className="num text-sm text-night/60">×</span>
+                      </div>
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Default for {state.metro || STATE_2026[state.state].short}: <span className="num font-semibold text-night/70">{colPlaceholder}×</span>. Covers groceries, transport, dining out (housing/healthcare/childcare are modeled separately). Leave blank to use the default.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {step === 4 && (
+                  <div className="space-y-8 max-w-xl">
+                    <div>
+                      <div className="label text-night/60 mb-3">Unrealized capital gains (non-registered + crypto + RSUs)</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="0"
+                        value={state.unrealizedGainsCAD}
+                        onChange={v => update({ unrealizedGainsCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        CRA deems disposition the day you sever residency. Tax = gains × 50% × your marginal rate. RRSPs and TFSAs are exempt from deemed disposition (TFSA loses tax-shelter status separately, that's the "TFSA trap").
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">TFSA balance</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="0"
+                        value={state.tfsaBalanceCAD}
+                        onChange={v => update({ tfsaBalanceCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        The IRS doesn't recognize the shelter. If you keep the account after moving, the US taxes growth as ordinary income at your US marginal rate, and Canadian ETFs trigger PFIC reporting (Form 8621) at roughly $4k/yr in CPA fees. The verdict shows what that costs annually if you don't liquidate before leaving.
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Sign-on bonus from US employer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="0"
+                        value={state.signOnBonusUSD}
+                        onChange={v => update({ signOnBonusUSD: v })}
+                      />
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Relocation coverage from US employer</div>
+                      <MoneyInput
+                        currency="USD" placeholder="0"
+                        value={state.relocationCoverageUSD}
+                        onChange={v => update({ relocationCoverageUSD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Sign-on + relocation are credited against exit costs. If they exceed costs, the leftover doesn't get added back (it's already in your salary number).
+                      </p>
+                    </div>
+                    <div>
+                      <div className="label text-night/60 mb-3">Out-of-pocket move + immigration legal</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="15,000"
+                        value={state.movingCostsCAD}
+                        onChange={v => update({ movingCostsCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        Movers, flights, lawyer, TN/H1B filing, school deposits, car shipping, etc. Departure tax + realtor fees are computed separately.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-12 flex items-center justify-between gap-4 pt-7 border-t border-night/10">
+                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}
+                  className="label text-night/60 hover:text-night disabled:opacity-30">
+                  ← Back
+                </button>
+                <button onClick={handleNext} className="btn-primary">
+                  {step === steps.length - 1 ? 'See the verdict →' : 'Next →'}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-center gap-2">
+              {steps.map((_, i) => (
+                <button key={i} onClick={() => setStep(i)}
+                  className={`h-2 rounded-full transition-all ${i === step ? 'bg-lime w-8' : i < step ? 'bg-night/40 w-2' : 'bg-night/15 w-2'}`}/>
+              ))}
+            </div>
+
+            {state.salaryCAD > 0 && state.salaryUSD > 0 && (
+              <WizardPreview result={result} state={state} step={step} />
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   WIZARD LIVE PREVIEW
+   ============================================================ */
+function WizardPreview({ result, state, step }) {
+  const delta = result.netDeltaCAD;
+  const isAhead = delta >= 0;
+  const isPartial = step < 2;
+  return (
+    <div className="mt-6 panel p-5 md:p-6">
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="label text-night/50">Live estimate</span>
+        {isPartial
+          ? <span className="grotesk text-xs text-night/40 italic">· partial · family, housing & exit not yet entered</span>
+          : <span className="grotesk text-xs text-night/30">· updates as you fill in each step</span>}
+      </div>
+      <div className="grid grid-cols-2 gap-6 mb-4">
+        <div>
+          <div className="grotesk text-xs text-night/50 uppercase tracking-widest mb-1">🇨🇦 Stay in Canada</div>
+          <div className="stat-num text-[26px] leading-none text-night">{fmtCAD(result.caHouseholdAnnualCAD)}</div>
+          <div className="grotesk text-xs text-night/45 mt-1">household take-home / yr</div>
+        </div>
+        <div>
+          <div className="grotesk text-xs text-night/50 uppercase tracking-widest mb-1">🇺🇸 Move to US</div>
+          <div className="stat-num text-[26px] leading-none text-night">{fmtCAD(result.usHouseholdAnnualCAD)}</div>
+          <div className="grotesk text-xs text-night/45 mt-1">after tax, health, housing</div>
+        </div>
+      </div>
+      <div className="border-t border-night/10 pt-4 flex items-center gap-3 flex-wrap">
+        <span className={`sticker ${isAhead ? 'sticker-lime' : 'sticker-pink'}`}>
+          {isAhead ? '+' : '−'}{fmtCAD(Math.abs(delta))}/yr
+        </span>
+        <span className="grotesk text-night/60 text-sm">
+          {isAhead ? 'ahead on the US side' : 'behind on the US side'}
+          {result.breakeven
+            ? ` · breakeven yr ${result.breakeven.year.toFixed(1)}`
+            : (result.fiveYrDelta < 0 ? ' · no breakeven in 5 yrs' : '')}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   VERDICT — Section 3
+   ============================================================ */
+function VerdictSection({ state, update, result, aiTrigger }) {
+  const hasInput = state.salaryCAD > 0 && state.salaryUSD > 0;
+  const [chartInsight, setChartInsight] = useState('');
+  const fiveYrDelta = result.fiveYrDelta;
+  const threeYrDelta = result.threeYrDelta;
+
+  const familyLabel =
+    state.familySituation === 'single' ? 'single' :
+    state.familySituation === 'mfj-no-kids' ? 'married, no kids' :
+    `married + ${state.kids} kid${state.kids === 1 ? '' : 's'}`;
+
+  const visaSpouseLine =
+    hasInput && (state.familySituation === 'mfj-no-kids' || state.familySituation === 'mfj-with-kids') && state.spouseIncomeCAD > 0
+      ? ` · spouse ${result.spouseCanWork ? 'works' : 'cannot work'} on ${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel || state.visaType}`
+      : '';
+
+  const inputSummary = hasInput
+    ? `based on your inputs · ${fmtCAD(state.salaryCAD)} ${PROVINCIAL_2026[state.province].short} → $${state.salaryUSD.toLocaleString('en-US')} ${STATE_2026[state.state].short} · ${familyLabel}${visaSpouseLine}`
+    : 'based on your inputs · run the wizard above';
+
+  let verdictTitle = 'Plan survives, barely.';
+  let verdictBody = 'Worth it if you stay 4+ years and resist lifestyle drift.';
+  let verdictColor = 'lime';
+  if (!hasInput) {
+    verdictTitle = 'Verdict pending.';
+    verdictBody = 'Answer the five-step wizard above to see whether the plan holds up.';
+    verdictColor = 'cream';
+  } else if (fiveYrDelta < 0) {
+    verdictTitle = 'Plan breaks down.';
+    verdictBody = 'On these inputs, the move costs you money over 5 years. Negotiate higher or stay.';
+    verdictColor = 'pink';
+  } else if (fiveYrDelta < 150000) {
+    verdictTitle = 'Marginal. Push back.';
+    verdictBody = 'Thin margin. One bad year, an FX headwind, or lifestyle drift erases it. Negotiate sign-on or relocation before signing.';
+    verdictColor = 'cobalt';
+  } else if (fiveYrDelta > 400000) {
+    verdictTitle = 'Plan crushes it.';
+    verdictBody = 'Strong delta. Even with lifestyle drift, the move pays off comfortably.';
+    verdictColor = 'lime';
+  }
+
+  const verdictClass =
+    verdictColor === 'lime' ? 'panel-lime' :
+    verdictColor === 'pink' ? 'panel-pink' :
+    'panel-cream';
+
+  return (
+    <section id="verdict" className="border-t border-night/10">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+
+        <div className="grid md:grid-cols-12 gap-10 mb-14">
+          <div className="md:col-span-7">
+            {hasInput ? (
+              <h3 className="display text-[clamp(2.25rem,5.5vw,4.5rem)] font-bold leading-[1.05] text-night tracking-tight pb-2">
+                Stay <span className="hl-lime">five years</span>, you come home roughly{' '}
+                <span className={fiveYrDelta >= 0 ? 'hl-lime' : 'hl-pink'}>{fmtCAD(Math.abs(fiveYrDelta))}</span>{' '}
+                {fiveYrDelta >= 0 ? 'ahead.' : 'behind.'}
+              </h3>
+            ) : (
+              <h3 className="display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.02] text-night/70 tracking-tight italic">
+                Answer the wizard above, and your verdict shows up here.
+              </h3>
+            )}
+            {hasInput && (
+              <p className="grotesk text-base md:text-lg text-night/70 mt-6 max-w-2xl leading-relaxed">
+                That assumes you save the entire take-home delta. No lifestyle inflation, no SF rent eating the raise.
+                In reality, expect 50–70% of that. Here's the year-by-year so you can see when the move actually pays off.
+              </p>
+            )}
+          </div>
+
+          <div className="md:col-span-5 flex md:justify-end items-start">
+            <div className={`floating-tag ${verdictClass} p-6 md:p-7 max-w-xs`}>
+              <div className="grotesk font-bold text-xs tracking-widest uppercase mb-3 opacity-70">Verdict</div>
+              <div className="display text-2xl md:text-3xl font-bold leading-tight">{verdictTitle}</div>
+              <div className="grotesk text-sm mt-3 opacity-80">{verdictBody}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-4 gap-4 md:gap-5 mb-14">
+          <StatBlock kicker="Pays for itself in"
+            value={!hasInput ? '—' : result.breakeven ? `Year ${result.breakeven.year.toFixed(1)}` : 'Never'}
+            detail={!hasInput ? 'awaiting your inputs' : result.breakeven ? 'when cumulative US take-home overtakes staying' : "US doesn't catch CA in 5 yrs"}
+            color="cobalt"/>
+          <StatBlock kicker="3-year nest egg"
+            value={hasInput ? fmtSigned(threeYrDelta, fmtCAD) : '—'}
+            detail="if you come home after 3 years"
+            color="night"/>
+          <StatBlock kicker="5-year nest egg"
+            value={hasInput ? fmtSigned(fiveYrDelta, fmtCAD) : '—'}
+            detail="if you stick the full detour"
+            color="lime"/>
+          <StatBlock kicker="Net exit cost"
+            value={hasInput ? fmtCAD(result.exitCosts.net) : '—'}
+            detail={hasInput
+              ? (result.exitCosts.credits > 0
+                  ? `${fmtCAD(result.exitCosts.gross)} gross − ${fmtCAD(result.exitCosts.credits)} employer credits`
+                  : 'moving + realtor + departure tax + deposit')
+              : 'computed from your inputs'}
+            color="pink"/>
+        </div>
+
+        <ExplainPanel state={state} result={result} hasInput={hasInput} autoTrigger={aiTrigger} onChartInsight={setChartInsight} />
+
+        {hasInput && (
+          <div className="panel p-6 md:p-10 mb-14">
+            <div className="flex items-center gap-3 mb-6 flex-wrap">
+              <span className="sticker sticker-pink">Tax + household audit</span>
+              <span className="grotesk text-night/60 text-sm">your annual tax bill on each side, then where the rest of the money goes, all in CAD</span>
+            </div>
+            <div className="mb-6 grid sm:grid-cols-3 gap-5 pb-6 border-b border-night/10">
+              <LineItem
+                label="🇨🇦 Total annual tax"
+                value={fmtCAD(result.caTotalTaxCAD)}
+                detail={`fed + ${PROVINCIAL_2026[state.province].short} + CPP + EI · effective ${(result.caEffRate * 100).toFixed(1)}%`}
+                tone="neutral"
+              />
+              <LineItem
+                label="🇺🇸 Total annual tax"
+                value={fmtUSD(result.usTotalTaxUSD)}
+                detail={`fed + ${STATE_2026[state.state].short} state + FICA + Medicare · effective ${(result.usEffRate * 100).toFixed(1)}%`}
+                tone="neutral"
+              />
+              <LineItem
+                label="Annual tax delta"
+                value={fmtSigned(-result.annualTaxDeltaCAD, fmtCAD)}
+                detail={result.annualTaxDeltaCAD > 0
+                  ? 'US side pays more tax in absolute CAD. Higher salary, higher bill.'
+                  : 'US side pays less in absolute CAD. Gross is higher but rate is lower.'}
+                tone={result.annualTaxDeltaCAD > 0 ? 'pink' : 'lime'}
+              />
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <LineItem
+                label="Spouse income shock"
+                value={result.spouseAnnualLossCAD > 0 ? fmtSigned(-result.spouseAnnualLossCAD, fmtCAD) : (state.spouseIncomeCAD > 0 ? '$0' : '—')}
+                detail={state.spouseIncomeCAD > 0
+                  ? (result.spouseCanWork
+                      ? `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} can work; assumed parity with CA take-home`
+                      : `${VISA_SPOUSE_WORK[state.visaType]?.spouseLabel} cannot legally work, so full CA take-home is gone per year`)
+                  : 'no spouse income entered'}
+                tone={result.spouseAnnualLossCAD > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Housing delta"
+                value={fmtSigned(-result.housingDeltaAnnualCAD, fmtCAD)}
+                detail={`US ${fmtUSD(result.usHousingMonthlyUSD)}/mo (${STATE_2026[state.state].short}) vs CA ${fmtCAD(result.caHousingMonthly)}/mo`}
+                tone={result.housingDeltaAnnualCAD > 0 ? 'pink' : 'lime'}
+              />
+              <LineItem
+                label="Cost of living premium"
+                value={fmtSigned(-result.colExtraAnnualCAD, fmtCAD)}
+                detail={`${result.colMultiplier}× Toronto baseline · ex-housing/healthcare/childcare`}
+                tone={result.colExtraAnnualCAD > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Healthcare premium"
+                value={state.salaryUSD > 0 ? fmtSigned(-result.usHealthcare, fmtUSD) : '—'}
+                detail={state.kids > 0 ? 'family premium + out-of-pocket' : 'premium + out-of-pocket'}
+                tone="pink"
+              />
+              <LineItem
+                label="Childcare delta"
+                value={state.kids > 0 ? fmtSigned(result.caChildcare - (result.usChildcare / state.fxRate), fmtCAD) : '—'}
+                detail={state.kids > 0
+                  ? `${state.kids} kid${state.kids === 1 ? '' : 's'} · CA ${fmtCAD(result.caChildcare)}/yr vs US ${fmtUSD(result.usChildcare)}/yr`
+                  : 'no kids in scenario'}
+                tone={state.kids > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="Departure tax (one-time)"
+                value={state.unrealizedGainsCAD > 0 ? fmtCAD(result.exitCosts.departureTaxCAD) : '$0'}
+                detail={state.unrealizedGainsCAD > 0
+                  ? `${fmtCAD(state.unrealizedGainsCAD)} unrealized × 50% × ${(result.marginalRateCA * 100).toFixed(1)}% marginal`
+                  : 'no unrealized gains entered'}
+                tone={result.exitCosts.departureTaxCAD > 0 ? 'pink' : 'neutral'}
+              />
+              <LineItem
+                label="TFSA carry cost (annual)"
+                value={state.tfsaBalanceCAD > 0 ? fmtCAD(result.tfsaCarryCostCAD) : '$0'}
+                detail={state.tfsaBalanceCAD > 0
+                  ? `if not liquidated · ${fmtCAD(state.tfsaBalanceCAD)} × 5% growth × ${(result.marginalRateUS * 100).toFixed(1)}% US marginal + ~$4k PFIC compliance`
+                  : 'no TFSA balance entered'}
+                tone={result.tfsaCarryCostCAD > 0 ? 'pink' : 'neutral'}
+              />
+            </div>
+          </div>
+        )}
+
+        {hasInput && result.caBreakdown && result.usBreakdown && (
+          <BreakdownPanel state={state} result={result} />
+        )}
+
+        <div className="panel p-6 md:p-10">
+          <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
+            <h4 className="grotesk font-bold text-night text-xl">Cumulative <span className="hl-pink">take-home</span>, 5 years</h4>
+            <div className="flex items-center gap-5 text-sm flex-wrap">
+              <LegendDot color="#D4FF3A" label="🇨🇦 Stay in Canada"/>
+              <LegendDot color="#FF3D7F" label="🇺🇸 Move to US"/>
+              <LegendDot color="#0E0B2C" label="Breakeven" filled/>
+            </div>
+          </div>
+          {hasInput && (
+            <p className="grotesk text-night/55 text-xs md:text-sm mb-6 max-w-2xl leading-relaxed">
+              Net of fed + provincial/state income tax, CPP/EI vs FICA/Medicare, healthcare, childcare, housing, and CRA departure tax. Year 1 absorbs the one-time exit costs.
+            </p>
+          )}
+          <BreakevenChart pts={result.pts} breakeven={result.breakeven} years={5} hasInput={hasInput}/>
+          {chartInsight && (
+            <div className="mt-5 flex items-start gap-3 border-t border-night/10 pt-5">
+              <span className="sticker sticker-lime shrink-0">AI</span>
+              <p className="grotesk text-night/80 text-sm leading-relaxed">{chartInsight}</p>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
+function FxRateEdit({ fx, onChange }) {
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState(String(fx));
+  useEffect(() => { setVal(String(fx)); }, [fx]);
+  const commit = () => {
+    const n = parseFloat(val);
+    if (Number.isFinite(n) && n > 0 && n < 10) onChange(n);
+    else setVal(String(fx));
+    setEditing(false);
+  };
+  if (editing) {
+    return (
+      <input
+        type="number" step="0.01" min="0.1" max="9.99" autoFocus
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onBlur={commit}
+        onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') { setVal(String(fx)); setEditing(false); } }}
+        className="num bg-transparent border-b border-night/60 outline-none w-14 text-night text-xs"
+      />
+    );
+  }
+  return (
+    <button
+      onClick={() => { setVal(String(fx)); setEditing(true); }}
+      className="num text-night font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-2 rounded"
+      aria-label="Edit FX rate"
+    >
+      ${fx.toFixed(2)}
+    </button>
+  );
+}
+
+function StatBlock({ kicker, value, detail, color, editable, onEdit, editValue }) {
+  const [editing, setEditing] = useState(false);
+  const cls =
+    color === 'lime' ? 'panel-lime' :
+    color === 'pink' ? 'panel-pink' :
+    color === 'cobalt' ? 'panel-cobalt' :
+    color === 'night' ? 'panel-night' :
+    'panel-cream';
+  return (
+    <div className={`${cls} p-6 md:p-7`}>
+      <div className="flex items-baseline justify-between mb-4">
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-70">{kicker}</span>
+        {editable && !editing && (
+          <button onClick={() => setEditing(true)} className="grotesk text-xs uppercase tracking-widest opacity-60 hover:opacity-100">
+            edit
+          </button>
+        )}
+      </div>
+      {editing ? (
+        <div className="flex items-baseline gap-2">
+          <span className="num text-2xl opacity-60">$</span>
+          <input
+            type="number"
+            autoFocus
+            className="bg-transparent border-b-2 outline-none stat-num text-[34px] md:text-[42px] leading-none w-full"
+            style={{ borderColor: 'currentColor' }}
+            value={editValue || 0}
+            onChange={e => onEdit(parseInt(e.target.value) || 0)}
+            onBlur={() => setEditing(false)}
+            onKeyDown={e => { if (e.key === 'Enter') setEditing(false); }}
+          />
+        </div>
+      ) : (
+        <div className="stat-num text-[34px] md:text-[42px] leading-none mb-3">{value}</div>
+      )}
+      <div className="grotesk text-xs leading-snug opacity-75 mt-3">{detail}</div>
+    </div>
+  );
+}
+
+function ExplainPanel({ state, result, hasInput, autoTrigger, onChartInsight }) {
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [text, setText] = useState('');
+  const [error, setError] = useState(null);
+  const [model, setModel] = useState('');
+  const [throttledUntil, setThrottledUntil] = useState(0);
+
+  const now = Date.now();
+  const throttledMs = Math.max(0, throttledUntil - now);
+  const throttled = throttledMs > 0;
+
+  const generate = async () => {
+    if (throttled) return;
+    setStatus('loading');
+    setText('');
+    setError(null);
+    try {
+      const res = await fetch('/.netlify/functions/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state, result })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      setText(data.text || '');
+      setModel(data.model || '');
+      if (data.chartLine) onChartInsight?.(data.chartLine);
+      setStatus('success');
+      setThrottledUntil(Date.now() + 30_000); // 30s client-side throttle
+    } catch (e) {
+      setError(e.message);
+      setStatus('error');
+    }
+  };
+
+  useEffect(() => {
+    if (autoTrigger > 0 && hasInput && !throttled && status === 'idle') generate();
+  }, [autoTrigger, hasInput]);
+
+  if (!hasInput) return null;
+
+  return (
+    <div className="panel-night p-6 md:p-10 mb-14 text-cream">
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <span className="sticker sticker-lime">AI</span>
+        <span className="grotesk text-cream/70 text-sm">a plain-English read on what's driving your verdict</span>
+      </div>
+
+      {status === 'idle' && (
+        <>
+          <p className="grotesk text-cream/85 text-base md:text-lg leading-relaxed mb-6 max-w-2xl">
+            Claude reads your inputs and gives you a tight plain-English breakdown of the verdict, the biggest line item, one thing to sanity-check, and a negotiation lever if there's a clean one.
+          </p>
+          <button onClick={generate} className="btn-primary">Generate →</button>
+          <p className="grotesk text-xs text-cream/50 mt-5 leading-relaxed max-w-2xl">
+            Sends your wizard inputs (no PII) to Anthropic's API. The numerical calculator runs entirely in your browser. This is the only feature that doesn't.
+          </p>
+        </>
+      )}
+
+      {status === 'loading' && (
+        <div className="grotesk text-cream/80 flex items-center gap-3">
+          <span className="inline-flex gap-1.5">
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse"/>
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse" style={{animationDelay:'0.15s'}}/>
+            <span className="w-2 h-2 bg-lime rounded-full animate-pulse" style={{animationDelay:'0.3s'}}/>
+          </span>
+          <span>Claude is reading your inputs…</span>
+        </div>
+      )}
+
+      {status === 'success' && (
+        <div>
+          <div className="grotesk text-cream text-base md:text-lg leading-relaxed whitespace-pre-wrap max-w-3xl">{text}</div>
+          <div className="mt-7 flex items-center gap-4 flex-wrap">
+            <button
+              onClick={generate}
+              disabled={throttled}
+              className="btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderColor: 'rgba(255,246,229,0.4)', color: '#FFF6E5' }}>
+              {throttled ? `Wait ${Math.ceil(throttledMs / 1000)}s` : 'Regenerate'}
+            </button>
+            <span className="grotesk text-xs text-cream/45">
+              Generated by {model || 'Claude'} · narrative only · numbers are from your wizard inputs
+            </span>
+          </div>
+        </div>
+      )}
+
+      {status === 'error' && (
+        <div>
+          <p className="grotesk text-pink mb-4">Couldn't generate explanation: {error}</p>
+          <button onClick={generate} className="btn-ghost"
+            style={{ borderColor: 'rgba(255,246,229,0.4)', color: '#FFF6E5' }}>
+            Try again
+          </button>
+          <p className="grotesk text-xs text-cream/50 mt-4 max-w-xl leading-relaxed">
+            If this keeps failing, the deployment may be missing the <span className="num">ANTHROPIC_API_KEY</span> env var, or the calculator hasn't redeployed since this feature shipped.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LineItem({ label, value, detail, tone }) {
+  const valueColor =
+    tone === 'pink' ? 'text-pink-deep' :
+    tone === 'lime' ? 'text-lime-deep' :
+    'text-night';
+  return (
+    <div className="border-l-2 border-night/15 pl-4 py-1">
+      <div className="grotesk font-bold text-xs uppercase tracking-widest text-night/55 mb-2">{label}</div>
+      <div className={`stat-num text-2xl md:text-[28px] leading-none ${valueColor}`}>{value}</div>
+      <div className="grotesk text-xs text-night/60 leading-snug mt-2">{detail}</div>
+    </div>
+  );
+}
+
+function LegendDot({ color, label, filled }) {
+  return (
+    <div className="flex items-center gap-2">
+      {filled
+        ? <span className="inline-block w-3 h-3 rounded-full" style={{background: color}}/>
+        : <svg width="22" height="6"><line x1="0" y1="3" x2="22" y2="3" stroke={color} strokeWidth="3" strokeLinecap="round"/></svg>}
+      <span className="grotesk text-night/70">{label}</span>
+    </div>
+  );
+}
+
+/* ============================================================
+   TAX STRATEGIES — Copilot Tax handoff
+   ============================================================ */
+function TaxStrategies() {
+  return (
+    <section id="strategies" className="border-t border-night/10 bg-cream/50">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28 grid md:grid-cols-12 gap-10">
+        <aside className="md:col-span-4">
+          <div className="sticky top-10">
+            <div className="sticker sticker-pink mb-5">Tax-saving plays</div>
+            <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
+              Six moves that <span className="hl-lime">claw back tax</span>
+            </h3>
+            <p className="grotesk text-night/65 mt-5 leading-relaxed">
+              The levers a cross-border CPA pulls to shrink the bill on the way out, and again in your first US filing year.
+            </p>
+            <p className="grotesk text-night/55 mt-4 leading-relaxed text-sm italic">
+              For your actual numbers,{' '}
+              <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink not-italic font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">
+                Copilot Tax →
+              </a>
+            </p>
+          </div>
+        </aside>
+        <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
+          <PlayCard n="i" title="Time the exit date"
+            tag="one-time"
+            body="Severing residency Jan 1 vs Dec 31 can move tens of thousands. Stub-year filings let each side tax only what it should."/>
+          <PlayCard n="ii" title="Realize gains pre-departure"
+            tag="one-time"
+            body="In some brackets, triggering gains while still Canadian-resident beats the departure tax. Bracket-dependent."/>
+          <PlayCard n="iii" title="Top up the RRSP"
+            tag="one-time"
+            body="Your last high-income Canadian year is the best time to deduct a contribution. The treaty defers US tax on it after you move."/>
+          <PlayCard n="iv" title="Wind down the TFSA"
+            tag="one-time"
+            body="IRS taxes the growth and demands PFIC reporting on ETFs. Liquidate before you go; nothing to gain by carrying it."/>
+          <PlayCard n="v" title="Pick the state deliberately"
+            tag="strategic"
+            body="Same offer, different state, $30k+ delta. WA/TX/FL/NV: 0%. CA/NY/NJ: top brackets. One of the biggest 5-year levers."/>
+          <PlayCard n="vi" title="Bifurcate RSU vesting"
+            tag="annual"
+            body="RSUs vesting post-move split under the treaty; the Canadian slice gets credit. Done wrong, you double-pay."/>
+        </div>
+
+        <div className="md:col-span-12 mt-10">
+          <div className="panel-night p-7 md:p-9 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <div className="grotesk font-bold text-xs uppercase tracking-widest text-lime mb-3">Get yours done right</div>
+              <p className="grotesk text-cream/85 text-base md:text-lg max-w-2xl leading-relaxed">
+                Every play depends on your residency dates, asset mix, RSU schedule, and landing state. <span className="text-cream font-semibold">Copilot Tax</span> handles the filings, treaty elections, RSU bifurcation, and exit planning end to end.
+              </p>
+            </div>
+            <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 whitespace-nowrap shrink-0">
+              Talk to Copilot Tax →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PlayCard({ n, title, tag, body }) {
+  return (
+    <div className="panel p-6 md:p-7 flex flex-col">
+      <div className="flex items-baseline justify-between mb-3">
+        <span className="display italic text-pink text-2xl leading-none">{n}.</span>
+        <span className="grotesk font-bold text-xs uppercase tracking-widest opacity-50">{tag}</span>
+      </div>
+      <div className="display text-xl md:text-[22px] font-bold text-night leading-tight mb-3">{title}</div>
+      <div className="grotesk text-sm text-night/70 leading-relaxed">{body}</div>
+    </div>
+  );
+}
+
+/* ============================================================
+   BREAKDOWN — gross-to-take-home line by line, both sides
+   ============================================================ */
+function BreakdownPanel({ state, result }) {
+  const [open, setOpen] = useState(false);
+  const ca = result.caBreakdown;
+  const us = result.usBreakdown;
+  const provLabel = PROVINCIAL_2026[ca.province]?.label || ca.province;
+  const stateLabel = STATE_2026[us.state]?.short || us.state;
+
+  return (
+    <div className="panel p-6 md:p-10 mb-14">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-3 flex-wrap text-left w-full"
+        aria-expanded={open}>
+        <span className="sticker sticker-cobalt">{open ? 'Hide the math' : 'Show the math'}</span>
+        <span className="grotesk text-night/60 text-sm">
+          {open ? 'click to collapse' : 'how each take-home number is built, line by line'}
+        </span>
+        <span className="ml-auto grotesk text-night/40 text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="mt-6 grid sm:grid-cols-2 gap-8 md:gap-10">
+          <BreakdownColumn
+            flag="🇨🇦"
+            label={`Stay in Canada (${provLabel})`}
+            currencyLabel="CAD"
+            rows={[
+              { name: 'Gross salary', value: state.salaryCAD, sign: 'plus' },
+              { name: 'Federal income tax', value: ca.fedTax },
+              { name: `${PROVINCIAL_2026[ca.province]?.short || ca.province} provincial tax`, value: ca.provTax },
+              { name: 'CPP', value: ca.cpp },
+              { name: 'EI', value: ca.ei },
+              ...(ca.ohp > 0 ? [{ name: 'Ontario Health Premium', value: ca.ohp }] : []),
+            ]}
+            takeHome={state.salaryCAD - ca.totalTax}
+            fmt={fmtCAD}
+          />
+          <BreakdownColumn
+            flag="🇺🇸"
+            label={`Move to US (${stateLabel})`}
+            currencyLabel="USD"
+            rows={[
+              { name: 'Gross salary', value: state.salaryUSD, sign: 'plus' },
+              { name: `Federal income tax${us.ctc > 0 ? ` (after $${us.ctc.toLocaleString('en-US')} CTC)` : ''}`, value: us.fedTax },
+              ...(us.stateTax > 0 ? [{ name: `${stateLabel} state tax`, value: us.stateTax }] : []),
+              { name: 'Social Security (6.2%)', value: us.ss },
+              { name: 'Medicare (1.45%)', value: us.medicare },
+              ...(us.addlMedicare > 0 ? [{ name: 'Additional Medicare (0.9%)', value: us.addlMedicare }] : []),
+            ]}
+            takeHome={state.salaryUSD - us.totalTax}
+            fmt={fmtUSD}
+            footnote={`= ${fmtCAD((state.salaryUSD - us.totalTax) / (state.fxRate || 0.73))} CAD at $${(state.fxRate || 0.73).toFixed(2)}`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BreakdownColumn({ flag, label, currencyLabel, rows, takeHome, fmt, footnote }) {
+  return (
+    <div>
+      <div className="grotesk text-xs text-night/55 uppercase tracking-widest mb-3">
+        <span className="mr-2">{flag}</span>{label}
+      </div>
+      <div className="font-mono text-sm">
+        {rows.map((r, i) => (
+          <div key={i} className="flex items-baseline justify-between py-1.5 border-b border-night/5">
+            <span className="text-night/70">{r.name}</span>
+            <span className={r.sign === 'plus' ? 'text-night font-semibold' : 'text-pink-deep'}>
+              {r.sign === 'plus' ? '' : '−'}{fmt(r.value)}
+            </span>
+          </div>
+        ))}
+        <div className="flex items-baseline justify-between py-2.5 mt-1 border-t-2 border-night/30">
+          <span className="grotesk text-night font-bold uppercase tracking-wider text-xs">
+            Take-home
+          </span>
+          <span className="text-night font-bold text-base">{fmt(takeHome)}</span>
+        </div>
+      </div>
+      {footnote && (
+        <div className="grotesk text-xs text-night/50 mt-2 italic">{footnote}</div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
+   CHART
+   ============================================================ */
+function BreakevenChart({ pts, breakeven, years, hasInput }) {
+  const [hoveredYear, setHoveredYear] = React.useState(null);
+  const [isNarrow, setIsNarrow] = React.useState(false);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  /* Mobile uses a taller aspect ratio so lines and labels have room to
+     breathe at narrow container widths. Desktop keeps the original
+     wide format. */
+  const w = isNarrow ? 600 : 880;
+  const h = isNarrow ? 520 : 430;
+  const padL = isNarrow ? 64 : 78;
+  const padT = isNarrow ? 26 : 30;
+  const padR = isNarrow ? 28 : 34;
+  const padB = isNarrow ? 56 : 52;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+
+  /* Text uses CSS font-size in absolute pixels (not the SVG fontSize
+     attribute, which scales with the viewBox). On a 280px-wide mobile
+     container, attribute-based 11pt text would render at ~3.5px on
+     screen. Pixel-anchored CSS keeps it legible. */
+  const txt = (px) => ({ fontSize: px + 'px' });
+
+  const allVals = pts.flatMap(p => [p.ca, p.us]);
+  let yMin = Math.min(0, ...allVals);
+  let yMax = Math.max(...allVals);
+  if (!hasInput) { yMin = -50000; yMax = 800000; }
+  const yRange = (yMax - yMin) || 1;
+  const xS = y => padL + (y / years) * plotW;
+  const yS = v => padT + plotH - ((v - yMin) / yRange) * plotH;
+
+  const caPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xS(p.year)} ${yS(p.ca)}`).join(' ');
+  const usPath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xS(p.year)} ${yS(p.us)}`).join(' ');
+
+  const tickStep = yRange > 1500000 ? 500000 : yRange > 600000 ? 200000 : yRange > 200000 ? 100000 : 50000;
+  const yTicks = [];
+  for (let v = Math.floor(yMin / tickStep) * tickStep; v <= yMax + 1; v += tickStep) yTicks.push(v);
+
+  const fmtTick = v => {
+    if (v === 0) return '$0';
+    const sign = v < 0 ? '−' : '';
+    const abs = Math.abs(v);
+    if (abs >= 1000000) return sign + '$' + (abs / 1000000).toFixed(1) + 'M';
+    return sign + '$' + Math.round(abs / 1000) + 'k';
+  };
+
+  const hPt = hoveredYear !== null ? pts.find(p => p.year === hoveredYear) : null;
+  const colW = plotW / years;
+
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet"
+      onMouseLeave={() => setHoveredYear(null)}>
+
+      {/* Y axis title */}
+      <text
+        x={14} y={padT + plotH / 2}
+        textAnchor="middle" style={txt(10)} fill="#0E0B2C" opacity="0.3"
+        fontFamily="Space Grotesk" letterSpacing="0.1em"
+        transform={`rotate(-90, 14, ${padT + plotH / 2})`}>
+        CUMULATIVE TAKE-HOME (CAD)
+      </text>
+
+      {/* Grid lines + Y axis labels */}
+      {yTicks.map(v => (
+        <g key={v}>
+          <line x1={padL} y1={yS(v)} x2={padL + plotW} y2={yS(v)}
+            stroke="#0E0B2C" strokeWidth="1" opacity={v === 0 ? 0.55 : 0.12}
+            strokeDasharray={v === 0 ? '' : '2 4'}/>
+          <text x={padL - 10} y={yS(v) + 4} textAnchor="end" style={txt(11)}
+            fill="#0E0B2C" opacity="0.55" fontFamily="Geist Mono">{fmtTick(v)}</text>
+        </g>
+      ))}
+
+      {/* X axis year labels */}
+      {pts.map(p => (
+        <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle"
+          style={txt(11)} fontFamily="Space Grotesk"
+          fill="#0E0B2C" opacity={hoveredYear === p.year ? 1 : 0.55}
+          fontWeight={hoveredYear === p.year ? '700' : '400'}>
+          Y{p.year}
+        </text>
+      ))}
+      <text x={padL + plotW / 2} y={padT + plotH + 42} textAnchor="middle"
+        style={txt(10)} fill="#0E0B2C" opacity="0.3" fontFamily="Space Grotesk" letterSpacing="0.12em">
+        YEARS FROM NOW
+      </text>
+
+      {hasInput && (
+        <>
+          {/* Area fills under each line */}
+          <path d={`${caPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#D4FF3A" fillOpacity="0.08"/>
+          <path d={`${usPath} L ${xS(years)} ${yS(0)} L ${xS(0)} ${yS(0)} Z`} fill="#FF3D7F" fillOpacity="0.10"/>
+
+          {/* Lines */}
+          <path d={caPath} fill="none" stroke="#D4FF3A" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+          <path d={usPath} fill="none" stroke="#FF3D7F" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round"/>
+
+          {/* Data point dots */}
+          {pts.map(p => (
+            <g key={'d'+p.year}>
+              <circle cx={xS(p.year)} cy={yS(p.ca)} r={hoveredYear === p.year ? 6.5 : 4.5}
+                fill="#D4FF3A" stroke="#0E0B2C" strokeWidth="2.2"
+                style={{transition: 'r 0.1s'}}/>
+              <circle cx={xS(p.year)} cy={yS(p.us)} r={hoveredYear === p.year ? 6.5 : 4.5}
+                fill="#FF3D7F" stroke="#0E0B2C" strokeWidth="2.2"
+                style={{transition: 'r 0.1s'}}/>
+            </g>
+          ))}
+
+          {/* End-of-line labels with dollar values */}
+          {(() => {
+            const last = pts[years];
+            const caLabelY = yS(last.ca) - 16;
+            const usLabelY = yS(last.us) - 16;
+            const tooClose = Math.abs(caLabelY - usLabelY) < 20;
+            return (
+              <>
+                <text x={xS(years) - 8} y={caLabelY} textAnchor="end"
+                  style={txt(12)} fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
+                  🇨🇦 {fmtTick(last.ca)}
+                </text>
+                <text x={xS(years) - 8} y={tooClose ? caLabelY + 20 : usLabelY} textAnchor="end"
+                  style={txt(12)} fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
+                  🇺🇸 {fmtTick(last.us)}
+                </text>
+              </>
+            );
+          })()}
+
+          {/* Hit areas per year column. Touch handlers needed alongside
+              mouse handlers since iOS/Android don't fire mouseEnter on tap. */}
+          {pts.map((p, i) => {
+            const x0 = i === 0 ? xS(0) : xS(p.year) - colW / 2;
+            const x1 = i === years ? xS(years) : xS(p.year) + colW / 2;
+            return (
+              <rect key={'hit'+p.year}
+                x={x0} y={padT} width={x1 - x0} height={plotH}
+                fill="transparent" style={{cursor: 'crosshair', touchAction: 'manipulation'}}
+                onMouseEnter={() => setHoveredYear(p.year)}
+                onTouchStart={(e) => { e.preventDefault(); setHoveredYear(p.year); }}
+                onPointerDown={() => setHoveredYear(p.year)}
+              />
+            );
+          })}
+        </>
+      )}
+
+      {/* Hover overlay */}
+      {hPt && hasInput && (() => {
+        const x = xS(hPt.year);
+        const delta = hPt.us - hPt.ca;
+        const tooltipW = 146;
+        const tooltipH = 90;
+        const tooltipX = hPt.year >= years * 0.65 ? x - tooltipW - 14 : x + 14;
+        const midY = (yS(hPt.ca) + yS(hPt.us)) / 2;
+        const tooltipY = Math.max(padT + 4, Math.min(midY - tooltipH / 2, padT + plotH - tooltipH - 4));
+        return (
+          <g>
+            <line x1={x} y1={padT} x2={x} y2={padT + plotH}
+              stroke="#0E0B2C" strokeWidth="1" opacity="0.22" strokeDasharray="3 3"/>
+            <rect x={tooltipX} y={tooltipY} width={tooltipW} height={tooltipH} rx="10"
+              fill="#0E0B2C" opacity="0.93"/>
+            <text x={tooltipX + 12} y={tooltipY + 18} style={txt(10)} fill="#FFF6E5" opacity="0.55"
+              fontFamily="Space Grotesk" fontWeight="600" letterSpacing="0.1em">
+              YEAR {hPt.year}
+            </text>
+            <circle cx={tooltipX + 14} cy={tooltipY + 33} r="4" fill="#D4FF3A"/>
+            <text x={tooltipX + 24} y={tooltipY + 37} style={txt(11)} fill="#FFF6E5"
+              fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.ca)}</text>
+            <circle cx={tooltipX + 14} cy={tooltipY + 52} r="4" fill="#FF3D7F"/>
+            <text x={tooltipX + 24} y={tooltipY + 56} style={txt(11)} fill="#FFF6E5"
+              fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.us)}</text>
+            <line x1={tooltipX + 12} y1={tooltipY + 66} x2={tooltipX + tooltipW - 12} y2={tooltipY + 66}
+              stroke="#FFF6E5" strokeWidth="0.5" opacity="0.2"/>
+            <text x={tooltipX + 12} y={tooltipY + 81} style={txt(11)}
+              fill={delta >= 0 ? '#D4FF3A' : '#FF3D7F'}
+              fontFamily="Space Grotesk" fontWeight="700">
+              {delta >= 0 ? '+' : '−'}{fmtCAD(Math.abs(delta))} delta
+            </text>
+          </g>
+        );
+      })()}
+
+      {!hasInput && (
+        <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
+          style={txt(14)} fill="#0E0B2C" opacity="0.4" fontFamily="Space Grotesk">
+          your year-by-year shows up here once you fill in the wizard
+        </text>
+      )}
+
+      {hasInput && breakeven && (
+        <g>
+          <line x1={xS(breakeven.year)} y1={padT} x2={xS(breakeven.year)} y2={padT + plotH}
+            stroke="#0E0B2C" strokeWidth="1.5" strokeDasharray="4 5" opacity="0.55"/>
+          <circle cx={xS(breakeven.year)} cy={yS(breakeven.value)} r="9" fill="#0E0B2C" stroke="#F5EBD3" strokeWidth="3"/>
+          <g transform={`translate(${xS(breakeven.year) + 16}, ${yS(breakeven.value) - 30})`}>
+            <rect x="0" y="-18" width="148" height="26" rx="13" fill="#0E0B2C"/>
+            <text x="74" y="-1" textAnchor="middle" style={txt(11)} fill="#FFF6E5"
+              fontFamily="Space Grotesk" fontWeight="700" letterSpacing="0.1em">
+              BREAKEVEN · YR {breakeven.year.toFixed(1)}
+            </text>
+          </g>
+        </g>
+      )}
+    </svg>
+  );
+}
+
+/* ============================================================
+   CHANGELOG VIEW
+   ============================================================ */
+function computeRoadmapVersion(currentVer, tier) {
+  const [major, minor] = currentVer.split('.').map(Number);
+  return tier >= 3 ? `${major + 1}.0.0` : `${major}.${minor + tier}.0`;
+}
+
+function ChangelogView() {
+  return (
+    <>
+      <section className="border-t border-night/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="sticker sticker-lime mb-5">What's shipped</div>
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-night tracking-tight mb-12">
+            Changelog
+          </h2>
+          <div className="space-y-12">
+            {CHANGELOG.map((v, i) => (
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-night/10 pt-8">
+                <div className="md:col-span-3">
+                  <div className="num text-2xl font-medium tracking-tight text-night">v{v.version}</div>
+                  <div className="label text-night/50 mt-2">{v.date}</div>
+                  <div className="inline-block mt-3"><span className="sticker sticker-lime">Shipped</span></div>
+                </div>
+                <div className="md:col-span-9">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-night">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-night/70 leading-relaxed">
+                    {v.items.map((item, j) => (
+                      <li key={j} className="flex gap-3">
+                        <span className="text-night/40 mt-1 select-none">·</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-night/10 bg-cream/50">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-20 md:py-28">
+          <div className="sticker sticker-pink mb-5">What's coming</div>
+          <h2 className="display text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[0.96] text-night tracking-tight mb-12">
+            Roadmap
+          </h2>
+          <div className="space-y-12">
+            {ROADMAP.map((v, i) => (
+              <div key={i} className="grid md:grid-cols-12 gap-6 border-t border-night/10 pt-8">
+                <div className="md:col-span-3">
+                  <div className="num text-2xl font-medium tracking-tight text-night/70">
+                    v{computeRoadmapVersion(CHANGELOG[0].version, v.tier)}
+                  </div>
+                  <div className="label text-night/50 mt-2">{v.horizon}</div>
+                  <div className="inline-block mt-3"><span className="sticker sticker-outline">Planned</span></div>
+                </div>
+                <div className="md:col-span-9">
+                  <div className="display text-xl md:text-2xl font-bold mb-4 text-night">{v.title}</div>
+                  <ul className="space-y-2 grotesk text-[15px] text-night/70 leading-relaxed">
+                    {v.items.map((item, j) => (
+                      <li key={j} className="flex gap-3">
+                        <span className="text-pink mt-1 select-none">·</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+function Footer({ state, update }) {
+  const latest = CHANGELOG[0];
+  return (
+    <footer className="border-t border-night/10">
+
+      {/* Partner CTA — prominent panel above the 3-column footer */}
+      <div className="border-b border-night/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-14 md:py-20">
+          <div className="panel-night p-8 md:p-12 grid md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-8">
+              <div className="grotesk font-bold text-xs uppercase tracking-widest text-lime mb-4">A joint project</div>
+              <h3 className="display text-3xl md:text-5xl font-bold text-cream leading-[1.05] tracking-tight pb-1">
+                Need help with your <span className="hl-lime">actual taxes?</span>
+              </h3>
+              <p className="grotesk text-cream/75 mt-5 text-base md:text-lg max-w-xl leading-relaxed">
+                North×South is the napkin math. <span className="text-cream font-semibold">Copilot Tax</span> is the cross-border CPA that finishes the job: TN/H1B filings, departure-tax planning, TFSA wind-down, RSU treatment.
+              </p>
+            </div>
+            <div className="md:col-span-4 flex md:justify-end">
+              <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 whitespace-nowrap">
+                Visit Copilot Tax →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-14 grid md:grid-cols-12 gap-10">
+        <div className="md:col-span-5">
+          <div className="grotesk font-bold text-2xl text-night flex items-center gap-2">
+            <span aria-hidden="true">🇨🇦</span>
+            <span>North<span className="text-pink">×</span>South</span>
+            <span aria-hidden="true">🇺🇸</span>
+          </div>
+          <p className="grotesk text-night/60 mt-3 max-w-sm leading-relaxed">
+            A joint project by <span className="text-night font-semibold">Mazin Kanuga</span> and <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-night font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">Copilot Tax</a>. The napkin math meets the actual cross-border CPA.
+          </p>
+        </div>
+        <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-sm text-night/70">
+          <div>
+            <div className="label text-night/40 mb-3">The math</div>
+            <ul className="space-y-2 grotesk">
+              <li>2026 brackets · CRA + IRS</li>
+              <li>4 provinces · 8 states</li>
+              <li>FICA, CPP, EI, Medicare</li>
+              <li>Spouse work-auth · housing · COL</li>
+            </ul>
+          </div>
+          <div>
+            <div className="label text-night/40 mb-3">Disclaimers</div>
+            <ul className="space-y-2 grotesk">
+              <li>Not financial advice</li>
+              <li>See a cross-border CPA</li>
+              <li>Talk to an immigration lawyer</li>
+            </ul>
+          </div>
+          <div>
+            <div className="label text-night/40 mb-3">Partner</div>
+            <ul className="space-y-2 grotesk">
+              <li>
+                <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink font-semibold hover:underline">
+                  Copilot Tax →
+                </a>
+              </li>
+              <li className="text-night/55">Open source</li>
+              <li className="text-night/55">v{latest.version} · April 2026</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-night/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-6">
+          <p className="grotesk text-xs text-night/55 leading-relaxed max-w-4xl">
+            <span className="font-semibold text-night/80">Estimates only</span> · 2026 brackets · spouse parity assumed when work-auth allows · COL multiplier is metro-level where available, state-level otherwise · <span className="font-semibold text-night/80">not tax, immigration, or financial advice</span>. See a cross-border CPA before signing anything.
+            {' '}Assumes $1 USD = <FxRateEdit fx={state.fxRate} onChange={(v) => update({ fxRate: v })}/> CAD <span className="text-night/35">(click to edit)</span>.
+            {' '}The numbers all run in your browser; the optional <span className="font-semibold text-night/80">AI explanation</span> in the verdict section is the only feature that sends inputs out (to Anthropic's API).
+          </p>
+        </div>
+      </div>
+      <div className="border-t border-night/10">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 py-5 flex flex-wrap items-center justify-between gap-4">
+          <div className="grotesk text-night/40 text-sm">© 2026 · North×South · Mazin Kanuga × Copilot Tax</div>
+          <div className="grotesk text-night/40 text-xs">Calculator runs entirely in your browser</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

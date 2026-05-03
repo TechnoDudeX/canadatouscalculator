@@ -22,9 +22,12 @@ A single-page calculator that compares a current Canadian compensation package a
 
 ## Stack
 
-- `index.html` + `calc.js` (tax data + pure functions) + `changelog.js` + built `style.css`
-- React 18 + Babel standalone (in-browser JSX)
-- Tailwind via CLI (`npm run build:css` regenerates `style.css` from `src.css` + `tailwind.config.js`)
+- Two pages:
+  - `index.html` — marketing landing page (dark fintech, Inter + JetBrains Mono, `landing.css`)
+  - `wizard.html` — the calculator (cream/night/lime/pink, Fraunces + Space Grotesk + Geist Mono, `style.css`)
+- Shared: `calc.js` (tax data + pure functions) + `changelog.js`
+- React 18 + Babel standalone (in-browser JSX) on both pages
+- Tailwind via CLI (`npm run build:css` regenerates `style.css` from `src.css` + `tailwind.config.js`) — only used by `wizard.html`
 - One Netlify Function (`netlify/functions/explain.js`) wrapping Anthropic's API for the optional "Generate explanation" feature
 - Deployed on Netlify (root publish, see `netlify.toml`)
 

@@ -9,6 +9,19 @@
 
 const CHANGELOG = [
   {
+    version: '6.0.0',
+    date: '2026-05-03',
+    title: 'New fintech landing page · wizard moved to its own page · two-page split',
+    items: [
+      'New landing page at /. Built from the Claude Design "variant B" handoff bundle (eJlRxTYvIpwT5PxGofDfnA): dark navy fintech aesthetic, Inter + JetBrains Mono, blue/mint accents, glass-card hero with a faux-verdict mock window and floating "departure tax / spouse income loss" tags. Sticky nav with scroll-triggered backdrop blur, scroll-reveal transitions on every section, and full responsive (desktop / tablet / mobile) with a hamburger menu under 820px.',
+      'Calculator moved to /wizard.html. The interactive flow (Wizard → Verdict → Hidden costs → Tax strategies → Footer) keeps its existing cream/night/lime/pink editorial styling — only the marketing hero was extracted. Header logo on the wizard page now links back to / instead of in-page navigating.',
+      'Landing sections shipped: Hero (with mock window + floating tags), "By the numbers" proof strip, "Four line items that quietly eat the offer" hidden-costs grid, "Five questions. Three minutes. Real math." how-it-works steps, "Six moves that claw back tax" strategy preview (3 universal + 3 CPA-locked), Pricing (free audit + Copilot Tax CPA review), thesis pull-quote, FAQ (6 expand/collapse items), closer "Don\'t take the offer on vibes.", and minimal mono footer.',
+      'Changelog stays accessible: footer link and nav link from the landing page point to /wizard.html#changelog. Wizard page now also handles deep-link hashes (#wizard, #verdict, #hidden, #strategies) so landing CTAs can land users directly in the right section.',
+      'New /landing.css carrying the variant-B styles, all classes prefixed vb-* so they cannot collide with the wizard\'s existing tailwind output in style.css. Fonts split: landing loads Inter + JetBrains Mono; wizard keeps Fraunces + Space Grotesk + Geist + Geist Mono.',
+      'OG / canonical updated for both pages. /wizard.html canonical and og:url point to the wizard page; / canonical and og:url point to the new landing.',
+    ]
+  },
+  {
     version: '5.1.0',
     date: '2026-05-03',
     title: 'Copilot Tax feedback round: hook clearer, mobile chart fixed, TFSA balance input, Show the math breakdown',
