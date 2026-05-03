@@ -9,6 +9,19 @@
 
 const CHANGELOG = [
   {
+    version: '4.8.0',
+    date: '2026-05-03',
+    title: 'Reframe: salary ≠ paycheck. New hero, broader hero body, take-home framing on chart and explainer',
+    items: [
+      'Hero rewritten. Out: "Most Canadians moving south have the same plan: the tax math always ends with them ahead. Except when it doesn\'t." In: H1 "A bigger salary doesn\'t always mean a bigger paycheck." (lime "salary", pink "paycheck") + italic pink subhead "Run the math before you run south." Reframe is salary≠paycheck instead of taxes-only.',
+      'Hero body broadened beyond the tax stack to also name healthcare premiums, COL, and the CRA exit bill: "State + FICA + federal taxes, healthcare premiums, COL, and a CRA bill on the way out all pull from the gross before it lands in your account. The offer letter mentions none of it."',
+      'Verdict explainer: "after-tax delta" → "take-home delta"',
+      'Chart title: "Cumulative after-tax cash, 5 years" → "Cumulative take-home, 5 years" (with hl-pink on "take-home")',
+      'Y-axis label: "CUMULATIVE AFTER-TAX (CAD)" → "CUMULATIVE TAKE-HOME (CAD)"',
+      'Left as-is on purpose: "The four tax surprises behind your verdict" (the cards are genuinely tax-specific), "Tax + household audit" sticker (accurate label for the panel\'s structure), "Six moves that claw back tax" (strategies really are tax strategies), and meta descriptions (already broader).',
+    ]
+  },
+  {
     version: '4.7.2',
     date: '2026-05-03',
     title: 'Removed the "you have it too, don\'t you 👀" sticker from the hero',

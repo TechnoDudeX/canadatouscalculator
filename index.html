@@ -410,16 +410,18 @@ function Hero({ scrollToWizard }) {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
 
         <div className="relative">
-          <h2 className="display font-bold text-[clamp(2.25rem,6.5vw,5.5rem)] leading-[1.05] tracking-tight text-night max-w-[20ch] pb-2">
-            Most Canadians moving south have <span className="hl-lime">the same plan</span>: the <span className="hl-pink">tax math</span> <span className="strike-pink text-night/60">always</span> ends with them ahead.
-            <span className="block mt-3 text-pink display italic">Except when it doesn't.</span>
+          <h2 className="display font-bold text-[clamp(2.5rem,7.5vw,6.25rem)] leading-[1.04] tracking-tight text-night max-w-[16ch] pb-2">
+            A bigger <span className="hl-lime">salary</span> doesn't always mean a bigger <span className="hl-pink">paycheck</span>.
           </h2>
+          <p className="display italic text-pink font-bold text-[clamp(1.5rem,3.5vw,2.5rem)] leading-[1.1] mt-4 max-w-[20ch]">
+            Run the math before you run south.
+          </p>
         </div>
 
         <div className="mt-12 md:mt-20 grid md:grid-cols-12 gap-8 md:gap-12 items-start">
           <div className="md:col-span-7">
             <p className="grotesk text-lg md:text-xl text-night/80 max-w-2xl leading-relaxed">
-              Two tax systems, one CRA exit bill, and a state+FICA+federal stack on every paycheck. The offer letter mentions none of it.
+              State + FICA + federal taxes, healthcare premiums, COL, and a CRA bill on the way out all pull from the gross before it lands in your account. The offer letter mentions none of it.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-5">
@@ -1021,7 +1023,7 @@ function VerdictSection({ state, update, result, aiTrigger }) {
             )}
             {hasInput && (
               <p className="grotesk text-base md:text-lg text-night/70 mt-6 max-w-2xl leading-relaxed">
-                That assumes you save the entire after-tax delta. No lifestyle inflation, no SF rent eating the raise.
+                That assumes you save the entire take-home delta. No lifestyle inflation, no SF rent eating the raise.
                 In reality, expect 50–70% of that. Here's the year-by-year so you can see when the move actually pays off.
               </p>
             )}
@@ -1140,7 +1142,7 @@ function VerdictSection({ state, update, result, aiTrigger }) {
 
         <div className="panel p-6 md:p-10">
           <div className="flex items-baseline justify-between mb-2 flex-wrap gap-3">
-            <h4 className="grotesk font-bold text-night text-xl">Cumulative <span className="hl-pink">after-tax</span> cash, 5 years</h4>
+            <h4 className="grotesk font-bold text-night text-xl">Cumulative <span className="hl-pink">take-home</span>, 5 years</h4>
             <div className="flex items-center gap-5 text-sm flex-wrap">
               <LegendDot color="#D4FF3A" label="🇨🇦 Stay in Canada"/>
               <LegendDot color="#FF3D7F" label="🇺🇸 Move to US"/>
@@ -1490,7 +1492,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
         textAnchor="middle" fontSize="9" fill="#0E0B2C" opacity="0.3"
         fontFamily="Space Grotesk" letterSpacing="0.1em"
         transform={`rotate(-90, 14, ${padT + plotH / 2})`}>
-        CUMULATIVE AFTER-TAX (CAD)
+        CUMULATIVE TAKE-HOME (CAD)
       </text>
 
       {/* Grid lines + Y axis labels */}
