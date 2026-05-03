@@ -9,6 +9,15 @@
 
 const CHANGELOG = [
   {
+    version: '4.8.1',
+    date: '2026-05-03',
+    title: 'Hero FailMode cards moved under the CTA, 3-up horizontal at desktop',
+    items: [
+      'The three "state-tax surprise / CRA exit bill / TFSA + PFIC" cards used to sit in a vertical column on the right of the hero (col-span-5). They\'re now placed below the CTA in a 3-column grid (md:grid-cols-3), full-width and stacked on mobile.',
+      'Body paragraph and CTA no longer constrained to a 7-column gutter; they sit in their own row above the cards.',
+    ]
+  },
+  {
     version: '4.8.0',
     date: '2026-05-03',
     title: 'Reframe: salary ≠ paycheck. New hero, broader hero body, take-home framing on chart and explainer',
