@@ -352,9 +352,9 @@ function App() {
       <main id="main" className="min-h-screen">
         <Header navigate={navigate} scrollToSection={scrollToSection} scrollToWizard={scrollToWizard} view={view} />
         <Hero scrollToWizard={scrollToWizard} />
-        <HiddenCosts result={result} state={state} />
         <Wizard state={state} update={update} scrollToSection={scrollToSection} onComplete={() => setAiTrigger(t => t + 1)} result={result} />
         <VerdictSection state={state} update={update} result={result} aiTrigger={aiTrigger} />
+        <HiddenCosts result={result} state={state} />
         <TaxStrategies />
         <Footer state={state} update={update} />
       </main>
@@ -386,8 +386,8 @@ function Header({ navigate, scrollToSection, scrollToWizard, view }) {
           {view === 'main' && (
             <>
               <button onClick={() => scrollToSection('thesis')} className="label text-night/70 hover:text-pink transition-colors hidden sm:inline">The plan</button>
-              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Tax surprises</button>
               <button onClick={() => scrollToSection('wizard')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Run it</button>
+              <button onClick={() => scrollToSection('hidden')} className="label text-night/70 hover:text-pink transition-colors hidden md:inline">Tax surprises</button>
               <button onClick={() => scrollToSection('strategies')} className="label text-night/70 hover:text-pink transition-colors hidden lg:inline">Strategies</button>
             </>
           )}
@@ -420,33 +420,30 @@ function Hero({ scrollToWizard }) {
           </div>
         </div>
 
-        <div className="mt-20 md:mt-32 grid md:grid-cols-12 gap-8 md:gap-12 items-end">
+        <div className="mt-16 md:mt-24 grid md:grid-cols-12 gap-8 md:gap-12 items-start">
           <div className="md:col-span-7">
             <h3 className="display font-bold text-[clamp(2.25rem,6vw,5rem)] leading-[1.04] tracking-tight text-night pb-2">
               The <span className="hl-pink">tax math</span> <span className="strike-pink text-night/60">always</span> ends with you ahead.
               <span className="block mt-2 text-pink display italic">Except when it doesn't.</span>
             </h3>
             <p className="grotesk text-lg md:text-xl text-night/80 mt-7 max-w-2xl leading-relaxed">
-              A US offer comes with two tax systems, two filing seasons, and a CRA bill on the day you leave. State income tax can stack to 13.3% on top of FICA on top of federal, the IRS won't recognize your TFSA, and your RSUs will vest across a border in your first year. The offer letter mentions none of it.
+              Two tax systems, one CRA exit bill, and a state+FICA+federal stack on every paycheck. The offer letter mentions none of it.
             </p>
-            <p className="grotesk text-lg md:text-xl text-night mt-5 max-w-2xl leading-relaxed font-semibold">
-              Five questions. Your real after-tax numbers. <span className="hl-lime">Claude reads the verdict</span>, then <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink underline decoration-pink decoration-2 underline-offset-4 hover:opacity-80">Copilot Tax</a> handles the strategies that actually shrink the bill.
-            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-5">
+              <button onClick={scrollToWizard} className="btn-primary">
+                Run the numbers ↓
+              </button>
+              <span className="grotesk text-night/65 text-sm md:text-base">
+                5 questions · 3 min · <span className="hl-lime">Claude reads the verdict</span>
+              </span>
+            </div>
           </div>
 
           <div className="md:col-span-5 space-y-4">
-            <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%, NY+NYC can hit 14.8%. Stacked on FICA + federal, the marginal rate quietly outruns Ontario."/>
-            <FailMode n="ii" kicker="The CRA exit bill" line="Deemed disposition the day you sever residency. $200k unrealized gains ≈ $26k owed, in cash, that year."/>
-            <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth, Canadian ETFs trigger Form 8621 reporting, and $3k–$8k/yr in compliance is normal if you don't liquidate first."/>
-          </div>
-        </div>
-
-        <div className="mt-20 md:mt-28 flex flex-col md:flex-row md:items-center gap-6">
-          <button onClick={scrollToWizard} className="btn-primary self-start">
-            Run the numbers ↓
-          </button>
-          <div className="grotesk text-night/70 text-base md:text-lg max-w-md">
-            5 questions · AI reads your inputs · 3 minutes
+            <FailMode n="i" kicker="The state-tax surprise" line="CA tops 13.3%. Stacked on FICA on federal, the marginal quietly outruns Ontario."/>
+            <FailMode n="ii" kicker="The CRA exit bill" line="Deemed disposition the day you leave. $200k of paper gains ≈ $26k owed in cash."/>
+            <FailMode n="iii" kicker="The TFSA + PFIC trap" line="IRS taxes the growth. PFIC reporting on Canadian ETFs runs $3k–$8k/yr if you don't liquidate first."/>
           </div>
         </div>
       </div>
@@ -484,10 +481,10 @@ function HiddenCosts({ result, state }) {
         <aside className="md:col-span-4">
           <div className="sticky top-10">
             <h3 className="display text-[clamp(2.25rem,4.5vw,3.5rem)] font-bold leading-[1.06] text-night tracking-tight pb-1">
-              The four <span className="hl-pink">tax surprises</span><br/>that flip the plan
+              The four <span className="hl-pink">tax surprises</span><br/>behind your verdict
             </h3>
             <p className="grotesk text-night/60 mt-5 leading-relaxed text-sm md:text-base">
-              The salary number is loud. These four are quiet, and together they're usually the difference between the move paying off and not.
+              The salary number is loud. These four are quiet, and together they're the difference between the move paying off and not.
             </p>
           </div>
         </aside>
@@ -495,22 +492,22 @@ function HiddenCosts({ result, state }) {
         <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
           <CostCard n="i" color="pink" title="State + city tax" tag="annual"
             num={stateTaxNum} label={stateTaxLabel}
-            body="Stacked on top of federal + FICA. CA hits 13.3%, NY+NYC nearer 14.8%, WA/TX/FL/NV charge 0%. Same offer, different state, five-figure swing."/>
+            body="Stacked on federal + FICA. CA 13.3%, WA/TX/FL/NV 0%. Same offer, different state, five-figure swing."/>
           <CostCard n="ii" color="cobalt" title="FICA double-up" tag="annual"
             num="7.65%" label="of every dollar"
-            body="6.2% Social Security (capped) + 1.45% Medicare (uncapped) + 0.9% surcharge above $200k. The US has no CPP or EI; these are the equivalents and they're bigger."/>
+            body="6.2% Social Security + 1.45% Medicare + 0.9% surcharge above $200k. CPP/EI's bigger US cousin."/>
           <CostCard n="iii" color="lime" title="The TFSA + PFIC trap" tag="one-time"
             num="$3–8k" label="compliance + tax"
-            body="The IRS doesn't recognize the shelter and taxes the growth as ordinary income. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you sever residency."/>
+            body="IRS taxes the growth. Canadian ETFs trigger PFIC reporting (Form 8621). Liquidate before you leave."/>
           <CostCard n="iv" color="night" title="CRA departure tax" tag="one-time"
             num="varies" label="50% × marginal rate"
-            body="CRA deems you sold everything the day you leave, so you owe capital gains tax in cash on paper gains. RRSPs and real estate are exempt. Almost everything else gets hit."/>
+            body="CRA deems you sold everything the day you leave. RRSPs and real estate exempt. Everything else owes capital gains in cash."/>
         </div>
 
         <div className="md:col-span-12 mt-6 flex items-center gap-4 flex-wrap">
-          <span className="sticker sticker-lime">Next ↓</span>
+          <span className="sticker sticker-pink">Next ↓</span>
           <span className="grotesk text-night/70 text-base md:text-lg">
-            Plug in your numbers. The verdict shows your full after-tax delta, plus the strategies to shrink the bill.
+            These are why your verdict is what it is. The strategies below shrink them.
           </span>
         </div>
       </div>
@@ -1394,10 +1391,10 @@ function TaxStrategies() {
               Six moves that <span className="hl-lime">claw back tax</span>
             </h3>
             <p className="grotesk text-night/65 mt-5 leading-relaxed">
-              The verdict above is the napkin math. A cross-border CPA pulls these levers to shrink the bill on the way out, and again in your first US filing year.
+              The levers a cross-border CPA pulls to shrink the bill on the way out, and again in your first US filing year.
             </p>
             <p className="grotesk text-night/55 mt-4 leading-relaxed text-sm italic">
-              Generic ranges. For your actual numbers,{' '}
+              For your actual numbers,{' '}
               <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="text-pink not-italic font-semibold underline decoration-dotted underline-offset-2 hover:decoration-solid">
                 Copilot Tax →
               </a>
@@ -1407,22 +1404,22 @@ function TaxStrategies() {
         <div className="md:col-span-8 grid sm:grid-cols-2 gap-5 md:gap-6">
           <PlayCard n="i" title="Time the exit date"
             tag="one-time"
-            body="Severing residency Jan 1 vs Dec 31 can move tens of thousands. A clean stub-year split lets each side tax only the income earned under its watch."/>
+            body="Severing residency Jan 1 vs Dec 31 can move tens of thousands. Stub-year filings let each side tax only what it should."/>
           <PlayCard n="ii" title="Realize gains pre-departure"
             tag="one-time"
-            body="In some brackets, triggering capital gains while still Canadian-resident beats the deemed-disposition departure tax. Depends on bracket size and what you plan to re-acquire on the US side."/>
+            body="In some brackets, triggering gains while still Canadian-resident beats the departure tax. Bracket-dependent."/>
           <PlayCard n="iii" title="Top up the RRSP"
             tag="one-time"
-            body="Your last year of high Canadian income is the best time to deduct an RRSP contribution. The Canada-US treaty lets you defer US tax on the balance after you move."/>
+            body="Your last high-income Canadian year is the best time to deduct a contribution. The treaty defers US tax on it after you move."/>
           <PlayCard n="iv" title="Wind down the TFSA"
             tag="one-time"
-            body="The IRS taxes growth as ordinary income and slaps PFIC reporting on Canadian ETFs. Liquidate before you become US-resident; there's nothing to gain by carrying it across."/>
+            body="IRS taxes the growth and demands PFIC reporting on ETFs. Liquidate before you go; nothing to gain by carrying it."/>
           <PlayCard n="v" title="Pick the state deliberately"
             tag="strategic"
-            body="Same offer, different state, $30k+ delta. WA / TX / FL / NV charge zero state income tax. CA / NY / NJ stack the highest. State choice is one of the largest 5-year levers."/>
+            body="Same offer, different state, $30k+ delta. WA/TX/FL/NV: 0%. CA/NY/NJ: top brackets. One of the biggest 5-year levers."/>
           <PlayCard n="vi" title="Bifurcate RSU vesting"
             tag="annual"
-            body="RSUs that vest after the move get treaty-bifurcated. The Canadian-earned slice gets foreign tax credit. Done wrong, you double-pay both sides on the same income."/>
+            body="RSUs vesting post-move split under the treaty; the Canadian slice gets credit. Done wrong, you double-pay."/>
         </div>
 
         <div className="md:col-span-12 mt-10">
@@ -1430,7 +1427,7 @@ function TaxStrategies() {
             <div>
               <div className="grotesk font-bold text-xs uppercase tracking-widest text-lime mb-3">Get yours done right</div>
               <p className="grotesk text-cream/85 text-base md:text-lg max-w-2xl leading-relaxed">
-                None of this is generic advice. Every play depends on your residency dates, asset mix, RSU schedule, and the state you land in. <span className="text-cream font-semibold">Copilot Tax</span> handles the cross-border filings, treaty elections, RSU bifurcation, and exit planning end to end.
+                Every play depends on your residency dates, asset mix, RSU schedule, and landing state. <span className="text-cream font-semibold">Copilot Tax</span> handles the filings, treaty elections, RSU bifurcation, and exit planning end to end.
               </p>
             </div>
             <a href="https://copilottax.ca/" target="_blank" rel="noopener noreferrer" className="btn-primary inline-flex items-center gap-2 whitespace-nowrap shrink-0">

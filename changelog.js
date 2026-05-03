@@ -9,6 +9,19 @@
 
 const CHANGELOG = [
   {
+    version: '4.7.0',
+    date: '2026-05-03',
+    title: 'Action-first reorder, hero CTA promoted into the body, copy aggressively pruned',
+    items: [
+      'Section order changed from Hero → Tax surprises → Wizard → Verdict → Strategies to Hero → Wizard → Verdict → Tax surprises → Strategies. The calculator is now the first thing after the thesis; tax surprises become the deeper-dive context behind your verdict, not pre-quiz education',
+      'Hero rebuilt: shorter body (one sentence instead of two paragraphs), primary "Run the numbers ↓" CTA promoted into the left column right under the body so it is visible without scrolling past the FailMode cards. Bottom-of-hero duplicate CTA + 5-questions sub-line removed (now consolidated into a single CTA + small caption)',
+      'FailMode cards in hero shortened (state-tax surprise, CRA exit bill, TFSA + PFIC trap)',
+      'HiddenCosts: title changed from "behind the plan" framing to "behind your verdict" since this section now follows the verdict. All four card bodies cut roughly in half (state+city, FICA, TFSA+PFIC, departure tax). Subtitle and the post-cards "Next ↓" hint rewritten to point forward to the strategies section',
+      'TaxStrategies: aside copy and all six PlayCard bodies pruned. Dark Copilot Tax CTA paragraph tightened',
+      'Header nav order updated to match the new page flow: The plan · Run it · Tax surprises · Strategies',
+    ]
+  },
+  {
     version: '4.6.1',
     date: '2026-05-02',
     title: 'Copy pass: em-dash purge, hero rewrite, removed staccato bursts and rule-of-three triplets',
