@@ -9,6 +9,19 @@
 
 const CHANGELOG = [
   {
+    version: '5.1.0',
+    date: '2026-05-03',
+    title: 'Copilot Tax feedback round: hook clearer, mobile chart fixed, TFSA balance input, Show the math breakdown',
+    items: [
+      'Hero hook reworded to a direct question: "Does moving to the US actually mean a bigger paycheck?" (lime "the US", pink "bigger paycheck"). Italic pink subhead "Run the math before you run south." unchanged.',
+      'Breakeven chart fixed for mobile. Was rendering at 277×135px with 3.5px-effective text and no touch interaction. Two changes: SVG text now uses CSS font-size in absolute pixels (10–12px) instead of viewBox-scaled fontSize attributes, so labels stay legible at any container width. And the chart uses a taller 600×520 viewBox on viewports ≤640px (previously 880×430 across the board), giving the lines and tooltips room to breathe at narrow widths. Hit-areas now respond to onTouchStart and onPointerDown alongside onMouseEnter so tooltips work on tap.',
+      'Wizard step 5 has a new TFSA balance input. The audit panel surfaces an annual "TFSA carry cost" line item showing what the balance costs per year if not liquidated: balance × 5% growth × US marginal rate + ~$4k in PFIC compliance. Honest about it being informational (the play is to liquidate before moving) and uses a real US marginal rate including federal + state + Medicare + additional Medicare.',
+      'Show the math: collapsible panel between the audit and the chart that walks gross → take-home line by line on each side, in native currency. Includes federal income tax, provincial/state tax, CPP/EI vs Social Security/Medicare/additional Medicare, and Ontario Health Premium where applicable. Shows the CTC offset on US federal tax when there are kids. US column footnotes the take-home in CAD at the current FX rate.',
+      'calc.js now exports getMarginalRateUS, estimateTfsaCarryCostCAD, and breakdown objects on calculateCanada / calculateUS results. All 58 existing tests still pass.',
+      'Cache-bust query string added to <script src="calc.js"> and <script src="changelog.js"> so script tag updates are picked up on deploy without users having to hard-refresh.',
+    ]
+  },
+  {
     version: '5.0.0',
     date: '2026-05-03',
     title: 'Landing rebuild: salary ≠ paycheck framing, action-first reorder, new strategies section, full copy pass',

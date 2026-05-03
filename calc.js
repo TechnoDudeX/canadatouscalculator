@@ -270,7 +270,11 @@ function calculateCanada({ income, province }) {
   if (prov.surtax) provTax += calcOntarioSurtax(provTax, prov.surtax);
   const ohp = province === 'ON' ? calcOntarioHealthPremium(income) : 0;
   const totalTax = fedTax + provTax + cpp + ei + ohp;
-  return { gross: income, takeHome: income - totalTax };
+  return {
+    gross: income,
+    takeHome: income - totalTax,
+    breakdown: { fedTax, provTax, cpp, ei, ohp, totalTax, province }
+  };
 }
 
 function calcStateTax(taxable, state, filingStatus) {
@@ -295,14 +299,19 @@ function calculateUS({ income, state, filingStatus, kids }) {
   const stdDed = US_STD_DED_2026[filingStatus];
   const taxable = Math.max(0, income - stdDed);
   const fedGross = applyBrackets(taxable, US_FEDERAL_2026[filingStatus]);
-  const fedTax = Math.max(0, fedGross - kids * CTC_2026);
+  const ctc = kids * CTC_2026;
+  const fedTax = Math.max(0, fedGross - ctc);
   const stateTax = calcStateTax(taxable, state, filingStatus);
   const ss = Math.min(income, FICA_2026.ssWageBase) * FICA_2026.ssRate;
   const medicare = income * FICA_2026.medicareRate;
   const addlThreshold = FICA_2026.addlMedicareThreshold[filingStatus];
   const addlMedicare = Math.max(0, income - addlThreshold) * FICA_2026.addlMedicareRate;
   const totalTax = fedTax + stateTax + ss + medicare + addlMedicare;
-  return { gross: income, takeHome: income - totalTax };
+  return {
+    gross: income,
+    takeHome: income - totalTax,
+    breakdown: { stdDed, taxable, fedGross, ctc, fedTax, stateTax, ss, medicare, addlMedicare, totalTax, state, filingStatus }
+  };
 }
 
 function estimateHealthcareCost(filingStatus, kids) {
@@ -341,6 +350,47 @@ function getMarginalRateCanada(income, province) {
   let combined = fedEffective + provRate;
   if (province === 'ON' && income > 220000) combined += provRate * 0.36; // tier-2 surtax approximation
   return combined;
+}
+
+/* Combined federal + state + Medicare marginal rate at the income level provided.
+   Used for estimating the annual US tax burden on TFSA growth (treated as
+   ordinary income since the IRS doesn't recognize the shelter). Excludes
+   Social Security (capped) since TFSA growth wouldn't be wage income. */
+function getMarginalRateUS(income, state, filingStatus) {
+  if (!income || income <= 0) return 0;
+  const fedBrackets = US_FEDERAL_2026[filingStatus] || US_FEDERAL_2026.single;
+  const fed = fedBrackets.find(b => income <= b.upTo)?.rate ?? fedBrackets[fedBrackets.length - 1].rate;
+  const s = STATE_2026[state];
+  let stateRate = 0;
+  if (s) {
+    if (s.type === 'flat') {
+      stateRate = s.rate;
+      if (s.surcharge && income > s.surcharge.threshold) stateRate += s.surcharge.rate;
+    } else if (s.type === 'progressive') {
+      const sb = s.brackets[filingStatus] || s.brackets.single;
+      stateRate = sb.find(b => income <= b.upTo)?.rate ?? sb[sb.length - 1].rate;
+      if (s.mentalHealthSurcharge && income > s.mentalHealthSurcharge.threshold) stateRate += s.mentalHealthSurcharge.rate;
+    }
+  }
+  const medicare = FICA_2026.medicareRate;
+  const addlThreshold = FICA_2026.addlMedicareThreshold[filingStatus] ?? FICA_2026.addlMedicareThreshold.single;
+  const addlMedicare = income > addlThreshold ? FICA_2026.addlMedicareRate : 0;
+  return fed + stateRate + medicare + addlMedicare;
+}
+
+/* Annual carrying cost of keeping a TFSA after becoming US-resident.
+   Two components:
+   - US tax on growth: balance × assumed_return × marginal_us_rate
+     The IRS doesn't recognize the shelter, so growth is ordinary income.
+   - PFIC compliance: flat ~$4k/yr for the CPA work to file Form 8621
+     on each ETF inside the TFSA.
+   Returns 0 if balance is 0 or non-positive — assumed return is 5%/yr. */
+function estimateTfsaCarryCostCAD({ tfsaBalanceCAD, marginalRateUS }) {
+  if (!tfsaBalanceCAD || tfsaBalanceCAD <= 0) return 0;
+  const assumedReturn = 0.05;
+  const usTaxOnGrowth = tfsaBalanceCAD * assumedReturn * (marginalRateUS || 0.32);
+  const pficCompliance = 4000;
+  return usTaxOnGrowth + pficCompliance;
 }
 
 /* Monthly carrying cost in CAD for the household's Canadian shelter.
@@ -444,7 +494,8 @@ if (typeof module !== 'undefined' && module.exports) {
     applyBrackets, calcOntarioSurtax, calcOntarioHealthPremium,
     calcCPP, calcEI, calculateCanada,
     calcStateTax, calculateUS, estimateHealthcareCost,
-    spouseCanWorkInUS, getMarginalRateCanada, caHousingMonthlyCAD,
-    estimateColExtraAnnualCAD, estimateExitCostsCAD, buildHouseholdBreakeven
+    spouseCanWorkInUS, getMarginalRateCanada, getMarginalRateUS, caHousingMonthlyCAD,
+    estimateColExtraAnnualCAD, estimateExitCostsCAD, estimateTfsaCarryCostCAD,
+    buildHouseholdBreakeven
   };
 }

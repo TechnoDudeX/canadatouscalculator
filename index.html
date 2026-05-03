@@ -68,8 +68,8 @@
   </noscript>
   <div id="root"></div>
 
-<script src="calc.js"></script>
-<script src="changelog.js"></script>
+<script src="calc.js?v=5.1.0"></script>
+<script src="changelog.js?v=5.1.0"></script>
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useMemo } = React;
 
@@ -142,6 +142,7 @@ const INITIAL_STATE = {
 
   // v4.0.0 — investments + offer credits
   unrealizedGainsCAD: 0,
+  tfsaBalanceCAD: 0,
   signOnBonusUSD: 0,
   relocationCoverageUSD: 0,
 
@@ -313,6 +314,17 @@ function App() {
     const usEffRate = state.salaryUSD > 0 ? usTotalTaxUSD / state.salaryUSD : 0;
     const annualTaxDeltaCAD = usTotalTaxCAD - caTotalTaxCAD;
 
+    /* TFSA carry cost — annual US tax burden + PFIC compliance if the user
+       keeps the account after moving. Informational; not subtracted from
+       the household US take-home (the optimal strategy is to liquidate). */
+    const marginalRateUS = state.salaryUSD > 0
+      ? getMarginalRateUS(state.salaryUSD, state.state, state.filingStatus)
+      : 0;
+    const tfsaCarryCostCAD = estimateTfsaCarryCostCAD({
+      tfsaBalanceCAD: state.tfsaBalanceCAD,
+      marginalRateUS
+    });
+
     return {
       // primary
       caTakeHomeCAD, usTakeHomeCAD,
@@ -325,6 +337,9 @@ function App() {
       caHousingMonthly, usHousingMonthlyUSD: usHousingMonthlyEffectiveUSD, colMultiplier: colMultiplierEffective,
       // tax
       caTotalTaxCAD, usTotalTaxUSD, usTotalTaxCAD, caEffRate, usEffRate, annualTaxDeltaCAD,
+      marginalRateUS, tfsaCarryCostCAD,
+      // raw breakdowns for the Show-the-math panel
+      caBreakdown: ca.breakdown, usBreakdown: us.breakdown,
       // exit
       marginalRateCA, exitCosts,
       // aggregate
@@ -410,8 +425,8 @@ function Hero({ scrollToWizard }) {
       <div className="max-w-[1280px] mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-20 md:pb-28">
 
         <div className="relative">
-          <h2 className="display font-bold text-[clamp(2.5rem,7.5vw,6.25rem)] leading-[1.04] tracking-tight text-night max-w-[16ch] pb-2">
-            A bigger <span className="hl-lime">salary</span> doesn't always mean a bigger <span className="hl-pink">paycheck</span>.
+          <h2 className="display font-bold text-[clamp(2.5rem,7vw,6rem)] leading-[1.04] tracking-tight text-night max-w-[18ch] pb-2">
+            Does moving to <span className="hl-lime">the US</span> actually mean a <span className="hl-pink">bigger paycheck</span>?
           </h2>
           <p className="display italic text-pink font-bold text-[clamp(1.5rem,3.5vw,2.5rem)] leading-[1.1] mt-4 max-w-[20ch]">
             Run the math before you run south.
@@ -844,6 +859,17 @@ function Wizard({ state, update, scrollToSection, onComplete, result }) {
                       </p>
                     </div>
                     <div>
+                      <div className="label text-night/60 mb-3">TFSA balance</div>
+                      <MoneyInput
+                        currency="CAD" placeholder="0"
+                        value={state.tfsaBalanceCAD}
+                        onChange={v => update({ tfsaBalanceCAD: v })}
+                      />
+                      <p className="grotesk text-xs text-night/50 mt-2 leading-relaxed">
+                        The IRS doesn't recognize the shelter. If you keep the account after moving, the US taxes growth as ordinary income at your US marginal rate, and Canadian ETFs trigger PFIC reporting (Form 8621) at roughly $4k/yr in CPA fees. The verdict shows what that costs annually if you don't liquidate before leaving.
+                      </p>
+                    </div>
+                    <div>
                       <div className="label text-night/60 mb-3">Sign-on bonus from US employer</div>
                       <MoneyInput
                         currency="USD" placeholder="0"
@@ -1128,8 +1154,20 @@ function VerdictSection({ state, update, result, aiTrigger }) {
                   : 'no unrealized gains entered'}
                 tone={result.exitCosts.departureTaxCAD > 0 ? 'pink' : 'neutral'}
               />
+              <LineItem
+                label="TFSA carry cost (annual)"
+                value={state.tfsaBalanceCAD > 0 ? fmtCAD(result.tfsaCarryCostCAD) : '$0'}
+                detail={state.tfsaBalanceCAD > 0
+                  ? `if not liquidated · ${fmtCAD(state.tfsaBalanceCAD)} × 5% growth × ${(result.marginalRateUS * 100).toFixed(1)}% US marginal + ~$4k PFIC compliance`
+                  : 'no TFSA balance entered'}
+                tone={result.tfsaCarryCostCAD > 0 ? 'pink' : 'neutral'}
+              />
             </div>
           </div>
+        )}
+
+        {hasInput && result.caBreakdown && result.usBreakdown && (
+          <BreakdownPanel state={state} result={result} />
         )}
 
         <div className="panel p-6 md:p-10">
@@ -1440,13 +1478,127 @@ function PlayCard({ n, title, tag, body }) {
 }
 
 /* ============================================================
+   BREAKDOWN — gross-to-take-home line by line, both sides
+   ============================================================ */
+function BreakdownPanel({ state, result }) {
+  const [open, setOpen] = useState(false);
+  const ca = result.caBreakdown;
+  const us = result.usBreakdown;
+  const provLabel = PROVINCIAL_2026[ca.province]?.label || ca.province;
+  const stateLabel = STATE_2026[us.state]?.short || us.state;
+
+  return (
+    <div className="panel p-6 md:p-10 mb-14">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-3 flex-wrap text-left w-full"
+        aria-expanded={open}>
+        <span className="sticker sticker-cobalt">{open ? 'Hide the math' : 'Show the math'}</span>
+        <span className="grotesk text-night/60 text-sm">
+          {open ? 'click to collapse' : 'how each take-home number is built, line by line'}
+        </span>
+        <span className="ml-auto grotesk text-night/40 text-xs">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div className="mt-6 grid sm:grid-cols-2 gap-8 md:gap-10">
+          <BreakdownColumn
+            flag="🇨🇦"
+            label={`Stay in Canada (${provLabel})`}
+            currencyLabel="CAD"
+            rows={[
+              { name: 'Gross salary', value: state.salaryCAD, sign: 'plus' },
+              { name: 'Federal income tax', value: ca.fedTax },
+              { name: `${PROVINCIAL_2026[ca.province]?.short || ca.province} provincial tax`, value: ca.provTax },
+              { name: 'CPP', value: ca.cpp },
+              { name: 'EI', value: ca.ei },
+              ...(ca.ohp > 0 ? [{ name: 'Ontario Health Premium', value: ca.ohp }] : []),
+            ]}
+            takeHome={state.salaryCAD - ca.totalTax}
+            fmt={fmtCAD}
+          />
+          <BreakdownColumn
+            flag="🇺🇸"
+            label={`Move to US (${stateLabel})`}
+            currencyLabel="USD"
+            rows={[
+              { name: 'Gross salary', value: state.salaryUSD, sign: 'plus' },
+              { name: `Federal income tax${us.ctc > 0 ? ` (after $${us.ctc.toLocaleString('en-US')} CTC)` : ''}`, value: us.fedTax },
+              ...(us.stateTax > 0 ? [{ name: `${stateLabel} state tax`, value: us.stateTax }] : []),
+              { name: 'Social Security (6.2%)', value: us.ss },
+              { name: 'Medicare (1.45%)', value: us.medicare },
+              ...(us.addlMedicare > 0 ? [{ name: 'Additional Medicare (0.9%)', value: us.addlMedicare }] : []),
+            ]}
+            takeHome={state.salaryUSD - us.totalTax}
+            fmt={fmtUSD}
+            footnote={`= ${fmtCAD((state.salaryUSD - us.totalTax) / (state.fxRate || 0.73))} CAD at $${(state.fxRate || 0.73).toFixed(2)}`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BreakdownColumn({ flag, label, currencyLabel, rows, takeHome, fmt, footnote }) {
+  return (
+    <div>
+      <div className="grotesk text-xs text-night/55 uppercase tracking-widest mb-3">
+        <span className="mr-2">{flag}</span>{label}
+      </div>
+      <div className="font-mono text-sm">
+        {rows.map((r, i) => (
+          <div key={i} className="flex items-baseline justify-between py-1.5 border-b border-night/5">
+            <span className="text-night/70">{r.name}</span>
+            <span className={r.sign === 'plus' ? 'text-night font-semibold' : 'text-pink-deep'}>
+              {r.sign === 'plus' ? '' : '−'}{fmt(r.value)}
+            </span>
+          </div>
+        ))}
+        <div className="flex items-baseline justify-between py-2.5 mt-1 border-t-2 border-night/30">
+          <span className="grotesk text-night font-bold uppercase tracking-wider text-xs">
+            Take-home
+          </span>
+          <span className="text-night font-bold text-base">{fmt(takeHome)}</span>
+        </div>
+      </div>
+      {footnote && (
+        <div className="grotesk text-xs text-night/50 mt-2 italic">{footnote}</div>
+      )}
+    </div>
+  );
+}
+
+/* ============================================================
    CHART
    ============================================================ */
 function BreakevenChart({ pts, breakeven, years, hasInput }) {
   const [hoveredYear, setHoveredYear] = React.useState(null);
-  const w = 880, h = 430;
-  const padL = 78, padT = 30, padR = 34, padB = 52;
+  const [isNarrow, setIsNarrow] = React.useState(false);
+
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)');
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  /* Mobile uses a taller aspect ratio so lines and labels have room to
+     breathe at narrow container widths. Desktop keeps the original
+     wide format. */
+  const w = isNarrow ? 600 : 880;
+  const h = isNarrow ? 520 : 430;
+  const padL = isNarrow ? 64 : 78;
+  const padT = isNarrow ? 26 : 30;
+  const padR = isNarrow ? 28 : 34;
+  const padB = isNarrow ? 56 : 52;
   const plotW = w - padL - padR, plotH = h - padT - padB;
+
+  /* Text uses CSS font-size in absolute pixels (not the SVG fontSize
+     attribute, which scales with the viewBox). On a 280px-wide mobile
+     container, attribute-based 11pt text would render at ~3.5px on
+     screen. Pixel-anchored CSS keeps it legible. */
+  const txt = (px) => ({ fontSize: px + 'px' });
 
   const allVals = pts.flatMap(p => [p.ca, p.us]);
   let yMin = Math.min(0, ...allVals);
@@ -1481,7 +1633,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
       {/* Y axis title */}
       <text
         x={14} y={padT + plotH / 2}
-        textAnchor="middle" fontSize="9" fill="#0E0B2C" opacity="0.3"
+        textAnchor="middle" style={txt(10)} fill="#0E0B2C" opacity="0.3"
         fontFamily="Space Grotesk" letterSpacing="0.1em"
         transform={`rotate(-90, 14, ${padT + plotH / 2})`}>
         CUMULATIVE TAKE-HOME (CAD)
@@ -1493,7 +1645,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
           <line x1={padL} y1={yS(v)} x2={padL + plotW} y2={yS(v)}
             stroke="#0E0B2C" strokeWidth="1" opacity={v === 0 ? 0.55 : 0.12}
             strokeDasharray={v === 0 ? '' : '2 4'}/>
-          <text x={padL - 10} y={yS(v) + 4} textAnchor="end" fontSize="11"
+          <text x={padL - 10} y={yS(v) + 4} textAnchor="end" style={txt(11)}
             fill="#0E0B2C" opacity="0.55" fontFamily="Geist Mono">{fmtTick(v)}</text>
         </g>
       ))}
@@ -1501,14 +1653,14 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
       {/* X axis year labels */}
       {pts.map(p => (
         <text key={p.year} x={xS(p.year)} y={padT + plotH + 22} textAnchor="middle"
-          fontSize="11" fontFamily="Space Grotesk"
+          style={txt(11)} fontFamily="Space Grotesk"
           fill="#0E0B2C" opacity={hoveredYear === p.year ? 1 : 0.55}
           fontWeight={hoveredYear === p.year ? '700' : '400'}>
           Y{p.year}
         </text>
       ))}
       <text x={padL + plotW / 2} y={padT + plotH + 42} textAnchor="middle"
-        fontSize="9.5" fill="#0E0B2C" opacity="0.3" fontFamily="Space Grotesk" letterSpacing="0.12em">
+        style={txt(10)} fill="#0E0B2C" opacity="0.3" fontFamily="Space Grotesk" letterSpacing="0.12em">
         YEARS FROM NOW
       </text>
 
@@ -1543,26 +1695,29 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
             return (
               <>
                 <text x={xS(years) - 8} y={caLabelY} textAnchor="end"
-                  fontSize="11" fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
+                  style={txt(12)} fill="#D4FF3A" fontFamily="Space Grotesk" fontWeight="700">
                   🇨🇦 {fmtTick(last.ca)}
                 </text>
                 <text x={xS(years) - 8} y={tooClose ? caLabelY + 20 : usLabelY} textAnchor="end"
-                  fontSize="11" fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
+                  style={txt(12)} fill="#FF3D7F" fontFamily="Space Grotesk" fontWeight="700">
                   🇺🇸 {fmtTick(last.us)}
                 </text>
               </>
             );
           })()}
 
-          {/* Invisible hover hit areas per year column */}
+          {/* Hit areas per year column. Touch handlers needed alongside
+              mouse handlers since iOS/Android don't fire mouseEnter on tap. */}
           {pts.map((p, i) => {
             const x0 = i === 0 ? xS(0) : xS(p.year) - colW / 2;
             const x1 = i === years ? xS(years) : xS(p.year) + colW / 2;
             return (
               <rect key={'hit'+p.year}
                 x={x0} y={padT} width={x1 - x0} height={plotH}
-                fill="transparent" style={{cursor: 'crosshair'}}
+                fill="transparent" style={{cursor: 'crosshair', touchAction: 'manipulation'}}
                 onMouseEnter={() => setHoveredYear(p.year)}
+                onTouchStart={(e) => { e.preventDefault(); setHoveredYear(p.year); }}
+                onPointerDown={() => setHoveredYear(p.year)}
               />
             );
           })}
@@ -1584,19 +1739,19 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
               stroke="#0E0B2C" strokeWidth="1" opacity="0.22" strokeDasharray="3 3"/>
             <rect x={tooltipX} y={tooltipY} width={tooltipW} height={tooltipH} rx="10"
               fill="#0E0B2C" opacity="0.93"/>
-            <text x={tooltipX + 12} y={tooltipY + 18} fontSize="9.5" fill="#FFF6E5" opacity="0.55"
+            <text x={tooltipX + 12} y={tooltipY + 18} style={txt(10)} fill="#FFF6E5" opacity="0.55"
               fontFamily="Space Grotesk" fontWeight="600" letterSpacing="0.1em">
               YEAR {hPt.year}
             </text>
             <circle cx={tooltipX + 14} cy={tooltipY + 33} r="4" fill="#D4FF3A"/>
-            <text x={tooltipX + 24} y={tooltipY + 37} fontSize="11" fill="#FFF6E5"
+            <text x={tooltipX + 24} y={tooltipY + 37} style={txt(11)} fill="#FFF6E5"
               fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.ca)}</text>
             <circle cx={tooltipX + 14} cy={tooltipY + 52} r="4" fill="#FF3D7F"/>
-            <text x={tooltipX + 24} y={tooltipY + 56} fontSize="11" fill="#FFF6E5"
+            <text x={tooltipX + 24} y={tooltipY + 56} style={txt(11)} fill="#FFF6E5"
               fontFamily="Geist Mono" fontWeight="500">{fmtCAD(hPt.us)}</text>
             <line x1={tooltipX + 12} y1={tooltipY + 66} x2={tooltipX + tooltipW - 12} y2={tooltipY + 66}
               stroke="#FFF6E5" strokeWidth="0.5" opacity="0.2"/>
-            <text x={tooltipX + 12} y={tooltipY + 81} fontSize="10"
+            <text x={tooltipX + 12} y={tooltipY + 81} style={txt(11)}
               fill={delta >= 0 ? '#D4FF3A' : '#FF3D7F'}
               fontFamily="Space Grotesk" fontWeight="700">
               {delta >= 0 ? '+' : '−'}{fmtCAD(Math.abs(delta))} delta
@@ -1607,7 +1762,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
 
       {!hasInput && (
         <text x={padL + plotW / 2} y={padT + plotH / 2} textAnchor="middle"
-          fontSize="18" fill="#0E0B2C" opacity="0.4" fontFamily="Space Grotesk">
+          style={txt(14)} fill="#0E0B2C" opacity="0.4" fontFamily="Space Grotesk">
           your year-by-year shows up here once you fill in the wizard
         </text>
       )}
@@ -1619,7 +1774,7 @@ function BreakevenChart({ pts, breakeven, years, hasInput }) {
           <circle cx={xS(breakeven.year)} cy={yS(breakeven.value)} r="9" fill="#0E0B2C" stroke="#F5EBD3" strokeWidth="3"/>
           <g transform={`translate(${xS(breakeven.year) + 16}, ${yS(breakeven.value) - 30})`}>
             <rect x="0" y="-18" width="148" height="26" rx="13" fill="#0E0B2C"/>
-            <text x="74" y="-1" textAnchor="middle" fontSize="11" fill="#FFF6E5"
+            <text x="74" y="-1" textAnchor="middle" style={txt(11)} fill="#FFF6E5"
               fontFamily="Space Grotesk" fontWeight="700" letterSpacing="0.1em">
               BREAKEVEN · YR {breakeven.year.toFixed(1)}
             </text>
